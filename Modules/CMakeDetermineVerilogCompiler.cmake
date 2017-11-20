@@ -34,7 +34,7 @@ mark_as_advanced(CMAKE_FOO_COMPILER)
 
 set(CMAKE_Verilog_COMPILER_ID     "Verilator")
 
-set(CMAKE_Verilog_SOURCE_FILE_EXTENSIONS v;sv)
+set(CMAKE_Veriog_SOURCE_FILE_EXTENSIONS v;sv)
 set(CMAKE_Verilog_OUTPUT_EXTENSION .o)
 set(CMAKE_Verilog_COMPILER_ENV_VAR "VERILOG_COMPILER")
 
