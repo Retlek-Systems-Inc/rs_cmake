@@ -35,26 +35,14 @@ if(BUILD_DOC)
     set(DOXYGEN_RECURSIVE  YES)
     set(DOXYGEN_USE_MDFILE_AS_MAINPAGE Description.md)
     
+    set(FRONT_END_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../../)
     set(DOXYGEN_PLANTUML_JAR_PATH ${FRONT_END_ROOT_DIR}/build/plantuml/plantuml.jar)
     set(DOXYGEN_PLANTUML_CFG_FILE ${FRONT_END_ROOT_DIR}/scripts/plantuml_cfg.txt)
     
-    #set(DOXYGEN_PROJECT_LOGO )    
+    #set(DOXYGEN_PROJECT_LOGO )
     
     doxygen_add_docs(docs
         ${PROJECT_SOURCE_DIR}
         #WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generate HTML doucmentation")
-
-#    set( DOXYFILE_IN  $ENV{CAD_ENV_ROOT}/front-end/scripts/Doxyfile.in )
-#    set( DOXYFILE_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile )
-
-#    configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
-
-#    add_custom_target(doc
-#    COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_OUT}
-#    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-#    COMMENT "Generating API documentation with Doxygen"
-#    VERBATIM)
-
-#    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION share/doc)
 endif(BUILD_DOC)
