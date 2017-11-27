@@ -148,9 +148,7 @@ if(Verilator_FOUND)
 
         foreach(src ${verilator_lint_VERILOG_SOURCE})
             get_filename_component(src_file ${src} NAME_WE)
-            set( out_file "${src_file}.timestamp")
-
-            message(STATUS "Adding Command for ${src_file} as ${out_file}")
+            set( out_file "${CMAKE_CURRENT_BINARY_DIR}/${src_file}.timestamp")
 
             add_custom_command(
                 OUTPUT ${out_file}
@@ -159,12 +157,12 @@ if(Verilator_FOUND)
                 COMMAND ${CMAKE_COMMAND} -E touch ${out_file}
                 MAIN_DEPENDENCY ${src}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                COMMENT "Linting ${verilator_lint_VERILATOR_TARGET}"
+                COMMENT "Linting ${verilator_lint_TARGET}"
             )
             list(APPEND OUT_FILES ${out_file})
         endforeach()
         add_custom_target( ${verilator_lint_TARGET} DEPENDS ${OUT_FILES}
-                COMMENT "Checking if verilator re-linting is required" )
+                COMMENT "Checking if ${verilator_lint_TARGET} re-linting is required" )
     endmacro()
 
     macro(verilator_create)
