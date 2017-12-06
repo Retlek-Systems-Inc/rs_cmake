@@ -118,7 +118,7 @@ if(Verilator_FOUND)
             #list(APPEND _src ${_inc_dir}/verilated_vcd_sc.cpp)
         endif(verilator_add_library_SYSTEMC_GEN)
 
-        add_library(${_target} SHARED ${_src})
+        add_library(${_target} STATIC ${_src})
 
         set(Verilator_LIBRARY ${_target})
         set_target_properties(${_target}
@@ -161,14 +161,14 @@ if(Verilator_FOUND)
             )
             list(APPEND OUT_FILES ${out_file})
         endforeach()
-        add_custom_target( ${verilator_lint_TARGET} DEPENDS ${OUT_FILES}
-                COMMENT "Checking if ${verilator_lint_TARGET} re-linting is required" )
+        add_custom_target( lint_${verilator_lint_TARGET} DEPENDS ${OUT_FILES}
+                COMMENT "Checking if lint_${verilator_lint_TARGET} re-linting is required" )
     endmacro()
 
     macro(verilator_create)
         set(options "")
         set(oneValueArgs TARGET OUTPUT_DIR)
-        set(multiValueArgs VERILATOR_ARGS VERILOG_INCLUDES VERILOG_SOURCE)
+        set(multiValueArgs VERILATOR_ARGS VERILOG_INCLUDES VERILOG_SOURCE LINK_LIBS )
         cmake_parse_arguments(verilator_create
              "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
@@ -195,29 +195,33 @@ if(Verilator_FOUND)
         set(OUTPUT_SOURCE "")
         foreach(src ${verilator_create_VERILOG_SOURCE})
             get_filename_component(src_file ${src} NAME_WE)
-            list(APPEND OUTPUT_SOURCE ${verilator_create_OUTPUT_DIR}/V${src_file}.cpp)
+            set( out_file "${verilator_create_OUTPUT_DIR}/V${src_file}.cpp")
+
+            add_custom_command(
+                OUTPUT ${out_file}
+                COMMAND ${CMAKE_COMMAND} -E make_directory ${verilator_create_OUTPUT_DIR}
+                COMMAND verilator ${verilator_create_VERILATOR_ARGS} ${VERILOG_INCS}
+                     -Wall
+                     -Mdir ${verilator_create_OUTPUT_DIR}
+                     -cc ${src}
+                COMMAND ${CMAKE_COMMAND} -E remove ${verilator_create_OUTPUT_DIR}/*.mk
+                COMMAND ${CMAKE_COMMAND} -E remove ${verilator_create_OUTPUT_DIR}/*.d
+                COMMAND ${CMAKE_COMMAND} -E remove ${verilator_create_OUTPUT_DIR}/*.dat
+                MAIN_DEPENDENCY ${src}
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                COMMENT "Generating C++ module ${out_file}"
+            )
+            list(APPEND OUT_FILES ${out_file})
         endforeach()
 
-#        message(STATUS "OutputDir:       ${verilator_create_OUTPUT_DIR}")
-#        message(STATUS "Current SRC_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
-
-        add_custom_command(
-            OUTPUT ${OUTPUT_SOURCE}
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${verilator_create_OUTPUT_DIR}
-            COMMAND verilator ${verilator_create_VERILATOR_ARGS} ${VERILOG_INCS}
-                -Wall
-                -Mdir ${verilator_create_OUTPUT_DIR}
-                --cc ${verilator_create_VERILOG_SOURCE}
-            COMMAND ${CMAKE_COMMAND} -E remove ${verilator_create_OUTPUT_DIR}/*.mk
-            COMMAND ${CMAKE_COMMAND} -E remove ${verilator_create_OUTPUT_DIR}/*.d
-            COMMAND ${CMAKE_COMMAND} -E remove ${verilator_create_OUTPUT_DIR}/*.dat
-            MAIN_DEPENDENCY ${verilator_create_VERILOG_SOURCE}
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-            COMMENT "Generating C++ module ${verilator_create_VERILATOR_TARGET}"
-        )
-        message(STATUS "OUTPUT_SOURCE: ${OUTPUT_SOURCE}")
+        add_library(${verilator_create_TARGET} STATIC ${OUT_FILES})
         
-        add_library(${verilator_create_TARGET} STATIC ${OUTPUT_SOURCE})
+        target_link_libraries(${verilator_create_TARGET} 
+            PRIVATE
+                verilator
+                ${verilator_create_LINK_LIBS}
+        )
+        
     endmacro()
 
 else(Verilator_FOUND)
