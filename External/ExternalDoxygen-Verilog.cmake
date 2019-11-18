@@ -1,5 +1,5 @@
 #https://github.com/google/googletest/tree/master/googletest#incorporating-into-an-existing-cmake-project
-set(_target verilator)
+set(_target doxygen-verilog)
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/ExternalVerilator.cmake.in ${_target}-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .

@@ -4,6 +4,10 @@
 Checks: '
     *,
     -llvm-include-order,
+    -cppcoreguidelines-pro-type-vararg,
+    -hicpp-vararg,
+    -modernize-deprecated-headers,
+    -hicpp-deprecated-headers,
     '
 WarningsAsErrors: '*'
 

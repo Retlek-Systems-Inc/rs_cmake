@@ -1,5 +1,6 @@
 # Copyright (c) 2017 Paul Helter
 # See accompanying file Copyright.txt or https://tbd for details.
+cmake_minimum_required(VERSION 3.14)
 
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/Modules" )
 
