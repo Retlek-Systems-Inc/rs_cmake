@@ -1,0 +1,10 @@
+# Current googletest warnings/errors.
+
+---
+Checks: '
+    *,
+    -llvm-include-order,
+    '
+WarningsAsErrors: '*'
+
+...

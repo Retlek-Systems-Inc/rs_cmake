@@ -1,0 +1,22 @@
+/// @copyright (c) 2017 Paul Helter
+/// Project Version File.
+
+#pragma once
+
+#include <string>
+
+/// Version Information
+/// All of the relevant version information associated with this project @_project@
+struct VersionInfo
+{
+    std::string version;    ///< A string representation of the version <Major>.<Minor>.<Patch>.<Tweak> 
+    uint32_t  major;        ///< Major version number
+    uint32_t  minor;        ///< Minor version number
+    uint32_t  patch;        ///< Patch version number
+    uint32_t  tweak;        ///< Tweak version number
+    uint32_t  gitHash;      ///< Git hash value - the short version of the git hash (if available).
+    uint64_t  buildTimestamp; ///< The build timestamp date of creation. Unix Time (Seconds since midnight (UTC) 1-Jan-1970 )
+};
+
+/// The Project `@_arg_PROJECT@` definition of Version Information.
+extern const VersionInfo @_arg_TARGET@;

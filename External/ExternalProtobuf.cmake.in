@@ -1,0 +1,37 @@
+cmake_minimum_required(VERSION 2.8.2)
+
+set(_target protobuf)
+
+project(${_target}-download NONE)
+include(ExternalProject)
+
+#Use tag current is v3.7.0rc2 
+ExternalProject_Add(${_target}
+  GIT_REPOSITORY    https://github.com/protocolbuffers/protobuf.git
+  GIT_TAG           v3.7.0rc2
+  SOURCE_DIR        "${CMAKE_BINARY_DIR}/${_target}-src"
+  BINARY_DIR        "${CMAKE_BINARY_DIR}/${_target}-build"
+  SOURCE_SUBDIR     cmake
+#  CONFIGURE_COMMAND ""
+#  BUILD_COMMAND     ""
+  CMAKE_CACHE_ARGS
+    "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
+    "-Dprotobuf_BUILD_TESTS:BOOL=OFF"
+    "-Dprotobuf_BUILD_CONFORMANCE:BOOL=OFF"
+    "-Dprotobuf_BUILD_PROTOC_BINARIES:BOOL=OFF"
+    "-Dprotobuf_WITH_ZLIB:BOOL=OFF"
+    "-Dprotobuf_VERBOSE:BOOL=ON"
+    "-Dprotobuf_BUILD_SHARED_LIBS:BOOL=OFF"
+    "-Dprotobuf_MODULE_COMPATIBLE:BOOL=ON"
+    "-Dprotobuf_BUILD_EXAMPLES:BOOL=OFF"
+    "-DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}"
+#    "-DCOMPILE_OPTIONS:STRING=${COMPILE_OPTIONS};-Wno-sign-compare;-Wno-unused-function"
+  BUILD_ALWAYS 1
+  STEP_TARGETS build
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
+  UPDATE_DISCONNECTED 1
+  LOG_DOWNLOAD ON
+  LOG_CONFIGURE ON
+  LOG_BUILD ON
+)

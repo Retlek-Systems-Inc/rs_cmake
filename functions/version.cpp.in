@@ -1,0 +1,15 @@
+/// @copyright (c) 2017 Paul Helter
+/// Project Version File.
+
+#include "@_arg_TARGET@.h"
+
+const VersionInfo @_arg_TARGET@ = 
+{
+    "@PROJECT_VERSION@",             // Version
+    (@PROJECT_VERSION_MAJOR@ + 0),   // Major
+    (@PROJECT_VERSION_MINOR@ + 0),   // Minor
+    (@PROJECT_VERSION_PATCH@ + 0),   // Patch
+    (@PROJECT_VERSION_TWEAK@ + 0),   // Tweak
+    (0x@GIT_HASH_ONLY@ + 0), // Git Hash
+    (@BUILD_TIMESTAMP@),     // Build Timestamp.
+};

@@ -1,0 +1,14 @@
+include(${CMAKE_CURRENT_LIST_DIR}/arm-gcc.toolchain.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/clang.toolchain.cmake)
+
+set(TOOLCHAIN_TRIPPLE arm-none-eabi)
+
+find_program(TOOLCHAIN_C   NAMES ${TOOLCHAIN_PREFIX}gcc )
+get_filename_component(TOOLCHAIN_DIR ${TOOLCHAIN_C} DIRECTORY)
+
+set(CMAKE_C_COMPILER_TARGET ${TOOLCHAIN_TRIPPLE})
+set(CMAKE_CXX_COMPILER_TARGET ${TOOLCHAIN_TRIPPLE})
+set(CMAKE_C_FLAGS_INIT   "-B${TOOLCHAIN_DIR}")
+set(CMAKE_CXX_FLAGS_INIT "-B${TOOLCHAIN_DIR}")
+
+include_directories(${TOOLCHAIN_DIR}/../${TOOLCHAIN_TRIPPLE}/include)
