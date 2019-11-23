@@ -2,9 +2,6 @@
 # add a target to format info
 
 if(FORMATTER)
-    # This is used to add targets like third-party libraries that want to bypass formatting.
-    add_custom_target(BypassStaticAnalysis)
-
     option(USE_CLANG_FORMAT "Use Clang Format." ON)
 
     if (USE_CLANG_FORMAT)
