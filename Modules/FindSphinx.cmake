@@ -772,7 +772,6 @@ endif()
 
 set( SPHINX_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/sphinx_build )
 set( SPHINX_CACHE_DIR ${CMAKE_CURRENT_BINARY_DIR}/sphinx_cache )
-set
 
 #    # Cleanup built HTMLs on "make clean"
 #    # TODO Any other dirs?

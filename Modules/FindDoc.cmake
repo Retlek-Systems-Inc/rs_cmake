@@ -13,11 +13,11 @@ if(BUILD_DOC)
     )
     #FetchContent_MakeAvailable(wavedrom)
     # Currently assuming these are installed.
-#    FetchContent_Declare(
-#      doxygenVerilog
-#      GIT_REPOSITORY https://github.com/avelure/doxygen-verilog.git
-#      GIT_TAG        master
-#    )
+    FetchContent_Declare(
+      doxygenVerilog
+      GIT_REPOSITORY https://github.com/avelure/doxygen-verilog.git
+      GIT_TAG        master
+    )
 #    FetchContent_MakeAvailable(doxygenVerilog)
     
     set(DOXYGEN_GENERATE_HTML YES)
@@ -50,15 +50,14 @@ if(BUILD_DOC)
         COMMENT "Generate HTML doucmentation")
         
     # Now for sphinx:
-    find_package(Sphinx REQUIRED COMPONENTS build breathe)
+#    find_package(Sphinx REQUIRED COMPONENTS build breathe)
+#
+#    set(SPHINX_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
+#    set(SPHINX_BUILD  ${CMAKE_CURRENT_BINARY_DIR}/docs/sphinx)
+#    add_custom_target(Sphinx ALL
+#    	COMMAND ${SPHINX_EXECUTABLE} -b html -Dbreathe_projects.${SPHINX_SOURCE} ${SPHINX_BUILD}
+#        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+#        COMMENT "Generating documentation with Sphinx"
+#    )
 
-    set(SPHINX_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
-    set(SPHINX_BUILD  ${CMAKE_CURRENT_BINARY_DIR}/docs/sphinx)
-    add_custom_target(Sphinx ALL
-    	COMMAND ${SPHINX_EXECUTABLE} -b html -Dbreathe_projects.${SPHINX_SOURCE} ${SPHINX_BUILD}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Generating documentation with Sphinx"
-    )
-    		
-    
 endif(BUILD_DOC)
