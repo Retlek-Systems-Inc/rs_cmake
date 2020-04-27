@@ -94,37 +94,49 @@ function( TestTarget )
         add_executable( ${_target} ${_arg_SOURCES} )
     endif()
     
-    
-    # Include the local source directory and private directories of the target
-    # can get away with the private ones since this is a test.
-    target_include_directories( ${_target}
-        PRIVATE 
-          ${CMAKE_CURRENT_SOURCE_DIR}
-          "$<TARGET_PROPERTY:${_arg_TARGET},INCLUDE_DIRECTORIES>"
-    )
-    
-    add_dependencies( ${_target} ${_arg_TARGET} )
-    
-    # Compile the same as the target under test.
-    target_compile_definitions( ${_target}
-        PRIVATE
-          "$<TARGET_PROPERTY:${_arg_TARGET},COMPILE_DEFINITIONS>"
-    )
-
+    get_target_property(_type ${_arg_TARGET} TYPE)
     
     # Link libraries
     foreach( _mock ${_arg_MOCK_LIBRARY})
       list(APPEND _mock_libs Mock_${_mock})
     endforeach()
     
-    target_link_libraries( ${_target}
-        PRIVATE
-          ${_framework_libs}
-          ${_mock_libs}
-          "$<TARGET_LINKER_FILE:${_arg_TARGET}>"
-          ${_arg_LINK_LIBRARY}
-    )
+    if(_type STREQUAL "INTERFACE_LIBRARY")
+        # For interface - just include it in the link libraries - all other
+        # params will be the same.
+	    target_link_libraries( ${_target}
+	        PRIVATE
+	          ${_framework_libs}
+	          ${_mock_libs}
+	          ${_arg_TARGET}
+	          ${_arg_LINK_LIBRARY}
+	    )
+	else()
+	    # Include the local source directory and private directories of the target
+	    # can get away with the private ones since this is a test.
+	    target_include_directories( ${_target}
+	        PRIVATE
+	          ${CMAKE_CURRENT_SOURCE_DIR}
+	          "$<TARGET_PROPERTY:${_arg_TARGET},INCLUDE_DIRECTORIES>"
+	    )
+
+	    add_dependencies( ${_target} ${_arg_TARGET} )
+
+	    # Compile the same as the target under test.
+	    target_compile_definitions( ${_target}
+	        PRIVATE
+	          "$<TARGET_PROPERTY:${_arg_TARGET},COMPILE_DEFINITIONS>"
+	    )
     
+	    target_link_libraries( ${_target}
+	        PRIVATE
+	          ${_framework_libs}
+	          ${_mock_libs}
+	          "$<TARGET_LINKER_FILE:${_arg_TARGET}>"
+	          ${_arg_LINK_LIBRARY}
+	    )
+	endif()
+
     #Optionally move the tests into one dir.
     option(TEST_DESTINATION_DIR  "Use this directory as the destination <build>/test" ON)
     if (TEST_DESTINATION_DIR)

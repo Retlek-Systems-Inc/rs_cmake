@@ -4,25 +4,23 @@
 # of the test environment from there.
 
 if(BUILD_TEST)
+	#set(INSTALL_GTEST OFF)
     include(FetchContent)
-    FetchContent_Declare(
-      googletest   
-      GIT_REPOSITORY    https://github.com/google/googletest.git
-      GIT_TAG           release-1.8.1
+    FetchContent_Declare( googletest
+      GIT_REPOSITORY    git@github.com:google/googletest.git
+      GIT_TAG           release-1.10.0
     )
 
     # Prevent overriding the parent project's compiler/linker
     # settings on Windows
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE) 
 
-    FetchContent_GetProperties(googletest)
-    if(NOT googletest_POPULATED)
-        FetchContent_MakeAvailable(googletest)
-        # Add clang-tidy definition to remove any warnings/errors.
-        configure_file("${CMAKE_CURRENT_LIST_DIR}/../External/.clang-tidy-Googletest"
-          "${googletest_SOURCE_DIR}/.clang-tidy" COPYONLY)
-    endif()
-    
+
+    FetchContent_MakeAvailable(googletest)
+    # Add clang-tidy definition to remove any warnings/errors.
+    configure_file("${CMAKE_CURRENT_LIST_DIR}/../External/.clang-tidy-Googletest"
+                   "${googletest_SOURCE_DIR}/.clang-tidy" COPYONLY)
+
     add_library(GTest::GTest ALIAS gtest)
     add_library(GTest::Main ALIAS gtest_main)
     add_library(GMock::GMock ALIAS gmock)
@@ -51,7 +49,7 @@ if(BUILD_TEST)
             # Exclude standard and test framework environment builds.
             set(COVERAGE_LCOV_EXCLUDES
                 '/usr/include/*'
-                '*/build/*/googletest-src/*'
+                '${googletest_SOURCE_DIR}'
             )
             SETUP_TARGET_FOR_COVERAGE_LCOV( 
                 NAME ${_coverageTarget}
