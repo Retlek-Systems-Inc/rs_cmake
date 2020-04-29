@@ -16,5 +16,7 @@ find_program(GCC_CXX
         g++-4
 )        
 
+set(CMAKE_C_COMPILER_ID GNU )
 set(CMAKE_C_COMPILER ${GCC_C})
+set(CMAKE_CXX_COMPILER_ID GNU )
 set(CMAKE_CXX_COMPILER ${GCC_CXX})

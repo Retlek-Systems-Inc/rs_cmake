@@ -49,7 +49,7 @@ if(BUILD_TEST)
             # Exclude standard and test framework environment builds.
             set(COVERAGE_LCOV_EXCLUDES
                 '/usr/include/*'
-                '${googletest_SOURCE_DIR}'
+                '${googletest_SOURCE_DIR}/*'
             )
             SETUP_TARGET_FOR_COVERAGE_LCOV( 
                 NAME ${_coverageTarget}
