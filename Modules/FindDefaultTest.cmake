@@ -47,7 +47,7 @@ if(BUILD_TEST)
         if ( ${_buildType} STREQUAL coverage AND NOT TARGET ${_coverageTarget} )
             include(CodeCoverage)
             # Exclude standard and test framework environment builds.
-            set(COVERAGE_LCOV_EXCLUDES
+            list(APPEND COVERAGE_LCOV_EXCLUDES
                 '/usr/include/*'
                 '${googletest_SOURCE_DIR}/*'
             )

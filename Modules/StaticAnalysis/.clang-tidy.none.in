@@ -1,0 +1,6 @@
+---
+Checks: '-*'
+
+# Treat all warnings as errors outside the above scope.
+WarningsAsErrors: '*'
+...
