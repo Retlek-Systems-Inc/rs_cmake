@@ -34,7 +34,7 @@ if(STATIC_ANALYSIS)
     
     # Clang-Tidy None file for build dir /_deps - anything third-party or grabbed from elsewhere don't do clang tidy on.
     configure_file( "${CMAKE_CURRENT_LIST_DIR}/StaticAnalysis/.clang-tidy.none.in"
-                    "${CMAKE_BINARY_DIR}/_deps/.clang-tidy" COPY_ONLY )
+                    "${CMAKE_BINARY_DIR}/_deps/.clang-tidy" COPYONLY )
     
     #Google style checks:
     #set(CMAKE_CXX_CPPLINT )
