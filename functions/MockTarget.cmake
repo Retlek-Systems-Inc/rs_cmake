@@ -40,7 +40,7 @@ function( MockTarget )
        message( STATUS "Disabling Mock: Target ${_arg_TARGET} is removed." )
        return ()
     endif()
-    
+
     # Currently assumes GoogleTest and GoogleMock.
     #find_package(GMmock REQUIRED)
     
@@ -52,12 +52,12 @@ function( MockTarget )
     target_include_directories( ${_target} PUBLIC . )
     
     target_link_libraries( ${_target} PRIVATE GMock::GMock)
-    
-    
+
     get_target_property( _target_type ${_arg_TARGET}  TYPE )
-    if ((_target_type STREQUAL "INTERFACE_LIBRARY") OR arg_DEPENDS_ON_TARGET)
+    if ((_target_type STREQUAL "INTERFACE_LIBRARY") OR _arg_DEPENDS_ON_TARGET)
         # For interface libraries can just link against the library.
         # Or if a mock of a DEPENDS_ON_TARGET - eg a mock of a CPP class which is inherited.
+        message( STATUS "Mock ${_arg_TARGET} is dependent on target.")
         target_link_libraries( ${_target}  PUBLIC ${_arg_TARGET} )
     else()
         # Note - Private options of mocked object should not be propagated since
