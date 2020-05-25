@@ -38,13 +38,16 @@ if(STATIC_ANALYSIS)
     
     #Google style checks:
     #set(CMAKE_CXX_CPPLINT )
-    
+
+    if ( 0 )    
     find_program(INCLUDE_WHAT_YOU_USE iwyu)
     if( NOT INCLUDE_WHAT_YOU_USE)
         message(WARNING "Could not find include-what-you-use iwyu, must be installed to perform static checks.")
     else()
-         set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE iwyu -Xiwyu --verbose=3)
-         set(CMAKE_C_INCLUDE_WHAT_YOU_USE iwyu -Xiwyu --verbose=3)
+         set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE include-what-you-use -Xiwyu --verbose=3)
+         set(CMAKE_C_INCLUDE_WHAT_YOU_USE include-what-you-use -Xiwyu --verbose=3)
 #         set(CMAKE_LINK_WHAT_YOU_USE TRUE)
     endif()
+    
+    endif(0)
 endif(STATIC_ANALYSIS)

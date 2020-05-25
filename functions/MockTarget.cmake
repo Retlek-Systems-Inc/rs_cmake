@@ -4,7 +4,7 @@
 # MockTarget
 #   TARGET  target name to mock.
 #   SOURCES replacement sources.
-
+#   DEPENDS_ON_TARGET
 # External Variables : 
 #    BUILD_TEST - if this is set to OFF then no test is generated.
 #
@@ -13,7 +13,7 @@
 # The newly created target is Mock_<target>.
 
 function( MockTarget )
-    set( _options )
+    set( _options DEPENDS_ON_TARGET )
     set( _oneValueArgs TARGET )
     set( _multiValueArgs SOURCES )
     include( CMakeParseArguments )
@@ -55,21 +55,35 @@ function( MockTarget )
     
     
     get_target_property( _target_type ${_arg_TARGET}  TYPE )
-    if (_target_type STREQUAL "INTERFACE_LIBRARY" )
+    if ((_target_type STREQUAL "INTERFACE_LIBRARY") OR arg_DEPENDS_ON_TARGET)
         # For interface libraries can just link against the library.
+        # Or if a mock of a DEPENDS_ON_TARGET - eg a mock of a CPP class which is inherited.
         target_link_libraries( ${_target}  PUBLIC ${_arg_TARGET} )
     else()
+        # Note - Private options of mocked object should not be propagated since
+        # they have no bearing on the mock.
+        
         # For all other library types must extract the interface portions of the include directories.
         target_include_directories( ${_target}
             PUBLIC
-                "$<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_INCLUDE_DIRECTORIES>"
-        #TODO: Do we want the PUBLIC portions that were pushed into just INTERFACE ?
-        #        "$<TARGET_PROPERTY:${_arg_TARGET},INCLUDE_DIRECTORIES>"
+                $<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_INCLUDE_DIRECTORIES>
         )
         target_include_directories( ${_target} SYSTEM
             PUBLIC
-                "$<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_SYSTEM_INCLUDE_DIRECTORIES>" 
+                $<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_SYSTEM_INCLUDE_DIRECTORIES> 
         )
-        target_link_libraries( ${_target} PUBLIC ${_arg_TARGET} )
+        # Note have to do it this way otherwise $<LINK_ONLY:*> inside the INTERFACE_LINK_LIBRARIES 
+        # does not resolve correctly.
+#        get_target_property(_link_libs ${_arg_TARGET} INTERFACE_LINK_LIBRARIES)
+#        message(STATUS "Link Libs for ${_target}:  ${_link_libs}")
+#        target_link_libraries( ${_target} 
+#            PUBLIC
+#                ${_link_libs}
+#        )
+        
+        target_compile_definitions( ${_target}
+            PUBLIC
+                "$<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_COMPILE_DEFINITIONS>"
+        )
     endif()
 endfunction()
