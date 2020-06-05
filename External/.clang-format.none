@@ -1,0 +1,19 @@
+---
+BasedOnStyle: LLVM
+IndentWidth: 4
+---
+Language: Cpp
+DisableFormat: true
+---
+Language: ObjC
+DisableFormat: true
+---
+Language: Proto
+DisableFormat: true
+---
+Language: TableGen
+DisableFormat: true
+---
+Language: TextProto
+DisableFormat: true
+...
