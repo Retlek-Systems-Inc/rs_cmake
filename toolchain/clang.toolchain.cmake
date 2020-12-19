@@ -2,6 +2,7 @@
 find_program(CLANG_C 
     NAMES
         clang
+        clang-9
         clang-8
         clang-7
         clang-6.0
@@ -13,6 +14,7 @@ find_program(CLANG_C
 find_program(CLANG_CXX
     NAMES
         clang++
+        clang++-9
         clang++-8
         clang++-7
         clang++-6.0

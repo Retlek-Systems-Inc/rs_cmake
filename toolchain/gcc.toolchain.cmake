@@ -1,6 +1,10 @@
 find_program(GCC_C 
     NAMES
         gcc
+        gcc-11
+        gcc-10
+        gcc-9
+        gcc-8
         gcc-7
         gcc-6
         gcc-5
@@ -10,6 +14,10 @@ find_program(GCC_C
 find_program(GCC_CXX
     NAMES
         g++
+        g++-11
+        g++-10
+        g++-9
+        g++-8
         g++-7
         g++-6
         g++-5
