@@ -85,5 +85,13 @@ function( MockTarget )
             PUBLIC
                 "$<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_COMPILE_DEFINITIONS>"
         )
+        target_compile_options( ${_target}
+            PUBLIC
+                "$<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_COMPILE_OPTIONS>"
+        )
+        target_compile_features( ${_target}
+            PUBLIC
+                "$<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_COMPILE_FEATURES>"
+        )
     endif()
 endfunction()

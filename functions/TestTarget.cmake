@@ -127,6 +127,14 @@ function( TestTarget )
 	        PRIVATE
 	          "$<TARGET_PROPERTY:${_arg_TARGET},COMPILE_DEFINITIONS>"
 	    )
+	    target_compile_options( ${_target}
+	        PRIVATE
+	          "$<TARGET_PROPERTY:${_arg_TARGET},COMPILE_OPTIONS>"
+	    )
+	    target_compile_features( ${_target}
+	        PRIVATE
+	          "$<TARGET_PROPERTY:${_arg_TARGET},COMPILE_FEATURES>"
+	    )
     
 	    target_link_libraries( ${_target}
 	        PRIVATE
