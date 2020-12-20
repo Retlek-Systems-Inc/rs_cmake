@@ -1,10 +1,26 @@
 # Copyright (c) 2017 Paul Helter
-# Function to create a Version File.
+#[=======================================================================[.rst:
+GitHash
+----------------
 
-# GitHash
-# Creates the output variable GIT_HASH based on the current hash of the git repo.
-# Adds '-dirty' if the git repo is dirty.
-# Returns "Unknown" if can't find GIT.
+Creates the output variable GIT_HASH based on the current hash of the git repo.
+Adds '-dirty' if the git repo is dirty.
+Returns "Unknown" if can't find GIT.
+
+Examples:
+
+.. code-block:: cmake
+
+  GitHash()
+  message(STATUS "Git Hash: ${GIT_HASH}")
+
+The following variables are defined by this module:
+
+.. variable:: GIT_HASH  value of the git hash and `-dirty` if not up to date.
+.. variable:: GIT_HASH_ONLY value of the git hash.
+
+#]=======================================================================]
+
 
 function( GitHash )
     set(_git_hash "unknown")

@@ -1,25 +1,54 @@
 # Copyright (c) 2017 Paul Helter
-# Function to create a Test target for a given component.
+#[=======================================================================[.rst:
+TestTarget
+----------------
 
-# TestTarget(
-#   TARGET  target name to test.
-#   SOURCES   <filename> [<filename> ...]
-#   
-#   [ TYPE [UINT, MANUAL] ] - default unit.
-#   [ FRAMEWORK [ GTest ] ] - default GTest
-#   [ MOCK_LIBRARY <mock target> [<mock target> ...] ]
-#   [ LINK_LIBRARY <target> [<target> ...] ]
-#)
-# 
-# External Variables : 
-#    BUILD_TEST - if this is set to OFF then no test is generated.
-#    TEST_EXCLUDE_FROM_ALL - if this is set, then the tests will be excluded from the entire build.
-#       - useful for when compiling 
-#    TEST_DESTINATION_DIR if this is sent the destination directory inside the current build dir is used.
-#
-# Checks that the mock libraries (made with MockTarget.cmake - prefixed with GMock*) are available.
-# Checks that the link libraries are available.
+Creates a test target from a pre-existing target and the unit test envrionment.
 
+Checks that there is a target available that is identified as the target,
+removes all linkages between other linked targets and allows to replace with
+MOCK_LIBRARY mocked versions.
+
+The newly created target is UnitTest_<target> or ManualTest_<target>.
+
+TestTarget(
+  TARGET  <target name to test>
+  SOURCES   <filename> [<filename> ...]
+
+  [ TYPE [UINT, MANUAL] ] - default unit.
+  [ FRAMEWORK [ GTest | GMock ] ] - default GTest
+  [ MOCK_LIBRARY <mock target> [<mock target> ...] ]
+  [ LINK_LIBRARY <target> [<target> ...] ]
+)
+
+External Variables :
+   BUILD_TEST - if this is set to OFF then no test is generated.
+   TEST_EXCLUDE_FROM_ALL - if this is set, then the tests will be excluded from the entire build.
+      - useful for when compiling
+   TEST_DESTINATION_DIR if this is sent the destination directory inside the current build dir is used.
+
+Examples:
+
+.. code-block:: cmake
+
+  TestTarget( TARGET your_target
+    SOURCES
+      test_your_target.cpp
+    UNIT
+    FRAMEWORK
+      GMock
+    MOCK_LIBRARY
+      target_A
+    LINK_LIBRARY
+      target_B
+  )
+  #Where dependent_target_A is a mock of target_A
+  #Where target_B is the actual implementation
+
+The following targets are defined by this module:
+
+.. variable:: UnitTest_<target name> OR ManualTest_<target_name>
+#]=======================================================================]
 
 function( TestTarget )
     set( _options )
@@ -117,7 +146,7 @@ function( TestTarget )
 	    target_include_directories( ${_target}
 	        PRIVATE
 	          ${CMAKE_CURRENT_SOURCE_DIR}
-	          "$<TARGET_PROPERTY:${_arg_TARGET},INCLUDE_DIRECTORIES>"
+	          $<TARGET_PROPERTY:${_arg_TARGET},INCLUDE_DIRECTORIES>
 	    )
 
 	    add_dependencies( ${_target} ${_arg_TARGET} )
@@ -125,22 +154,22 @@ function( TestTarget )
 	    # Compile the same as the target under test.
 	    target_compile_definitions( ${_target}
 	        PRIVATE
-	          "$<TARGET_PROPERTY:${_arg_TARGET},COMPILE_DEFINITIONS>"
+	          $<TARGET_PROPERTY:${_arg_TARGET},COMPILE_DEFINITIONS>
 	    )
 	    target_compile_options( ${_target}
 	        PRIVATE
-	          "$<TARGET_PROPERTY:${_arg_TARGET},COMPILE_OPTIONS>"
+	          $<TARGET_PROPERTY:${_arg_TARGET},COMPILE_OPTIONS>
 	    )
 	    target_compile_features( ${_target}
 	        PRIVATE
-	          "$<TARGET_PROPERTY:${_arg_TARGET},COMPILE_FEATURES>"
+	          $<TARGET_PROPERTY:${_arg_TARGET},COMPILE_FEATURES>
 	    )
     
 	    target_link_libraries( ${_target}
 	        PRIVATE
 	          ${_framework_libs}
 	          ${_mock_libs}
-	          "$<TARGET_LINKER_FILE:${_arg_TARGET}>"
+	          $<TARGET_LINKER_FILE:${_arg_TARGET}>
 	          ${_arg_LINK_LIBRARY}
 	    )
 	endif()

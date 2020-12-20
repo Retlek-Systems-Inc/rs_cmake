@@ -1,16 +1,39 @@
 # Copyright (c) 2017 Paul Helter
-# Function to create a mock target from a pre-existing target.
+#[=======================================================================[.rst:
+MockTarget
+----------------
 
-# MockTarget
-#   TARGET  target name to mock.
-#   SOURCES replacement sources.
-#   DEPENDS_ON_TARGET
-# External Variables : 
-#    BUILD_TEST - if this is set to OFF then no test is generated.
-#
-# Checks that there is a target available that is identified as the target, and then
-# removes all link libraries and sources, but uses the interface include files of the original target.
-# The newly created target is Mock_<target>.
+Creates a mock target from a pre-existing target and the input mock implementation
+
+Checks that there is a target available that is identified as the target, and then
+removes all link libraries and sources, but uses the interface include files of the
+original target.
+The newly created target is Mock_<target>.
+
+MockTarget(
+  TARGET  <target name to mock>
+  SOURCES   <filename> [<filename> ...]
+  [ DEPENDS_ON_TARGET ] - optional to allow mock to link to the target
+)
+
+For INTERFACE targets DEPENDS_ON_TARGET is by default selected.
+
+External Variables :
+   BUILD_TEST - if this is set to OFF then no test is generated.
+
+Examples:
+
+.. code-block:: cmake
+
+  MockTarget( TARGET your_target
+    SOURCES
+      mock_your_target.cpp
+  )
+
+The following targets are defined by this module:
+
+.. variable:: Mock_<target name>
+#]=======================================================================]
 
 function( MockTarget )
     set( _options DEPENDS_ON_TARGET )
@@ -78,20 +101,20 @@ function( MockTarget )
 #        message(STATUS "Link Libs for ${_target}:  ${_link_libs}")
 #        target_link_libraries( ${_target} 
 #            PUBLIC
-#                ${_link_libs}
+#                "$<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_LINK_LIBRARIES>"
 #        )
         
         target_compile_definitions( ${_target}
             PUBLIC
-                "$<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_COMPILE_DEFINITIONS>"
+                $<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_COMPILE_DEFINITIONS>
         )
         target_compile_options( ${_target}
             PUBLIC
-                "$<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_COMPILE_OPTIONS>"
+                $<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_COMPILE_OPTIONS>
         )
         target_compile_features( ${_target}
             PUBLIC
-                "$<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_COMPILE_FEATURES>"
+                $<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_COMPILE_FEATURES>
         )
     endif()
 endfunction()
