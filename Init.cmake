@@ -20,7 +20,7 @@ option(VERILOG_TEST "Support Verilog testing." OFF)
 # Common Includes and paths.
 
 # Create a common cmake path for identification of modules etc.
-list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules" )
+list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/Modules" )
 include(CMakePrintHelpers)
 cmake_print_variables(CMAKE_MODULE_PATH)
 
@@ -40,7 +40,7 @@ if ( NOT CMAKE_BUILD_TYPE AND ( (CMAKE_GENERATOR MATCHES ".*Makefile.*") OR (CMA
 endif()
 
 # Common Functions and Macros
-file( GLOB _functions ${CMAKE_CURRENT_LIST_DIR}/cmake/functions/*.cmake )
+file( GLOB _functions ${CMAKE_CURRENT_LIST_DIR}/functions/*.cmake )
 foreach( _f ${_functions} )
   include( ${_f} )
 endforeach()
@@ -65,7 +65,7 @@ find_package(VerilogTest REQUIRED 4.0)
 ###################
 # FETCHCONTENT_BASE_DIR
 # Ensure .clang-format not run on Fetched Content.
-configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/External/.clang-format.none ${FETCHCONTENT_BASE_DIR}/.clang-format COPYONLY)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/External/.clang-format.none ${FETCHCONTENT_BASE_DIR}/.clang-format COPYONLY)
 
 ###################
 # Setup for vscode.
