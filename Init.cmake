@@ -69,7 +69,7 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/External/.clang-format.none ${FETCHCONT
 
 ###################
 # Setup for vscode.
-if(NOT file(EXISTS ${PROJECT_SOURCE_DIR}/cmake-variants.yaml))
+if(NOT EXISTS ${PROJECT_SOURCE_DIR}/cmake-variants.yaml)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/External/vscode.cmake-variants.yaml
         ${PROJECT_SOURCE_DIR}/cmake-variants.yaml)
 endif()
