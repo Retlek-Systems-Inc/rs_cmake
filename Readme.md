@@ -1,14 +1,15 @@
-# CMake Typical Build Environment
+# CMake Build Environment
 
 This directory provides the ability to compile and test code cross compiler using:
+
 * GoogleTest
 * Sanitizers (Linux only)
 * Integration of clang-tidy and clang-format
 * Doxygen Documentation generation
 * Cross Compiling for ARM
+* Verilog to C++ Compiler
 
 ## First Steps
-
 
 Install and initialize on Ubuntu Linux Environment perform:
 
@@ -145,6 +146,7 @@ cmake -G Ninja -DCMAKE_BUILD_TYPE=MSAN -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/cl
 ninja
 ninja test
 ```
+
 For Undefined Behavior Sanitizer - run on suite of tests:
 
 ```bash
@@ -170,37 +172,34 @@ ninja doc
 
 # to view:
 firefox doc/html/index.html
-
 ```
+
 Be sure to check the warnings - missing definitions.
 
-#Windows Builds with Microsoft Visual Studio 2019 (or higher) or Visual Code with MSYS
+## Windows Builds with Microsoft Visual Studio 2019 (or higher) or Visual Code with MSYS
 
-## Install
+### Install
 
 Install Microsoft Visual Studio 2019 with following options:
 * Python Development
 * Desktop development with C++
 * Linux development with C++
 
-Install MSYS
-
-## Running:
+### Running
 
 Select `Project->CMake Settings for <project>`
 Add a Configuration - `Mingw64-Debug`
 Select the link CMakeSettings.json`
 Build Options:
 
+```json
+{
+    "MINGW64_ROOT": "C:\\msys64\\mingw64",
+    "BIN_ROOT": "${env.MINGW64_ROOT}\\..\\usr\\bin",
+    "FLAVOR": "x86_64-w64-mingw32",
+    "TOOLSET_VERSION": "7.3.0",
+    "PATH": "${env.MINGW64_ROOT}\\bin;${env.MINGW64_ROOT}\\..\\usr\\local\\bin;${env.MINGW64_ROOT}\\..\\usr\\bin;${env.MINGW64_ROOT}\\..\\bin;${env.PATH}",
+    "INCLUDE": "${env.INCLUDE};${env.MINGW64_ROOT}\\include\\c++\\${env.TOOLSET_VERSION};${env.MINGW64_ROOT}\\include\\c++\\${env.TOOLSET_VERSION}\\tr1;${env.MINGW64_ROOT}\\include\\c++\\${env.TOOLSET_VERSION}\\${env.FLAVOR}",
+    "environment": "mingw_64"
+}
 ```
-        {
-          "MINGW64_ROOT": "C:\\msys64\\mingw64",
-          "BIN_ROOT": "${env.MINGW64_ROOT}\\..\\usr\\bin",
-          "FLAVOR": "x86_64-w64-mingw32",
-          "TOOLSET_VERSION": "7.3.0",
-          "PATH": "${env.MINGW64_ROOT}\\bin;${env.MINGW64_ROOT}\\..\\usr\\local\\bin;${env.MINGW64_ROOT}\\..\\usr\\bin;${env.MINGW64_ROOT}\\..\\bin;${env.PATH}",
-          "INCLUDE": "${env.INCLUDE};${env.MINGW64_ROOT}\\include\\c++\\${env.TOOLSET_VERSION};${env.MINGW64_ROOT}\\include\\c++\\${env.TOOLSET_VERSION}\\tr1;${env.MINGW64_ROOT}\\include\\c++\\${env.TOOLSET_VERSION}\\${env.FLAVOR}",
-          "environment": "mingw_64"
-        }
-```
-

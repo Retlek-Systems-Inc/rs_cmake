@@ -1,0 +1,27 @@
+buildType
+  default: debug
+  choices:
+    debug: 
+      short: Debug
+      long: Debug Build - no optimizaitons and debug info
+      buildType: Debug
+    release: 
+      short: Release
+      long: Release Build - optimizations
+      buildType: Reelase
+    releaseWithDebInfo: 
+      short: ReleaseWithDebInfo
+      long: Release with Debug Information - optimizations but with debug info
+      buildType: ReleaseWithDebInfo
+    asan:
+      short: ASan
+      long: Address Sanitizer Debug Build
+      buildType: asan
+    tsan:
+      short: TSan
+      long: Thread Sanitizer Debug Build
+      buildType: tsan
+    coverage:
+      short: Cov
+      long: Debug build with Coverage (GNU only)
+      buildType: coverage

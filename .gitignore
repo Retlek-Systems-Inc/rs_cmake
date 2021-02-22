@@ -1,2 +1,6 @@
+# Eclipse
 .project
 .cproject
+# VSCode
+.pytest_cache
+.vscode
