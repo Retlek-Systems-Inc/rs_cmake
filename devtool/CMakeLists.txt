@@ -11,7 +11,7 @@ option(SA_TOOLS  "Install Static Analysis tools" ON)
 option(ARM_CROSS_TOOLS "Install ARM processor cross compiler tools" OFF)
 option(VERILOG_TOOLS   "Install Verilog Simulation tools" OFF)
 
-set(LLVM_TOOL_VERSION 12)
+set(LLVM_TOOL_VERSION 10)
 set(GNU_TOOL_VERSION 10)
 
 set(helpMsg "
@@ -20,9 +20,6 @@ Development Tool Dependencies
 This is the standard list of development tools required for install for Linux machines.
 This creates a deb or rpm install for development execution in your repo.
 
-Perform:
-   cmake --build package
-   cmake --install
 ")
 
 message( STATUS helpMsg )
@@ -38,10 +35,10 @@ if(CMAKE_HOST_SYSTEM_NAME STREQUAL Linux)
     elseif(LSBRELEASE_ID_SHORT STREQUAL RHEL)
         set(CPACK_GENERATOR "RPM")
     else()
-        message(FATAL_ERROR "No support for unknown Release ${LSBRELEASE_ID_SHORT}");
+        message(FATAL_ERROR "No support for unknown Release ${LSBRELEASE_ID_SHORT}")
     endif()
 else()
-    message(FATAL_ERROR "Currently not supported on ${CMAKE_HOST_SYSTEM_NAME}");
+    message(FATAL_ERROR "Currently not supported on ${CMAKE_HOST_SYSTEM_NAME}")
 endif()
 
 
@@ -69,28 +66,56 @@ list(APPEND _package_list
     ninja-build 
     ccache
     clang-format-${LLVM_TOOL_VERSION}
-
-    $<<BOOL:${GNU_TOOLS}>gcc-${GNU_TOOL_VERSION}>
-    $<<BOOL:${GNU_TOOLS}>g++-${GNU_TOOL_VERSION}>
-
-    $<<BOOL:${LLVM_TOOLS}>clang-${LLVM_TOOL_VERSION}>
-    $<<BOOL:${LLVM_TOOLS}>clang++-${LLVM_TOOL_VERSION}>
-
-    $<<BOOL:${DOC_TOOLS}>doxygen>
-    $<<BOOL:${DOC_TOOLS}>graphviz>
-    $<<BOOL:${DOC_TOOLS}>default-jdk>
-    $<<BOOL:${DOC_TOOLS}>python3-sphinx>
-    $<<BOOL:${DOC_TOOLS}>ython3-pip>
-
-    $<<BOOL:${SA_TOOLS}>clang-tidy-${LLVM_TOOL_VERSION}>
-    $<<BOOL:${SA_TOOLS}>lcov> #or gcov
-
-    $<<BOOL:${ARM_CROSS_TOOLS}>gcc-arm-embedded>
-    $<<BOOL:${ARM_CROSS_TOOLS}>srecord>
-
-    $<<BOOL:${VERILOG_TOOLS}>verilator>
 )
 
+if(GNU_TOOLS)
+    list(APPEND _package_list
+        gcc-${GNU_TOOL_VERSION}
+        g++-${GNU_TOOL_VERSION}
+    )
+endif(GNU_TOOLS)
+
+if(LLVM_TOOLS)
+    list(APPEND _package_list
+        clang-${LLVM_TOOL_VERSION}
+        clang++-${LLVM_TOOL_VERSION}
+    )
+endif(LLVM_TOOLS)
+
+if(DOC_TOOLS)
+    list(APPEND _package_list
+        doxygen
+        graphviz
+        default-jdk
+        python3-sphinx
+        python3-pip
+    )
+endif(DOC_TOOLS)
+
+if(SA_TOOLS)
+    list(APPEND _package_list
+        clang-tidy-${LLVM_TOOL_VERSION}
+        lcov
+    )
+endif(SA_TOOLS)
+
+if(ARM_CROSS_TOOLS)
+    # TODO: May need to get latest gcc from here:
+    # https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads    
+    list(APPEND _package_list
+        gcc-arm-embedded
+        srecord
+    )
+
+endif(ARM_CROSS_TOOLS)
+
+if(VERILOG_TOOLS)
+    list(APPEND _package_list
+        verilator
+    )
+endif(VERILOG_TOOLS)
+
+###############################################################################
 if (CPACK_GENERATOR STREQUAL "DEB")
     # CPACK_DEBIAN_PACKAGE_NAME derived from CPACK_PACKAGE_NAME
     # CPACK_DEBIAN_PACKAGE_VERSION derived from CPACK_PACKAGE_VERSION
@@ -101,6 +126,7 @@ if (CPACK_GENERATOR STREQUAL "DEB")
     set(CPACK_DEBIAN_COMPRESSION_TYPE "gzip")
     set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 
+    #set(CPACK_DEBIAN_PACKAGE_DEPENDS "$<GENEX_EVAL:$<JOIN:${_package_list}, $<COMMA>>>")
     list(TRANSFORM _package_list GENEX_STRIP )
     list(JOIN _package_list ", " CPACK_DEBIAN_PACKAGE_DEPENDS)
 
@@ -124,7 +150,7 @@ Prepare for install:
 
 
 elseif(CPACK_GENERATOR STREQUAL "RPM")
-    message(AUTHOR_WARNING "Need to implement. Deal with later.");
+    message(AUTHOR_WARNING "Need to implement. Deal with later.")
 endif()
 
 include(CPack)
