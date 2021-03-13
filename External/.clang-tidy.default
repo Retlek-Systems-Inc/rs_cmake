@@ -1,0 +1,184 @@
+---
+Checks: '
+    *,
+    -*-avoid-c-arrays,
+    -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+    -cppcoreguidelines-pro-type-reinterpret-cast,
+    -cppcoreguidelines-pro-type-vararg,
+    -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+    -*-non-private-member-variables-in-classes,
+    -*-special-member-functions,
+    -cppcoreguidelines-owning-memory,
+    -hicpp-no-array-decay,
+    -hicpp-signed-bitwise,
+    -hicpp-vararg,
+    -google-build-using-namespace,
+    -fuchsia-default-arguments,
+    -fuchsia-overloaded-operator,
+    -fuchsia-statically-constructed-objects,
+    -fuchsia-multiple-inheritance,
+    -android-cloexec-accept,
+    '
+
+# Treat all warnings as errors outside the above scope.le
+WarningsAsErrors: '*'
+
+HeaderFilterRegex: '.*'
+
+CheckOptions:
+  - key:             google-readability-braces-around-statements.ShortStatementLines
+    value:           '1'
+  - key:             google-readability-function-size.StatementThreshold
+    value:           '800'
+  - key:             google-readability-namespace-comments.ShortNamespaceLines
+    value:           '10'
+  - key:             google-readability-namespace-comments.SpacesBeforeComments
+    value:           '2'
+  - key:             modernize-loop-convert.MaxCopySize
+    value:           '16'
+  - key:             modernize-loop-convert.MinConfidence
+    value:           reasonable
+  - key:             modernize-loop-convert.NamingStyle
+    value:           CamelCase
+  - key:             modernize-pass-by-value.IncludeStyle
+    value:           llvm
+  - key:             modernize-replace-auto-ptr.IncludeStyle
+    value:           llvm
+  - key:             modernize-use-nullptr.NullMacros
+    value:           'NULL'
+
+# Conformance to naming conventions.
+  # Note - these are defined in: https://clang.llvm.org/extra/clang-tidy/checks/readability-identifier-naming.html
+  # Each type has a <XXX>Case, Prefix, Suffix and IgnoredRegexp
+  # Only defining the relative ones here.
+  -key: readability-identifier.naming.AbstractClassCase
+    value: CamelCase
+  -key: readability-identifier.naming.AbstractClassPrefix
+    value: 'i' #for interface.
+  -key: readability-identifier.naming.ClassCase
+    value: CamelCase
+  -key: readability-identifier.naming.ClassConstantCase
+    value: CamelCase
+  -key: readability-identifier.naming.ClassMemberCase
+    value: camelBack
+  -key: readability-identifier.naming.ClassMemberPrefix
+    value: m_
+  -key: readability-identifier.naming.ClassMethodCase
+    value: camelBack
+  -key: readability-identifier.naming.ConstantCase
+    value: camelBack
+  -key: readability-identifier.naming.ConstantMemberCase
+    value: camelBack
+  -key: readability-identifier.naming.ConstantMemberPrefix
+    value: m_
+  -key: -key: readability-identifier.naming.ConstantParameterCase
+    value: camelBack
+  -key: -key: readability-identifier.naming.ConstantPointerParameterCase
+    value: camelBack
+  -key: readability-identifier.naming.ConstexprFunctionCase
+    value: camelBack
+  -key: readability-identifier.naming.ConstexprMethodCase
+    value: camelBack
+  -key: readability-identifier.naming.ConstexprVariableCase
+    value: CamelCase
+  -key: readability-identifier.naming.EnumCase
+    value: CamelCase
+  -key: readability-identifier.naming.EnumConstantCase
+    value: CamelCase
+  -key: readability-identifier.naming.FunctionCase
+    value: camelBack
+  -key: readability-identifier.naming.GlobalConstantCase
+    value: camelBack
+  -key: readability-identifier.naming.GlobalConstantPrefix
+    value: g_
+  -key: readability-identifier.naming.GlobalConstantPointerCase
+    value: camelBack
+  -key: readability-identifier.naming.GlobalConstantPointerPrefix
+    value: g_
+  -key: readability-identifier.naming.GlobalFunctionCase
+    value: camelBack
+  -key: readability-identifier.naming.GlobalPointerCase
+    value: camelBack
+  -key: readability-identifier.naming.GlobalPointerPrefix
+    value: g_
+  -key: readability-identifier.naming.GlobalVariableCase
+    value: camelBack
+  -key: readability-identifier.naming.GlobalVariablePrefix
+    value: g_
+  -key: readability-identifier.naming.InlineNamespaceCase
+    value: camelBack # TODO - lowercase one word?
+  -key: readability-identifier.naming.LocalConstantCase
+    value: camelBack
+  -key: readability-identifier.naming.LocalConstantPointerCase
+    value: camelBack
+  -key: readability-identifier.naming.LocalPointerCase
+    value: camelBack
+  -key: readability-identifier.naming.LocalVariableCase
+    value: camelBack
+  -key: readability-identifier.naming.MacroDefinitionCase
+    value: UPPER_CASE
+  -key: readability-identifier.naming.MemberCase
+    value: camelBack
+  -key: readability-identifier.naming.MemberPrefix
+    value: 'm_'
+  -key: readability-identifier.naming.MethodCase
+    value: camelBack
+  -key: readability-identifier.naming.NamespaceCase
+    value: lower_case
+  -key: readability-identifier.naming.ParameterCase
+    value: camelBack
+  -key: readability-identifier.naming.ParameterPackCase
+    value: CamelCase
+  -key: readability-identifier.naming.ParameterPrefix
+    value: arg
+  -key: readability-identifier.naming.PointerParameterCase
+    value: camelBack
+  -key: readability-identifier.naming.PrivateMemberCase
+    value: camelBack
+  -key: readability-identifier.naming.PrivateMemberPrefix
+    value: m_
+  -key: readability-identifier.naming.PrivateMethodCase
+    value: camelBack
+  -key: readability-identifier.naming.ProtectedMemberCase
+    value: camelBack
+  -key: readability-identifier.naming.ProtectedMemberPrefix
+    value: m_
+  -key: readability-identifier.naming.PublicMemberCase
+    value: camelBack
+  -key: readability-identifier.naming.PublicMemberPrefix
+    value: m_
+  -key: readability-identifier.naming.PublicMethodCase
+    value: camelBack
+  -key: readability-identifier.naming.ScopedEnumConstantCase
+    value: CamelCase
+  -key: readability-identifier.naming.StaticConstantCase
+    value: camelBack
+  -key: readability-identifier.naming.StaticConstantPrefix
+    value: s_
+  -key: readability-identifier.naming.StaticVariableCase
+    value: camelBack
+  -key: readability-identifier.naming.StaticVariablePrefix
+    value: s_
+  -key: readability-identifier.naming.StructCase
+    value: CamelCase
+  -key: readability-identifier.naming.TemplateParameterCase
+    value: CamelCase
+  -key: readability-identifier.naming.TemplateTemplateParameterCase
+    value: CamelCase
+  -key: readability-identifier.naming.TypeAliasCase
+    value: CamelCase
+  -key: readability-identifier.naming.TypedefCase
+    value: CamelCase
+  -key: readability-identifier.naming.TypeTemplateParameterCase
+    value: CamelCase
+  -key: readability-identifier.naming.TypeTemplateParameterPrefix
+    value: Arg
+  -key: readability-identifier.naming.UnionCase
+    value: CamelCase
+  -key: readability-identifier.naming.ValueTemplateParameterCase
+    value: CamelCase
+  -key: readability-identifier.naming.VariableCase
+    value: camelBack
+  -key: readability-identifier.naming.ValueTemplateParameterCase
+    value: camelBack
+...

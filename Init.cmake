@@ -68,8 +68,22 @@ find_package(VerilogTest REQUIRED 4.0)
 configure_file(${CMAKE_CURRENT_LIST_DIR}/External/.clang-format.none ${FETCHCONTENT_BASE_DIR}/.clang-format COPYONLY)
 
 ###################
+# Setup for clang-format
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/.clang-format)
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/External/.clang-format.default
+        ${CMAKE_SOURCE_DIR}/.clang-format)
+endif()
+
+###################
+# Setup for clang-format
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/.clang-tidy)
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/External/.clang-tidy.default
+        ${CMAKE_SOURCE_DIR}/.clang-tidy)
+endif()
+
+###################
 # Setup for vscode.
-if(NOT EXISTS ${PROJECT_SOURCE_DIR}/cmake-variants.yaml)
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/cmake-variants.yaml)
     configure_file(${CMAKE_CURRENT_LIST_DIR}/External/vscode.cmake-variants.yaml
-        ${PROJECT_SOURCE_DIR}/cmake-variants.yaml)
+        ${CMAKE_SOURCE_DIR}/cmake-variants.yaml)
 endif()
