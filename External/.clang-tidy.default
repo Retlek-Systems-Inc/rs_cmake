@@ -46,11 +46,9 @@ CheckOptions:
     value:           llvm
   - key:             modernize-use-nullptr.NullMacros
     value:           'NULL'
-
 # Conformance to naming conventions.
-  # Note - these are defined in: https://clang.llvm.org/extra/clang-tidy/checks/readability-identifier-naming.html
-  # Each type has a <XXX>Case, Prefix, Suffix and IgnoredRegexp
-  # Only defining the relative ones here.
+# Note - these are defined in: https://clang.llvm.org/extra/clang-tidy/checks/readability-identifier-naming.html
+# Each type has a <XXX>Case, Prefix, Suffix and IgnoredRegexp
   -key: readability-identifier.naming.AbstractClassCase
     value: CamelCase
   -key: readability-identifier.naming.AbstractClassPrefix

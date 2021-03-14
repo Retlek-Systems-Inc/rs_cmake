@@ -10,6 +10,7 @@ buildType:
       long: "Debug Build - with Clang Tidy ON"
       buldType: Debug
       settings:
+        STATIC_ANALYSIS: "ON"
         USE_CLANG_TIDY: "ON"
         CLANG_TIDY_FIX: "OFF"
     debugTidyFix:
@@ -17,8 +18,9 @@ buildType:
       long: "Debug Build - with Clang Tidy on and fixing"
       buldType: Debug
       settings:
+        STATIC_ANALYSIS: "ON"
         USE_CLANG_TIDY: "ON"
-        CLANG_TIDY_FIX: "OFF"
+        CLANG_TIDY_FIX: "ON"
     release: 
       short: Release
       long: Release Build - optimizations
