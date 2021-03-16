@@ -1,13 +1,37 @@
+#######################################################################
+# @copyright 2020 Retlek Systems Inc.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+---
 buildType:
   default: debug
   choices:
-    debug: 
+    debug:
       short: Debug
       long: Debug Build - no optimizaitons and debug info
       buildType: Debug
+      settings:
+        STATIC_ANALYSIS: "OFF"
     debugTidyCheck:
       short: Debug Clang Tidy ON
-      long: "Debug Build - with Clang Tidy ON"
+      long: Debug Build - with Clang Tidy ON
       buldType: Debug
       settings:
         STATIC_ANALYSIS: "ON"
@@ -15,29 +39,39 @@ buildType:
         CLANG_TIDY_FIX: "OFF"
     debugTidyFix:
       short: Debug Clang Tidy FIX
-      long: "Debug Build - with Clang Tidy on and fixing"
+      long: Debug Build - with Clang Tidy on and fixing
       buldType: Debug
       settings:
         STATIC_ANALYSIS: "ON"
         USE_CLANG_TIDY: "ON"
         CLANG_TIDY_FIX: "ON"
-    release: 
+    release:
       short: Release
       long: Release Build - optimizations
       buildType: Reelase
-    releaseWithDebInfo: 
+      settings:
+        STATIC_ANALYSIS: "OFF"
+    releaseWithDebInfo:
       short: ReleaseWithDebInfo
       long: Release with Debug Information - optimizations but with debug info
       buildType: ReleaseWithDebInfo
+      settings:
+        STATIC_ANALYSIS: "OFF"
     asan:
       short: ASan
       long: Address Sanitizer Debug Build
       buildType: asan
+      settings:
+        STATIC_ANALYSIS: "OFF"
     tsan:
       short: TSan
       long: Thread Sanitizer Debug Build
       buildType: tsan
+      settings:
+        STATIC_ANALYSIS: "OFF"
     coverage:
       short: Cov
       long: Debug build with Coverage (GNU only)
       buildType: coverage
+      settings:
+        STATIC_ANALYSIS: "OFF"
