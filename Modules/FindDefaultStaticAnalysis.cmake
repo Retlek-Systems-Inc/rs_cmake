@@ -30,16 +30,16 @@ if(STATIC_ANALYSIS)
     option(USE_CLANG_TIDY "Use Clang Tidy to view any inefficiencies or good practices." ON)
 
     if (USE_CLANG_TIDY)
-      find_program(CLANG_TIDY 
-        NAMES
+        find_program(CLANG_TIDY 
+          NAMES
             clang-tidy
             clang-tidy-8
             clang-tidy-7
             clang-tidy-6.0
             clang-tidy-4.0
-      )
-      message(STATUS "CLANG_TIDY = ${CLANG_TIDY}")
-      if(NOT CLANG_TIDY)
+        )
+        message(STATUS "CLANG_TIDY = ${CLANG_TIDY}")
+        if(NOT CLANG_TIDY)
             message(WARNING "Could not find clang_tidy, must be installed to perform static checks.")
         else()
             option(CLANG_TIDY_FIX "Perform fixes for Clang-Tidy" OFF)
@@ -50,7 +50,6 @@ if(STATIC_ANALYSIS)
             if (CLANG_TIDY_FIX)
                 list(APPEND CMAKE_C_CLANG_TIDY   "-fix")
                 list(APPEND CMAKE_CXX_CLANG_TIDY "-fix")
-            else()
             endif()
         endif()
     endif()
@@ -104,3 +103,41 @@ if(STATIC_ANALYSIS)
         endif()
     endif(USE_IWYU)
 endif(STATIC_ANALYSIS)
+
+
+# Function for adding clang_tidy specific checks to a given target.
+# Note this is always generated regardless of compilation to ensure it is defined
+# for all cases.
+# target_clang_tidy_definitions
+#   TARGET the cmake target to add the compilation clang tidy checks to.
+#   CHECKS a list of checks to add to this specific target.
+#
+function(target_clang_tidy_definitions)  
+    set( _options )
+    set( _oneValueArgs TARGET )
+    set( _multiValueArgs CHECKS)
+    include( CMakeParseArguments )
+    cmake_parse_arguments( "_arg" "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN} )
+    
+    if( _arg_UNPARSED_ARGUMENTS )
+        message( FATAL_ERROR "Unknown argument(s) to target_clang_tidy_checks: ${_arg_UNPARSED_ARGUMENTS}" )
+    endif()
+    
+    if( NOT _arg_TARGET )
+        message( FATAL_ERROR "Must specify TARGET <target> to add clang-tidy checks" )
+    endif()
+
+    if( NOT TARGET ${_arg_TARGET})
+        message( FATAL_ERROR "Unknown TARGET <target> for clang-tidy checks: ${_arg_TARGET}" )
+    endif()
+    
+    if( NOT _arg_CHECKS )
+        message( FATAL_ERROR "No valid checks provided")
+    endif()
+
+    string( REPLACE ";" "," checks "${_arg_CHECKS}" )
+    set_property( TARGET ${_arg_TARGET} APPEND PROPERTY CXX_CLANG_TIDY --checks=${checks} )
+    set_property( TARGET ${_arg_TARGET} APPEND PROPERTY C_CLANG_TIDY   --checks=${checks} )
+    #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY OBJCXX_CLANG_TIDY -checks=${checks} )
+    #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY OBJC_CLANG_TIDY   -checks=${checks} )
+endfunction()

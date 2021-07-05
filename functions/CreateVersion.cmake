@@ -41,7 +41,7 @@ function(CreateVersion)
     cmake_parse_arguments( "_arg" "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN} )
     
     if( _arg_UNPARSED_ARGUMENTS )
-        message( FATAL_ERROR "Unknown argument(s) to add_mock_target: ${_arg_UNPARSED_ARGUMENTS}" )
+        message( FATAL_ERROR "Unknown argument(s) to CreateVersion: ${_arg_UNPARSED_ARGUMENTS}" )
     endif()
     
     if( NOT _arg_PROJECT )

@@ -46,6 +46,36 @@ if(BUILD_TEST)
     add_library(GMock::GMock ALIAS gmock)
     add_library(GMock::Main ALIAS gmock_main)
     
+    # target_clang_tidy_definitions(TARGET gtest
+    #   CHECKS
+    #     -bugprone-exception-escape
+    #     -bugprone-suspicious-include
+    #     -cppcoreguidelines-pro-type-vararg
+    #     -hicpp-deprecated-headers
+    #     -hicpp-vararg
+    #     -llvm-include-order
+    #     -llvmlibc-callee-namespace
+    #     -llvmlibc-implementation-in-namespace
+    #     -llvmlibc-restrict-system-libc-headers
+    #     -modernize-deprecated-headers
+    #     -modernize-use-trailing-return-type
+    # )
+    
+    # target_clang_tidy_definitions(TARGET gmock
+    #   CHECKS
+    #     -bugprone-exception-escape
+    #     -bugprone-suspicious-include
+    #     -cppcoreguidelines-pro-type-vararg
+    #     -hicpp-deprecated-headers
+    #     -hicpp-vararg
+    #     -llvm-include-order
+    #     -llvmlibc-callee-namespace
+    #     -llvmlibc-implementation-in-namespace
+    #     -llvmlibc-restrict-system-libc-headers
+    #     -modernize-deprecated-headers
+    #     -modernize-use-trailing-return-type
+    # )
+
     enable_testing()
     add_definitions(-DBUILD_TEST)
     
