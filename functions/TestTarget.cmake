@@ -69,7 +69,6 @@ The following targets are defined by this module:
 
 .. variable:: UnitTest_<target name> OR ManualTest_<target_name>
 #]=======================================================================]
-
 function( TestTarget )
     set( _options )
     set( _oneValueArgs TARGET FRAMEWORK TYPE)
@@ -142,7 +141,7 @@ function( TestTarget )
     else()
         add_executable( ${_target} ${_arg_SOURCES} )
     endif()
-    
+
     get_target_property(_type ${_arg_TARGET} TYPE)
     
     # Link libraries
@@ -193,6 +192,12 @@ function( TestTarget )
 	          ${_arg_LINK_LIBRARY}
 	    )
 	endif()
+
+    target_clang_tidy_definitions(TARGET ${_target}
+      CHECKS
+        -cert-err58-cpp
+        -cppcoreguidelines-avoid-non-const-global-variables
+    )
 
     #Optionally move the tests into one dir.
     option(TEST_DESTINATION_DIR  "Use this directory as the destination <build>/test" ON)

@@ -81,7 +81,7 @@ if(STATIC_ANALYSIS)
             cpplint
         )
         if(NOT CPPLINT)
-            message(WARNING "Could not find clang_tidy, must be installed to perform static checks.")
+            message(WARNING "Could not find cpplint, must be installed to perform static checks.")
         else()
             set(CMAKE_CXX_CPPLINT ${CPPLINT} "--linelength=200")
         endif()
@@ -105,6 +105,8 @@ if(STATIC_ANALYSIS)
 endif(STATIC_ANALYSIS)
 
 
+include( CMakeParseArguments )
+
 # Function for adding clang_tidy specific checks to a given target.
 # Note this is always generated regardless of compilation to ensure it is defined
 # for all cases.
@@ -115,8 +117,7 @@ endif(STATIC_ANALYSIS)
 function(target_clang_tidy_definitions)  
     set( _options )
     set( _oneValueArgs TARGET )
-    set( _multiValueArgs CHECKS)
-    include( CMakeParseArguments )
+    set( _multiValueArgs CHECKS )
     cmake_parse_arguments( "_arg" "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN} )
     
     if( _arg_UNPARSED_ARGUMENTS )
@@ -135,9 +136,60 @@ function(target_clang_tidy_definitions)
         message( FATAL_ERROR "No valid checks provided")
     endif()
 
-    string( REPLACE ";" "," checks "${_arg_CHECKS}" )
-    set_property( TARGET ${_arg_TARGET} APPEND PROPERTY CXX_CLANG_TIDY --checks=${checks} )
-    set_property( TARGET ${_arg_TARGET} APPEND PROPERTY C_CLANG_TIDY   --checks=${checks} )
-    #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY OBJCXX_CLANG_TIDY -checks=${checks} )
-    #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY OBJC_CLANG_TIDY   -checks=${checks} )
+    if(CMAKE_CXX_CLANG_TIDY)
+        string( REPLACE ";" "," checks "${_arg_CHECKS}" )
+
+        set_property( TARGET ${_arg_TARGET} APPEND PROPERTY CXX_CLANG_TIDY "-checks=${checks}" )
+        #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY C_CLANG_TIDY   -checks=${checks} )
+        #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY OBJCXX_CLANG_TIDY -checks=${checks} )
+        #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY OBJC_CLANG_TIDY   -checks=${checks} )
+    endif()
+endfunction()
+
+# Function for ignoring static analysis on a target
+# Note this is used for  clang_tidy specific checks to a given target.
+# Note this is always generated regardless of compilation to ensure it is defined
+# for all cases.
+# target_clang_tidy_definitions
+#   TARGET the cmake target to add the compilation clang tidy checks to.
+#   CLANG_TIDY when included will set all include directories to system.
+#
+function(target_ignore_static_analysis)
+    set( _options CLANG_TIDY)
+    set( _oneValueArgs TARGET )
+    set( _multiValueArgs )
+    cmake_parse_arguments( "_arg" "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN} )
+
+    if( _arg_UNPARSED_ARGUMENTS )
+        message( FATAL_ERROR "Unknown argument(s) to target_ignore_static_analysis: ${_arg_UNPARSED_ARGUMENTS}" )
+    endif()
+
+    if( NOT _arg_TARGET )
+        message( FATAL_ERROR "Must specify TARGET <target> to ignore_static_analysis" )
+    endif()
+
+    if( NOT TARGET ${_arg_TARGET})
+        message( FATAL_ERROR "Unknown TARGET <target> for ignore_static_analysis : ${_arg_TARGET}" )
+    endif()
+
+    if( _arg_CLANG_TIDY )
+        # don't perform any clang-tidy checks on this target
+        get_target_property( _type ${_arg_TARGET} TYPE )
+        if( NOT ${_type} STREQUAL "INTERFACE_LIBRARY" )
+            set_target_properties( ${_arg_TARGET}
+              PROPERTIES
+                CXX_CLANG_TIDY ""
+                C_CLANG_TIDY ""
+                OBJC_CLANG_TIDY ""
+                OBJCXX_CLANG_TIDY ""
+            )
+        endif()
+
+        # When a target is marked as ignore static_analsysis CLANG_TIDY need to mark all include directories
+        # as system so they are ignored
+        get_target_property( interface_directories ${_arg_TARGET} INTERFACE_INCLUDE_DIRECTORIES )
+        set (resolved_directories "${interface_directories}")
+        message( STATUS "Converting ${_arg_TARGET} directories to system: ${resolved_directories}")
+        set_property( TARGET ${_arg_TARGET} PROPERTY INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${resolved_directories}" )
+    endif()
 endfunction()
