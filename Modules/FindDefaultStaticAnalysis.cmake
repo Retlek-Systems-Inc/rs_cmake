@@ -33,10 +33,16 @@ if(STATIC_ANALYSIS)
         find_program(CLANG_TIDY 
           NAMES
             clang-tidy
+            clang-tidy-13
+            clang-tidy-11
+            clang-tidy-10
+            clang-tidy-9
             clang-tidy-8
             clang-tidy-7
             clang-tidy-6.0
+            clang-tidy-5.0
             clang-tidy-4.0
+            clang-tidy-3.9
         )
         message(STATUS "CLANG_TIDY = ${CLANG_TIDY}")
         if(NOT CLANG_TIDY)
@@ -188,9 +194,11 @@ function(target_ignore_static_analysis)
         # When a target is marked as ignore static_analsysis CLANG_TIDY need to mark all include directories
         # as system so they are ignored
         get_target_property( interface_directories ${_arg_TARGET} INTERFACE_INCLUDE_DIRECTORIES )
-        target_include_directories(${_arg_TARGET} SYSTEM INTERFACE ${interface_directories})
-
+        target_include_directories(${_arg_TARGET} SYSTEM
+          INTERFACE
+            $<TARGET_GENEX_EVAL:${_arg_TARGET}, ${interface_directories}>
+        )
         get_target_property( system_directories ${_arg_TARGET} INTERFACE_SYSTEM_INCLUDE_DIRECTORIES)
-        message( STATUS "Converting ${_arg_TARGET} directories to system: ${system_directories}")
+        message( STATUS "Converting ${_arg_TARGET} interface directories to system")
     endif()
 endfunction()

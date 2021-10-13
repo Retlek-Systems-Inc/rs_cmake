@@ -212,7 +212,7 @@ function( TestTarget )
     if (_arg_TYPE STREQUAL UNIT )
         message( STATUS "${_arg_TYPE} test ${_target} add_test.")
         # Note: If we support other test frameworks will need to do the following:
-        if ( (_arg_FRAMEWORK STREQUAL "GTest") OR (_arg_FRAMEWORK STREQUAL "GMock") )
+        if ( NOT CMAKE_CROSSCOMPILING AND ((_arg_FRAMEWORK STREQUAL "GTest") OR (_arg_FRAMEWORK STREQUAL "GMock")) )
             gtest_discover_tests( ${_target} )
         else()
             add_test( NAME ${_target} COMMAND ${_command} )

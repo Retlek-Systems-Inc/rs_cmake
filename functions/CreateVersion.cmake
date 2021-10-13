@@ -23,7 +23,9 @@
 
 # CreateVersion
 #   PROJECT project name to extract the version from.
-#   TARGET the filename and variable name to generate - if not specified uses <PROJECT>Version as target.
+#   TARGET  the cmake target for the version info - if not specified uses <PROJECT>_version as target
+#   FILENAME the filename(s) to generate - if not specified uses <PROJECT>_version.* as file name(s)
+#   VARIABLE the constant variable name to generate - if not specified uses <PROJECT>Version as variable
 #   OUTDIR output directory for resulting version information.
 #
 # Creates a structure containing all of the project version information for consumption.
@@ -35,7 +37,7 @@ set(_CreateVersion_DIR ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
 function(CreateVersion)
     
     set( _options )
-    set( _oneValueArgs PROJECT TARGET OUTDIR )
+    set( _oneValueArgs PROJECT TARGET FILENAME VARIABLE OUTDIR )
     set( _multiValueArgs )
     include( CMakeParseArguments )
     cmake_parse_arguments( "_arg" "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN} )
@@ -45,29 +47,37 @@ function(CreateVersion)
     endif()
     
     if( NOT _arg_PROJECT )
-        message( FATAL_ERROR "Must specify PROJECT <project> to create the version info." )
+        message( FATAL_ERROR "Must specify PROJECT <project> to create the version info" )
     endif()
 
     if( NOT _arg_TARGET )
-        message( WARNING "Setting TARGET to `${_arg_PROJECT}Version`.")
-        set(_arg_TARGET ${_arg_PROJECT}Version)
+        set(_arg_TARGET ${_arg_PROJECT}_version)
+        message( WARNING "Setting FILENAME to `${_arg_FILENAME}`")
     endif()
-    
+
+    if( NOT _arg_FILENAME )
+        set(_arg_FILENAME ${_arg_PROJECT}_version)
+        message( WARNING "Setting FILENAME to `${_arg_FILENAME}`")
+    endif()
+
+    if( NOT _arg_VARIABLE )
+        set(_arg_VARIABLE ${_arg_PROJECT}Version)
+        message( WARNING "Setting VARIABLE to `${_arg_VARIABLE}`")
+    endif()
+
     if( NOT _arg_OUTDIR )
         message( FATAL_ERROR "Must specify OUTDIR <output directory> for version information files." )
     endif()
     
-    set(_hdrs "${_arg_OUTDIR}/api/${_arg_TARGET}.h")
-    set(_srcs "${_arg_OUTDIR}/src/${_arg_TARGET}.cpp")
+    set(_hdr "${_arg_OUTDIR}/api/${_arg_FILENAME}.h")
 
     GitHash()    
     string(TIMESTAMP BUILD_TIMESTAMP "%s")
-    configure_file("${_CreateVersion_DIR}/version.h.in"   "${_hdrs}" @ONLY )
-    configure_file("${_CreateVersion_DIR}/version.cpp.in" "${_srcs}" @ONLY )
+    configure_file("${_CreateVersion_DIR}/version.h.in"   "${_hdr}" @ONLY )
 
-    add_library(${_arg_TARGET} STATIC ${_srcs} ${_hdrs} )
+    add_library(${_arg_TARGET} INTERFACE ${_hdr})
     target_include_directories(${_arg_TARGET}
-        PUBLIC
+        INTERFACE
             ${_arg_OUTDIR}/api
     )
 
