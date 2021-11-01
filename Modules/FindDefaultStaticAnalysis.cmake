@@ -46,7 +46,7 @@ if(STATIC_ANALYSIS)
         )
         message(STATUS "CLANG_TIDY = ${CLANG_TIDY}")
         if(NOT CLANG_TIDY)
-            message(WARNING "Could not find clang_tidy, must be installed to perform static checks.")
+            message(WARNING "Could not find clang-tidy, must be installed to perform static checks.")
         else()
             option(CLANG_TIDY_FIX "Perform fixes for Clang-Tidy" OFF)
 

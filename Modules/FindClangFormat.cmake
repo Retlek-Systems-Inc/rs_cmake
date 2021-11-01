@@ -22,7 +22,10 @@
 find_program(CLANG_FORMAT
     NAMES
         clang-format
+        clang-format-13
         clang-format-11
+        clang-format-10
+        clang-format-9
         clang-format-8
         clang-format-7
         clang-format-6.0
