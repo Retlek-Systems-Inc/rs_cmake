@@ -20,7 +20,7 @@
 # SOFTWARE.
 #
 ---
-Checks: '
+Checks: "
     *,
     -*-avoid-c-arrays,
     -*-non-private-member-variables-in-classes,
@@ -31,43 +31,57 @@ Checks: '
     -cppcoreguidelines-pro-bounds-pointer-arithmetic,
     -cppcoreguidelines-pro-type-reinterpret-cast,
     -cppcoreguidelines-pro-type-vararg,
+    -cppcoreguidelines-macro-usage,
     -hicpp-no-array-decay,
     -hicpp-signed-bitwise,
     -hicpp-vararg,
     -google-build-using-namespace,
     -fuchsia-default-arguments,
+    -fuchsia-default-arguments-declarations,
+    -fuchsia-default-arguments-calls,
+    -fuchsia-multiple-inheritance,
     -fuchsia-overloaded-operator,
     -fuchsia-statically-constructed-objects,
-    -fuchsia-multiple-inheritance,
     -llvm-header-guard,
-    '
+    -llvmlibc-callee-namespace,
+    -llvmlibc-implementation-in-namespace,
+    -llvmlibc-restrict-system-libc-headers,
+    -modernize-use-trailing-return-type,
+    -*-deprecated-headers,
+    -modernize-use-using,
+    -google-runtime-int,
+    -bugprone-macro-parentheses,
+    "
+# Treat all warnings as errors outside the above scope.
+WarningsAsErrors: "*"
 
-# Treat all warnings as errors outside the above scope.le
-WarningsAsErrors: '*'
-
-HeaderFilterRegex: '.*'
+HeaderFilterRegex: ".*"
 
 CheckOptions:
-  - key:             google-readability-braces-around-statements.ShortStatementLines
-    value:           '1'
-  - key:             google-readability-function-size.StatementThreshold
-    value:           '800'
-  - key:             google-readability-namespace-comments.ShortNamespaceLines
-    value:           '10'
-  - key:             google-readability-namespace-comments.SpacesBeforeComments
-    value:           '2'
-  - key:             modernize-loop-convert.MaxCopySize
-    value:           '16'
-  - key:             modernize-loop-convert.MinConfidence
-    value:           reasonable
-  - key:             modernize-loop-convert.NamingStyle
-    value:           CamelCase
-  - key:             modernize-pass-by-value.IncludeStyle
-    value:           llvm
-  - key:             modernize-replace-auto-ptr.IncludeStyle
-    value:           llvm
-  - key:             modernize-use-nullptr.NullMacros
-    value:           'NULL'
+  - key: google-readability-braces-around-statements.ShortStatementLines
+    value: "1"
+  - key: google-readability-function-size.StatementThreshold
+    value: "800"
+  - key: google-readability-namespace-comments.ShortNamespaceLines
+    value: "10"
+  - key: google-readability-namespace-comments.SpacesBeforeComments
+    value: "2"
+  - key: modernize-loop-convert.MaxCopySize
+    value: "16"
+  - key: modernize-loop-convert.MinConfidence
+    value: reasonable
+  - key: modernize-loop-convert.NamingStyle
+    value: CamelCase
+  - key: modernize-pass-by-value.IncludeStyle
+    value: llvm
+  - key: modernize-replace-auto-ptr.IncludeStyle
+    value: llvm
+  - key: modernize-use-nullptr.NullMacros
+    value: "NULL"
+  - key: cppcoreguidelines-pro-type-member-init.UseAssignment
+    value: true
+  - key: readability-function-cognitive-complexity.IgnoreMacros
+    value: true
 
   # Conformance to naming conventions.
   # See: https: //clang.llvm.org/extra/clang-tidy/checks/readability-identifier-naming.html
@@ -143,7 +157,7 @@ CheckOptions:
   - key: readability-identifier.naming.MemberCase
     value: camelBack
   - key: readability-identifier.naming.MemberPrefix
-    value: 'm_'
+    value: "m_"
   - key: readability-identifier.naming.MethodCase
     value: camelBack
   - key: readability-identifier.naming.NamespaceCase
@@ -204,4 +218,3 @@ CheckOptions:
     value: camelBack
   - key: readability-identifier.naming.ValueTemplateParameterCase
     value: camelBack
-...
