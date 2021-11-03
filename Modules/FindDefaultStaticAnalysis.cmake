@@ -74,7 +74,12 @@ if(STATIC_ANALYSIS)
         if(NOT CPPCHECK)
             message(WARNING "Could not find cppcheck, must be installed to perform static checks.")
         else()
-            set(CMAKE_CXX_CPPCHECK ${CPPCHECK} "--std=c++11")
+            set(CMAKE_CXX_CPPCHECK ${CPPCHECK}
+                --inline-suppr
+                --inconclusive
+                --enable=all
+                --force
+                "--template='{file}:{line} {severity} ({id}):{message}'")
         endif()
     endif(USE_CPPCHECK)
                 
@@ -188,6 +193,8 @@ function(target_ignore_static_analysis)
                 C_CLANG_TIDY ""
                 OBJC_CLANG_TIDY ""
                 OBJCXX_CLANG_TIDY ""
+                CXX_CPPCHECK ""
+                C_CPPCHECK ""
             )
         endif()
 
