@@ -23,6 +23,36 @@
 # Note googletest/googlemock are down-loaded into the build dir and compiled as part
 # of the test environment from there.
 
+macro(setup_code_coverage_target)
+    # Create a code coverage target.
+    set(_coverageTarget code-coverage)
+    string(TOLOWER ${CMAKE_BUILD_TYPE} _buildType)
+    if ( ${_buildType} STREQUAL coverage AND NOT TARGET ${_coverageTarget} )
+        include(CodeCoverage)
+        APPEND_COVERAGE_COMPILER_FLAGS()
+
+        # Exclude standard and test framework environment builds.
+        list(APPEND COVERAGE_LCOV_EXCLUDES
+            '/usr/include/*'
+            '${googletest_SOURCE_DIR}/*'
+        )
+        message(STATUS "Coverage Excludes: ${COVERAGE_LCOV_EXCLUDES}")
+
+        SETUP_TARGET_FOR_COVERAGE_LCOV_HTML(
+            NAME ${_coverageTarget}
+            EXECUTABLE ctest
+            EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
+            LCOV_ARGS
+                --strip 1
+                --rc lcov_branch_coverage=1
+            GENHTML_ARGS
+                --rc genhtml_branch_coverage=1
+                --demangle-cpp
+                --prefix ${CMAKE_SOURCE_DIR}
+        )
+    endif()
+endmacro()
+
 if(BUILD_TEST)
 	#set(INSTALL_GTEST OFF)
     include(FetchContent)
@@ -75,7 +105,6 @@ if(BUILD_TEST)
         -modernize-deprecated-headers
         -modernize-use-trailing-return-type
     )
-
     enable_testing()
     add_definitions(-DBUILD_TEST)
     
@@ -90,29 +119,10 @@ if(BUILD_TEST)
 
     # Code analysis
     if (UNIX)
-    
-        # Create a code coverage target.
-        set(_coverageTarget code-coverage)
         string(TOLOWER ${CMAKE_BUILD_TYPE} _buildType)
-        if ( ${_buildType} STREQUAL coverage AND NOT TARGET ${_coverageTarget} )
+        if ( ${_buildType} STREQUAL coverage )
             include(CodeCoverage)
-            # Exclude standard and test framework environment builds.
-            list(APPEND COVERAGE_LCOV_EXCLUDES
-                '/usr/include/*'
-                '${googletest_SOURCE_DIR}/*'
-            )
-            SETUP_TARGET_FOR_COVERAGE_LCOV( 
-                NAME ${_coverageTarget}
-                EXECUTABLE ctest
-                EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
-                LCOV_ARGS
-                    --strip 1
-                    --rc lcov_branch_coverage=1
-                GENHTML_ARGS
-                    --rc genhtml_branch_coverage=1
-                    --demangle-cpp
-                    --prefix ${CMAKE_SOURCE_DIR}
-            )
+            APPEND_COVERAGE_COMPILER_FLAGS()
         endif()
 
         include(${CMAKE_CURRENT_LIST_DIR}/Sanitizer.cmake)
