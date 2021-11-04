@@ -142,9 +142,9 @@ mark_as_advanced(CMAKE_CXX_FLAGS_COVERAGE
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   link_libraries(gcov)
-else()
-  set(CMAKE_EXE_LINKER_FLAGS
-      "${CMAKE_EXE_LINKER_FLAGS} -fprofile-instr-generate")
+# else()
+#   set(CMAKE_EXE_LINKER_FLAGS
+#       "${CMAKE_EXE_LINKER_FLAGS} -fprofile-instr-generate")
 endif()
 
 # Defines a target for running and collection code coverage information Builds
