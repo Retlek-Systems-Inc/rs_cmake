@@ -110,14 +110,11 @@ if("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
   endif()
 elseif(NOT ${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
   message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
-  message(STATUS "CMAKE_COMPILER_IS_GNUCXX = ${CMAKE_COMPILER_IS_GNUCXX}")
   message(FATAL_ERROR "Compiler is not GNU gcc! Aborting...")
 endif()
 
-set(
-  COVERAGE_COMPILER_FLAGS
-  "-g -O0 -fprofile-arcs -ftest-coverage -fprofile-instr-generate -fcoverage-mapping"
-  CACHE INTERNAL "")
+set(COVERAGE_COMPILER_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage" CACHE INTERNAL "")
+#TODO: Support Clang "$<$<CXX_COMPILER_ID:Clang,AppleClang>:-fprofile-instr-generate -fcoverage-mapping>"
 
 set(CMAKE_CXX_FLAGS_COVERAGE ${COVERAGE_COMPILER_FLAGS}
     CACHE STRING "Flags used by the C++ compiler during coverage builds."
