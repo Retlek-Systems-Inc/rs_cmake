@@ -20,6 +20,7 @@
 #
 
 # See accompanying file Copyright.txt or https://tbd for details.
+include(CMakeDependentOption)
 
 ###################
 # Options
@@ -27,6 +28,9 @@
 
 # Makes BUILD_TEST available as option for all builds except when cross compiling.
 option(BUILD_TEST "Build all tests." ON)
+
+# Make BUILD_BENCHMARK available as option for release builds.
+cmake_dependent_option(BUILD_BENCHMARK "Build benchmark tests." ON "NOT BULD_TEST" OFF)
 
 #Makes STATIC_ANALYSIS available as option for all builds except when cross compiling.
 option(STATIC_ANALYSIS "Performs static analysis on tests." OFF)
@@ -73,6 +77,8 @@ find_package(DefaultStaticAnalysis REQUIRED)
 
 #Testing:
 find_package(DefaultTest REQUIRED)
+
+find_package(DefaultBenchmark REQUIRED)
 
 #Documentation:
 set(DOC_EXCLUDE_PATTERNS  
