@@ -36,7 +36,7 @@ TestTarget(
   SOURCES   <filename> [<filename> ...]
 
   [ TYPE [UINT, MANUAL, BENCHMARK] ] - default unit.
-  [ FRAMEWORK [ GTest | GMock ] ] - default GTest
+  [ FRAMEWORK [ GTest | GMock | Benchmark ] ] - default GTest
   [ MOCK_LIBRARY <mock target> [<mock target> ...] ]
   [ LINK_LIBRARY <target> [<target> ...] ]
 )
@@ -114,7 +114,7 @@ function( TestTarget )
         return ()
     endif()
 
-    if ( _arg_TYPE STREQUAL "BENCHMARK" )
+    if( _arg_TYPE STREQUAL "BENCHMARK" )
         if( NOT BUILD_BENCHMARK )
             message( STATUS "Disabling Benchmark: Target ${_arg_TARGET} benchmark is removed." )
             return()
@@ -131,7 +131,12 @@ function( TestTarget )
 
 
     # Currently assumes GoogleTest and GoogleMock.
-    if (NOT _arg_FRAMEWORK)
+    if( _arg_TYPE STREQUAL "BENCHMARK" )
+        # For now when BENCHMARK - use Benchmark framework
+        # Might be more later.
+        set(_arg_FRAMEWORK "Benchmark" )
+    elseif (NOT _arg_FRAMEWORK)
+        # Default
         set(_arg_FRAMEWORK GTest)
     endif()
 
@@ -146,12 +151,10 @@ function( TestTarget )
         include(GoogleTest)
         set(_framework_libs GMock::GMock GMock::Main)
         set(_command ${_target} )
+    elseif(_arg_FRAMEWORK STREQUAL "Benchmark")
+        set(_framework_libs benchmark::benchmark benchmark::benchmark_main)
     else()
         message( FATAL_ERROR "Unrecognized Test framework")
-    endif()
-
-    if( _arg_TYPE STREQUAL "BENCHMARK" )
-        list(APPEND _framework_libs benchmark::benchmark_main)
     endif()
 
     # Create the executable:
