@@ -37,8 +37,8 @@ Checks: "
     -hicpp-vararg,
     -google-build-using-namespace,
     -fuchsia-default-arguments,
-    -fuchsia-default-arguments-declarations,
     -fuchsia-default-arguments-calls,
+    -fuchsia-default-arguments-declarations,
     -fuchsia-multiple-inheritance,
     -fuchsia-overloaded-operator,
     -fuchsia-statically-constructed-objects,
@@ -52,6 +52,7 @@ Checks: "
     -google-runtime-int,
     -bugprone-macro-parentheses,
     "
+
 # Treat all warnings as errors outside the above scope.
 WarningsAsErrors: "*"
 

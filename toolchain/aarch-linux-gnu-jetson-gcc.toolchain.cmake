@@ -18,6 +18,15 @@ set(CMAKE_SYSROOT ${JETSON_SYSROOT})
 set(CMAKE_C_COMPILER ${LINARO_PATH}/bin/${TOOLCHAIN_TRIPPLE}-gcc)
 set(CMAKE_CXX_COMPILER ${LINARO_PATH}/bin/${TOOLCHAIN_TRIPPLE}-g++)
 
+# CUDA
+set(CMAKE_CUDA_HOST_COMPILER ${CMAKE_CXX_COMPILER})
+
+# Note: the CMake CUDA ABI check adds wrong directories to the library search path
+# Use the following code after the enable_language(CUDA) to remove those:
+# if(LINARO_PATH)
+#   list(FILTER CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES EXCLUDE REGEX "${LINARO_PATH}")
+# endif()
+
 #set(CMAKE_C_FLAGS_INIT   "-B${TOOLCHAIN_DIR}")
 #set(CMAKE_CXX_FLAGS_INIT "-B${TOOLCHAIN_DIR}")
 
