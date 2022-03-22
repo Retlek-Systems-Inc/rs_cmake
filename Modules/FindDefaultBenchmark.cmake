@@ -23,9 +23,9 @@
 # Note googletest/googlemock are down-loaded into the build dir and compiled as part
 # of the test environment from there.
 
-if(BUILD_BENCHMARK)
+if( BUILD_BENCHMARK )
     string(TOLOWER ${CMAKE_BUILD_TYPE} _buildType)
-    if ( NOT ${_buildType} MATCHES "^release.*" )
+    if( BUILD_BENCHMARK_RELEASE_ONLY AND NOT ${_buildType} MATCHES "^rel.*" )
         message(STATUS "Not building benchmark with CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
         return()
     endif()

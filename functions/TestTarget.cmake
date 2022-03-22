@@ -121,7 +121,7 @@ function( TestTarget )
         endif()
 
         string(TOLOWER ${CMAKE_BUILD_TYPE} _buildType)
-        if ( NOT ${_buildType} MATCHES "^release.*" )
+        if (BUILD_BENCHMARK_RELEASE_ONLY AND NOT ${_buildType} MATCHES "^rel.*" )
             message(STATUS "Disabling Benchmark: Target ${_arg_TARGET}, CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
             return()
         endif()

@@ -31,6 +31,8 @@ option(BUILD_TEST "Build all tests." ON)
 
 # Make BUILD_BENCHMARK available as option for release builds.
 cmake_dependent_option(BUILD_BENCHMARK "Build benchmark tests." ON "NOT BULD_TEST" OFF)
+# Allow Building benchmark with release only, but allow explicit off to support debugging release builds.
+option(BUILD_BENCHMARK_RELEASE_ONLY "Only Build benchmark for Release builds." ON)
 
 #Makes STATIC_ANALYSIS available as option for all builds except when cross compiling.
 option(STATIC_ANALYSIS "Performs static analysis on tests." OFF)
