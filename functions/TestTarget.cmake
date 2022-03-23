@@ -242,6 +242,7 @@ function( TestTarget )
             -hicpp-no-assembler
             -hicpp-use-emplace
             -hicpp-use-equals-default
+            -hicpp-use-equals-delete
             -hicpp-use-override
             -readability-named-parameter
             -*-braces-around-statements

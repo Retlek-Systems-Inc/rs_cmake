@@ -48,6 +48,13 @@ if( BUILD_BENCHMARK )
     configure_file( "${CMAKE_CURRENT_LIST_DIR}/StaticAnalysis/.clang-tidy.all.in"
                     "${CMAKE_BINARY_DIR}/_deps/.clang-tidy" COPYONLY )
 
+    target_compile_options( benchmark
+      PUBLIC
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-padded>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shift-sign-overflow>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-zero-as-null-pointer-constant>
+    )
+
     target_clang_tidy_definitions( TARGET benchmark
       CHECKS
         -clang-analyzer-deadcode

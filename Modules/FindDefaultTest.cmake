@@ -77,6 +77,24 @@ if(BUILD_TEST)
     add_library(GMock::GMock ALIAS gmock)
     add_library(GMock::Main ALIAS gmock_main)
     
+    target_compile_options( gtest
+      PUBLIC
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-covered-switch-default>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-global-constructors>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-gnu-zero-variadic-macro-arguments>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-used-but-marked-unused>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-weak-vtables>
+    )
+
+    target_compile_options( gmock
+      PUBLIC
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-covered-switch-default>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-global-constructors>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-gnu-zero-variadic-macro-arguments>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-used-but-marked-unused>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-weak-vtables>
+    )
+
     target_clang_tidy_definitions(TARGET gtest
       CHECKS
         -bugprone-exception-escape
