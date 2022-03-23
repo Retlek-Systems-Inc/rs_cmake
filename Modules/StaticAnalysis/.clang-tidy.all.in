@@ -19,23 +19,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-# Current googletest warnings/errors.
-
 ---
-Checks: '
-    *,
-    -bugprone-exception-escape,
-    -bugprone-suspicious-include,
-    -cppcoreguidelines-pro-type-vararg,
-    -hicpp-deprecated-headers,
-    -hicpp-vararg,
-    -llvm-include-order,
-    -llvmlibc-callee-namespace,
-    -llvmlibc-implementation-in-namespace,
-    -llvmlibc-restrict-system-libc-headers,
-    -modernize-deprecated-headers,
-    -modernize-use-trailing-return-type,
-    '
-WarningsAsErrors: '*'
+Checks: '*'
 
+# Treat all warnings as errors outside the above scope.
+WarningsAsErrors: '*'
 ...

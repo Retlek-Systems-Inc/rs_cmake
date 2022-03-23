@@ -137,4 +137,8 @@ function( MockTarget )
                 $<TARGET_PROPERTY:${_arg_TARGET},INTERFACE_COMPILE_FEATURES>
         )
     endif()
+
+    # target_clang_tidy_definitions( TARGET ${_target}
+    #     CHECKS
+    # )
 endfunction()

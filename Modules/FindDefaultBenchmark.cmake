@@ -43,44 +43,14 @@ if( BUILD_BENCHMARK )
     set(BENCHMARK_USE_BUNDLED_GTEST ON CACHE BOOL "" FORCE) # Use bundled GTEST within the gtest.
     
     FetchContent_MakeAvailable(benchmark)
+    # Add clang-tidy definition to include warnings/errors for benchmark.
+    # Clang-Tidy all file for build dir /_deps - anything third-party or grabbed from elsewhere don't do clang tidy on.
+    configure_file( "${CMAKE_CURRENT_LIST_DIR}/StaticAnalysis/.clang-tidy.all.in"
+                    "${CMAKE_BINARY_DIR}/_deps/.clang-tidy" COPYONLY )
 
-    # add_library(Benchmark::Main ALIAS benchmark_main)
-    # add_library(GTest::Main ALIAS gtest_main)
-    # add_library(GMock::GMock ALIAS gmock)
-    # add_library(GMock::Main ALIAS gmock_main)
-    
-    # target_clang_tidy_definitions(TARGET gtest
-    #   CHECKS
-    #     -bugprone-exception-escape
-    #     -bugprone-suspicious-include
-    #     -cppcoreguidelines-pro-type-vararg
-    #     -hicpp-deprecated-headers
-    #     -hicpp-vararg
-    #     -llvm-include-order
-    #     -llvmlibc-callee-namespace
-    #     -llvmlibc-implementation-in-namespace
-    #     -llvmlibc-restrict-system-libc-headers
-    #     -modernize-deprecated-headers
-    #     -modernize-use-trailing-return-type
-    # )
-    
-    # target_clang_tidy_definitions(TARGET gmock
-    #   CHECKS
-    #     -bugprone-exception-escape
-    #     -bugprone-suspicious-include
-    #     -cppcoreguidelines-pro-type-vararg
-    #     -hicpp-deprecated-headers
-    #     -hicpp-vararg
-    #     -llvm-include-order
-    #     -llvmlibc-callee-namespace
-    #     -llvmlibc-implementation-in-namespace
-    #     -llvmlibc-restrict-system-libc-headers
-    #     -modernize-deprecated-headers
-    #     -modernize-use-trailing-return-type
-    # )
-    # enable_testing()
-    # add_definitions(-DBUILD_BENCHMARK)
-    
-    add_custom_target( build_benchmark ALL )
+    target_clang_tidy_definitions( TARGET benchmark
+      CHECKS
+        -clang-analyzer-deadcode
+    )
 
 endif(BUILD_BENCHMARK)

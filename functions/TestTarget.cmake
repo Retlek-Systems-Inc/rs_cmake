@@ -215,11 +215,38 @@ function( TestTarget )
 	    )
 	endif()
 
-    target_clang_tidy_definitions( TARGET ${_target}
-      CHECKS
-        -cert-err58-cpp
-        -cppcoreguidelines-avoid-non-const-global-variables
-    )
+    if( (_arg_FRAMEWORK STREQUAL "GTest") OR (_arg_FRAMEWORK STREQUAL "GMock") )
+        target_clang_tidy_definitions( TARGET ${_target}
+          CHECKS
+            -cert-err58-cpp
+            -cppcoreguidelines-avoid-non-const-global-variables
+            -*-avoid-goto # For EXPECT_THROW and EXPECT_DEATH tests.
+        )
+    elseif(_arg_FRAMEWORK STREQUAL "Benchmark")
+        target_clang_tidy_definitions( TARGET ${_target}
+          CHECKS
+            -bugprone-macro-parentheses
+            -cert-err58-cpp
+            -clang-analyzer-deadcode # Note this is for the template of for(auto _: state)
+            -cppcoreguidelines-avoid-non-const-global-variables
+            -cppcoreguidelines-explicit-virtual-functions
+            -cppcoreguidelines-explicit-virtual-functions
+            -cppcoreguidelines-macro-usage
+            -cppcoreguidelines-pro-type-const-cast
+            -cppcoreguidelines-pro-type-member-init
+            -google-explicit-constructor
+            -hicpp-deprecated-headers
+            -hicpp-explicit-conversions
+            -hicpp-member-init
+            -hicpp-named-parameter
+            -hicpp-no-assembler
+            -hicpp-use-emplace
+            -hicpp-use-equals-default
+            -hicpp-use-override
+            -readability-named-parameter
+            -*-braces-around-statements
+        )
+    endif() # Unit or Manual GTEST.
 
     #Optionally move the tests into one dir.
     option(TEST_DESTINATION_DIR  "Use this directory as the destination <build>/test" ON)

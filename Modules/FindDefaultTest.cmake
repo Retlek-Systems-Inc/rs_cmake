@@ -57,7 +57,7 @@ if(BUILD_TEST)
 	#set(INSTALL_GTEST OFF)
     include(FetchContent)
     FetchContent_Declare( googletest
-      GIT_REPOSITORY    https://github.com/google/googletest.git
+      GIT_REPOSITORY    ssh://git@endogiteng01.strykercorp.com:7999/e_ccu/oss_googletest.git
       GIT_TAG           release-1.11.0 #master - need latest
     )
 
@@ -67,9 +67,10 @@ if(BUILD_TEST)
 
 
     FetchContent_MakeAvailable(googletest)
-    # Add clang-tidy definition to remove any warnings/errors.
-    configure_file("${CMAKE_CURRENT_LIST_DIR}/../External/.clang-tidy-Googletest"
-                   "${googletest_SOURCE_DIR}/.clang-tidy" COPYONLY)
+    # Add clang-tidy definition to include warnings/errors for googletest.
+    # Clang-Tidy all file for build dir /_deps - anything third-party or grabbed from elsewhere don't do clang tidy on.
+    configure_file( "${CMAKE_CURRENT_LIST_DIR}/StaticAnalysis/.clang-tidy.all.in"
+                    "${CMAKE_BINARY_DIR}/_deps/.clang-tidy" COPYONLY )
 
     add_library(GTest::GTest ALIAS gtest)
     add_library(GTest::Main ALIAS gtest_main)
@@ -108,8 +109,6 @@ if(BUILD_TEST)
     enable_testing()
     add_definitions(-DBUILD_TEST)
     
-    add_custom_target( build_tests ALL )
-
     include(ProcessorCount)
     ProcessorCount(PROCESSOR_COUNT)
     if(NOT PROCESSOR_COUNT EQUAL 0)
