@@ -50,14 +50,16 @@ if( BUILD_BENCHMARK )
 
     target_compile_options( benchmark
       PUBLIC
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-global-constructors>
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-padded>
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shift-sign-overflow>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-weak-vtables>
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-zero-as-null-pointer-constant>
     )
 
     target_clang_tidy_definitions( TARGET benchmark
       CHECKS
-        -clang-analyzer-deadcode
+        -clang-analyzer-deadcode.DeadStores
     )
 
 endif(BUILD_BENCHMARK)

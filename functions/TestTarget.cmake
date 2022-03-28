@@ -227,7 +227,7 @@ function( TestTarget )
           CHECKS
             -bugprone-macro-parentheses
             -cert-err58-cpp
-            -clang-analyzer-deadcode # Note this is for the template of for(auto _: state)
+            -clang-analyzer-deadcode.DeadStores # Note this is for the template of for(auto _: state)
             -cppcoreguidelines-avoid-non-const-global-variables
             -cppcoreguidelines-explicit-virtual-functions
             -cppcoreguidelines-explicit-virtual-functions
