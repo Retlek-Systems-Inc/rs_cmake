@@ -57,7 +57,7 @@ if(BUILD_TEST)
 	#set(INSTALL_GTEST OFF)
     include(FetchContent)
     FetchContent_Declare( googletest
-      GIT_REPOSITORY    ssh://git@endogiteng01.strykercorp.com:7999/e_ccu/oss_googletest.git
+      GIT_REPOSITORY    https://github.com/google/googletest.git
       GIT_TAG           release-1.11.0 #master - need latest
     )
 
