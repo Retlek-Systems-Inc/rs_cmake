@@ -3,24 +3,39 @@ set -ex
 
 # Base Software properties for ppa lists.
 apt-get update -y
-apt-get install -y software-properties-common wget
+apt-get install -y software-properties-common wget gpg
 
 # GCC Arm Embedded processor repository location (added before first update).
 add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
 apt-get update -y
 
-# Environment setup for latest cmake: see : https://apt.kitware.com/
-#wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
-#For Ubuntu Bionic Beaver (18.04):
-#sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
-#sudo apt-get update
-#sudo apt-get install kitware-archive-keyring
-#sudo apt-key --keyring /etc/apt/trusted.gpg del C1F34CDD40CD72DA
+# Latest CMake
+wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg > /dev/null
+echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ bionic main' | tee /etc/apt/sources.list.d/kitware.list > /dev/null
+apt -y update
+rm /usr/share/keyrings/kitware-archive-keyring.gpg
+apt-get install -y kitware-archive-keyring cmake 
 
-#Environment items for Cmake, build, documentation, linting.
-apt-get install -y cmake clang-format-8 clang-tidy-8 iwyu
+# Build Environment
+git build-essential iwyu ninja-build ccache lcov
+
+
+#Environment items for Documentation
 apt-get install -y doxygen graphviz default-jdk python3-sphinx python3-pip
-apt-get install -y ninja-build ccache
+
+
+# Latest LLVM (clang*-13)
+wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh
+./llvm.sh 13
+
+# For debug with LLVM Clang
+apt-get install -y liblldb-13-dev
+git clone https://github.com/lldb-tools/lldb-mi
+cd lldb-mi
+cmake .
+cmake --build .
+make install
+export LLDB_DEBUGSERVER_PATH=/usr/bin/lldb-server-13
 
 # Google style linting
 #python3 -m pip install cpplint
