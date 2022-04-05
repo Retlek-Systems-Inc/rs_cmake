@@ -109,6 +109,17 @@ if(BUILD_TEST)
         -modernize-deprecated-headers
         -modernize-use-trailing-return-type
     )
+
+    target_clang_tidy_definitions(TARGET gtest_main
+      CHECKS
+        -cppcoreguidelines-pro-type-vararg
+        -hicpp-vararg
+        -llvm-include-order
+        -llvmlibc-callee-namespace
+        -llvmlibc-implementation-in-namespace
+        -llvmlibc-restrict-system-libc-headers
+        -modernize-use-trailing-return-type
+    )
     
     target_clang_tidy_definitions(TARGET gmock
       CHECKS
@@ -124,6 +135,18 @@ if(BUILD_TEST)
         -modernize-deprecated-headers
         -modernize-use-trailing-return-type
     )
+
+    target_clang_tidy_definitions(TARGET gmock_main
+      CHECKS
+        -cppcoreguidelines-pro-type-vararg
+        -hicpp-vararg
+        -llvm-include-order
+        -llvmlibc-callee-namespace
+        -llvmlibc-implementation-in-namespace
+        -llvmlibc-restrict-system-libc-headers
+        -modernize-use-trailing-return-type
+    )
+
     enable_testing()
     add_definitions(-DBUILD_TEST)
     
