@@ -48,7 +48,7 @@ buildType:
     release:
       short: Release
       long: Release Build - optimizations
-      buildType: Reelase
+      buildType: Release
       settings:
         STATIC_ANALYSIS: "OFF"
     releaseWithDebInfo:
@@ -72,6 +72,6 @@ buildType:
     coverage:
       short: Cov
       long: Debug build with Coverage (GNU only)
-      buildType: coverage
+      buildType: Coverage
       settings:
         STATIC_ANALYSIS: "OFF"
