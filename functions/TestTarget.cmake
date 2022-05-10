@@ -35,7 +35,7 @@ TestTarget(
   TARGET  <target name to test>
   SOURCES   <filename> [<filename> ...]
 
-  [ TYPE [UINT, MANUAL, BENCHMARK] ] - default unit.
+  [ TYPE [UNIT, MANUAL, BENCHMARK] ] - default unit.
   [ FRAMEWORK [ GTest | GMock | Benchmark ] ] - default GTest
   [ MOCK_LIBRARY <mock target> [<mock target> ...] ]
   [ LINK_LIBRARY <target> [<target> ...] ]
@@ -68,7 +68,8 @@ Examples:
 
 The following targets are defined by this module:
 
-.. variable:: UnitTest_<target name> OR ManualTest_<target_name>
+.. variable:: UnitTest_<target name> OR ManualTest_<target_name> OR
+              Benchark_<target_name>
 #]=======================================================================]
 function( TestTarget )
     set( _options )
@@ -128,7 +129,6 @@ function( TestTarget )
     endif()
 
     set( _target ${_exec_name}_${_arg_TARGET} )
-
 
     # Currently assumes GoogleTest and GoogleMock.
     if( _arg_TYPE STREQUAL "BENCHMARK" )
