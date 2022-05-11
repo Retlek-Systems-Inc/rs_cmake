@@ -189,10 +189,10 @@ function(target_cppcheck_definitions)
         message( FATAL_ERROR "No valid defines provided")
     endif()
 
-    set_property( TARGET ${_arg_TARGET} APPEND PROPERTY CXX_CPPCHECK ${_arg_DEFINES} )
-    #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY C_CLANG_TIDY   -checks=${checks} )
-    #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY OBJCXX_CLANG_TIDY -checks=${checks} )
-    #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY OBJC_CLANG_TIDY   -checks=${checks} )
+    if(USE_CPPCHECK)
+      set_property( TARGET ${_arg_TARGET} APPEND PROPERTY CXX_CPPCHECK ${_arg_DEFINES} )
+      #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY C_CPPCHECK   -checks=${checks} )
+    endif()
 endfunction()
 
 
