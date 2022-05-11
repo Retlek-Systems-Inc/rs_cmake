@@ -141,4 +141,8 @@ function( MockTarget )
     # target_clang_tidy_definitions( TARGET ${_target}
     #     CHECKS
     # )
+    target_cppcheck_definitions( TARGET ${_target}
+      DEFINES
+        -UGMOCK_DECLARE_bool_
+    )
 endfunction()

@@ -110,6 +110,28 @@ if(BUILD_TEST)
         -modernize-use-trailing-return-type
     )
 
+    target_cppcheck_definitions(TARGET gtest
+      DEFINES
+        -UGTEST_CHECK_
+        -UGTEST_CUSTOM_GET_ARGVS_
+        -UGTEST_CUSTOM_INIT_GOOGLE_TEST_FUNCTION_
+        -UGTEST_CUSTOM_TEMPDIR_FUNCTION_
+        -UGTEST_CUSTOM_TEST_EVENT_LISTENER_
+        -UGTEST_DECLARE_bool_
+        -UGTEST_DEV_EMAIL_
+        -UGTEST_FLAG
+        -UGTEST_GET_BOOL_FROM_ENV_
+        -UGTEST_GET_INT32_FROM_ENV_
+        -UGTEST_GET_STRING_FROM_ENV_
+        -UGTEST_INIT_GOOGLE_TEST_NAME_
+        -UGTEST_INTERNAL_DEPRECATED
+        -UGTEST_LOG_
+        -UGTEST_OS_STACK_TRACE_GETTER_
+        -UPATH_MAX
+        -U_XOPEN_PATH_MAX
+        --suppress=missingInclude
+    )
+
     target_clang_tidy_definitions(TARGET gtest_main
       CHECKS
         -cppcoreguidelines-pro-type-vararg
@@ -121,6 +143,11 @@ if(BUILD_TEST)
         -modernize-use-trailing-return-type
     )
     
+    target_cppcheck_definitions(TARGET gtest
+      DEFINES
+        --suppress=missingInclude
+    )
+
     target_clang_tidy_definitions(TARGET gmock
       CHECKS
         -bugprone-exception-escape
@@ -134,6 +161,12 @@ if(BUILD_TEST)
         -llvmlibc-restrict-system-libc-headers
         -modernize-deprecated-headers
         -modernize-use-trailing-return-type
+    )
+
+    target_cppcheck_definitions(TARGET gmock
+      DEFINES
+        -UGMOCK_DECLARE_bool_
+        --suppress=missingInclude
     )
 
     target_clang_tidy_definitions(TARGET gmock_main

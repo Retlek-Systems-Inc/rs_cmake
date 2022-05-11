@@ -79,6 +79,8 @@ if(STATIC_ANALYSIS)
                 --inconclusive
                 --enable=all
                 --force
+                --check-config
+                --suppress=missingIncludeSystem
                 "--template='{file}:{line} {severity} ({id}):{message}'")
         endif()
     endif(USE_CPPCHECK)
@@ -125,16 +127,16 @@ include( CMakeParseArguments )
 #   TARGET the cmake target to add the compilation clang tidy checks to.
 #   CHECKS a list of checks to add to this specific target.
 #
-function(target_clang_tidy_definitions)  
+function(target_clang_tidy_definitions)
     set( _options )
     set( _oneValueArgs TARGET )
     set( _multiValueArgs CHECKS )
     cmake_parse_arguments( "_arg" "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN} )
-    
+
     if( _arg_UNPARSED_ARGUMENTS )
-        message( FATAL_ERROR "Unknown argument(s) to target_clang_tidy_checks: ${_arg_UNPARSED_ARGUMENTS}" )
+        message( FATAL_ERROR "Unknown argument(s) to target_clang_tidy_definitions: ${_arg_UNPARSED_ARGUMENTS}" )
     endif()
-    
+
     if( NOT _arg_TARGET )
         message( FATAL_ERROR "Must specify TARGET <target> to add clang-tidy checks" )
     endif()
@@ -142,7 +144,7 @@ function(target_clang_tidy_definitions)
     if( NOT TARGET ${_arg_TARGET})
         message( FATAL_ERROR "Unknown TARGET <target> for clang-tidy checks: ${_arg_TARGET}" )
     endif()
-    
+
     if( NOT _arg_CHECKS )
         message( FATAL_ERROR "No valid checks provided")
     endif()
@@ -156,6 +158,43 @@ function(target_clang_tidy_definitions)
         #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY OBJC_CLANG_TIDY   -checks=${checks} )
     endif()
 endfunction()
+
+
+# Function for adding cppcheck specific checks to a given target.
+# Note this is always generated regardless of compilation to ensure it is defined
+# for all cases.
+# target_cppcheck_definitions
+#   TARGET the cmake target to add the compilation cppcheck checks to.
+#   DEFINES a list of defines to add to this specific target.
+#
+function(target_cppcheck_definitions)
+    set( _options )
+    set( _oneValueArgs TARGET )
+    set( _multiValueArgs DEFINES )
+    cmake_parse_arguments( "_arg" "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN} )
+
+    if( _arg_UNPARSED_ARGUMENTS )
+        message( FATAL_ERROR "Unknown argument(s) to target_cppcheck_definitions: ${_arg_UNPARSED_ARGUMENTS}" )
+    endif()
+
+    if( NOT _arg_TARGET )
+        message( FATAL_ERROR "Must specify TARGET <target> to add cppcheck checks" )
+    endif()
+
+    if( NOT TARGET ${_arg_TARGET})
+        message( FATAL_ERROR "Unknown TARGET <target> for cppcheck definitions: ${_arg_TARGET}" )
+    endif()
+
+    if( NOT _arg_DEFINES )
+        message( FATAL_ERROR "No valid defines provided")
+    endif()
+
+    set_property( TARGET ${_arg_TARGET} APPEND PROPERTY CXX_CPPCHECK ${_arg_DEFINES} )
+    #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY C_CLANG_TIDY   -checks=${checks} )
+    #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY OBJCXX_CLANG_TIDY -checks=${checks} )
+    #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY OBJC_CLANG_TIDY   -checks=${checks} )
+endfunction()
+
 
 # Function for ignoring static analysis on a target
 # Note this is used for  clang_tidy specific checks to a given target.
