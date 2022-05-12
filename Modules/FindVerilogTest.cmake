@@ -25,7 +25,7 @@ if (VERILOG_TEST)
     find_package(verilator 4.2.2 REQUIRED
         HINTS
         /usr/local
-        $ENV{VERILATOR_ROOT} 
+        $ENV{VERILATOR_ROOT}
         ${VERILATOR_ROOT}
     )
 
@@ -156,6 +156,29 @@ if (VERILOG_TEST)
         endif()
     endif()
 
+
+#------------------------------------------------------------------------------
+    include(CMakeParseArguments)
+
+    # Check prereqs
+    find_program(VERILATOR_COVERAGE
+        NAMES verilator_coverage
+        PATHS
+        $ENV{PATH}
+        $ENV{VERILATOR_ROOT}
+        ${VERILATOR_ROOT}
+    )
+
+    find_program(LCOV_PATH
+        NAMES lcov
+            lcov.bat
+            lcov.exe
+            lcov.perl
+        PATHS $ENV{PATH}
+    )
+
+    find_program(GENHTML_PATH NAMES genhtml genhtml.perl genhtml.bat)
+
 # Other options later:
 #    FetchContent_Declare(
 #      icarus 
@@ -164,3 +187,126 @@ if (VERILOG_TEST)
 #    )
 #    FetchContent_MakeAvailable(verilatorSource)
 endif()
+
+# Defines a target for running and collection code coverage information Builds
+# dependencies, runs the given executable and outputs reports. NOTE! The
+# executable should always have a ZERO as exit code otherwise the coverage
+# generation will not complete.
+#
+# SETUP_TARGET_FOR_COVERAGE_LCOV_HTML( NAME testrunner_coverage # New target
+# name EXECUTABLE testrunner -j ${PROCESSOR_COUNT} # Executable in
+# PROJECT_BINARY_DIR DEPENDENCIES testrunner                     # Dependencies
+# to build first )
+function(SETUP_VERILOG_TARGET_FOR_COVERAGE_LCOV_HTML)
+
+  set(options NONE)
+  set(oneValueArgs NAME)
+  set(multiValueArgs
+      EXECUTABLE
+      EXECUTABLE_ARGS
+      DATA_FILES
+      DEPENDENCIES
+      LCOV_ARGS
+      GENHTML_ARGS)
+  cmake_parse_arguments(Coverage
+                        "${options}"
+                        "${oneValueArgs}"
+                        "${multiValueArgs}"
+                        ${ARGN})
+
+  if(NOT VERILATOR_COVERAGE)
+    message(FATAL_ERROR "verilator_coverage not found, Aborting...")
+  endif()
+
+  if(NOT LCOV_PATH)
+    message(FATAL_ERROR "lcov not found! Aborting...")
+  endif() # NOT LCOV_PATH
+
+  if(NOT GENHTML_PATH)
+    message(FATAL_ERROR "genhtml not found! Aborting...")
+  endif() # NOT GENHTML_PATH
+
+  set(_verilog_merged_info verilog_merged.info)
+  # Setup target
+  add_custom_target(
+    ${Coverage_NAME}
+
+    # Remove all coverage files.
+    COMMAND ${CMAKE_COMMAND} -E rm ${Coverage_DATA_FILES}
+    # Cleanup lcov
+    COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS}
+        -directory .
+        --zerocounters
+    # Create baseline to make sure untouched files show up in the report
+    COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS}
+        -c -i -d . -o ${Coverage_NAME}.base
+    # Run tests
+    COMMAND ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
+    # Capturing lcov counters and generating report
+    COMMAND ${VERILATOR_COVERAGE}
+        --rank
+        --write-info ${Coverage_NAME}.info
+        ${Coverage_DATA_FILES}
+    # add baseline counters
+    COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS}
+        -a ${Coverage_NAME}.info
+        --output-file ${Coverage_NAME}.total
+    COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS}
+        --remove ${Coverage_NAME}.total ${COVERAGE_LCOV_EXCLUDES}
+        --output-file ${PROJECT_BINARY_DIR}/${Coverage_NAME}.info.cleaned
+    # Generate HTML
+    COMMAND ${GENHTML_PATH} ${Coverage_GENHTML_ARGS} -o ${Coverage_NAME}
+            ${PROJECT_BINARY_DIR}/${Coverage_NAME}.info.cleaned
+    # Clean up
+    COMMAND ${CMAKE_COMMAND} -E remove ${Coverage_NAME}.base
+            ${Coverage_NAME}.total ${PROJECT_BINARY_DIR}/${Coverage_NAME}.info
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    DEPENDS ${Coverage_DEPENDENCIES}
+    COMMENT
+      "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
+    )
+
+  # Show where to find the lcov info report
+  add_custom_command(
+    TARGET ${Coverage_NAME} POST_BUILD
+    COMMAND ;
+    COMMENT
+      "Lcov code coverage info report saved in ${Coverage_NAME}.info.cleaned")
+
+  # Show info where to find the report
+  add_custom_command(
+    TARGET ${Coverage_NAME} POST_BUILD
+    COMMAND ;
+    COMMENT
+      "Open ./${Coverage_NAME}/index.html in your browser to view the coverage report."
+    )
+
+endfunction() # SETUP_VERILOG_TARGET_FOR_COVERAGE_LCOV_HTML
+
+
+macro(setup_verilog_code_coverage_target)
+    # Create a code coverage target.
+    set(_coverageTarget verilog-code-coverage)
+
+    # Hard code the data files to test directories within the repo for now.
+    set(_coverageDataFiles ${CMAKE_BINARY_DIR}/*/test/*.data)
+
+#    string(TOLOWER ${CMAKE_BUILD_TYPE} _buildType)
+#    if ( ${_buildType} STREQUAL coverage AND NOT TARGET ${_coverageTarget} )
+    if ( NOT TARGET ${_coverageTarget} )
+        SETUP_VERILOG_TARGET_FOR_COVERAGE_LCOV_HTML(
+            NAME ${_coverageTarget}
+            EXECUTABLE ctest
+            EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
+            DATA_FILES
+                ${_coverageDataFiles}
+            LCOV_ARGS
+                --strip 1
+#                --rc lcov_branch_coverage=1
+            GENHTML_ARGS
+#                --rc genhtml_branch_coverage=1
+#                --demangle-cpp
+                --prefix ${CMAKE_SOURCE_DIR}
+        )
+    endif()
+endmacro()
