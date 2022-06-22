@@ -232,7 +232,7 @@ function(SETUP_VERILOG_TARGET_FOR_COVERAGE_LCOV_HTML)
     ${Coverage_NAME}
 
     # Remove all coverage files.
-    COMMAND ${CMAKE_COMMAND} -E rm ${Coverage_DATA_FILES}
+    COMMAND ${CMAKE_COMMAND} -E rm -f ${Coverage_DATA_FILES}
     # Cleanup lcov
     COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS}
         -directory .
