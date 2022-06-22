@@ -104,6 +104,7 @@ Once compiled each test resides in `build/test/UnitTest_<target>`.
 ### Running Tests with coverage
 
 ```bash
+# Note must be run with GCC.
 cd build
 cmake -G Ninja -DCMAKE_BUILD_TYPE=COVERAGE ..
 ninja
@@ -115,8 +116,25 @@ firefox code-coverage/index.html
 
 All of the HTML output of code coverage resides in `build/code-coverage`.
 
+### Running Tests with Clang Tidy
 
-### Running Tests with Sanitizers.
+* For Clang Tidy - Just checks
+
+```bash
+cd build
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON ../.
+ninja
+```
+
+* For Clang Tidy - Fixes
+
+```bash
+cd build
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON -DCLANG_TIDY_FIX=ON ../.
+ninja
+```
+
+### Running Tests with Sanitizers
 
 [] TODO: Need to remove googletest and other third-party compiled library from sanitizer list.
 
@@ -176,14 +194,24 @@ firefox doc/html/index.html
 
 Be sure to check the warnings - missing definitions.
 
-## Windows Builds with Microsoft Visual Studio 2019 (or higher) or Visual Code with MSYS
+## Windows Builds with Microsoft Visual Studio 2019 (or higher) or Visual Code with WSL2
 
 ### Install
 
 Install Microsoft Visual Studio 2019 with following options:
+
 * Python Development
 * Desktop development with C++
 * Linux development with C++
+
+Install LLVM Tools
+
+* linux - then install llvm tools:  https://apt.llvm.org/
+* windows - then https://llvm.org/builds/
+
+Update VSCode to use clang-format:
+* [Clang Format](https://marketplace.visualstudio.com/items?itemName=xaver.clang-format)
+And configure to where clang-format is installed.
 
 ### Running
 
