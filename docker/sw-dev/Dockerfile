@@ -29,21 +29,52 @@ RUN apt-get update -y \
     software-properties-common \
     wget \
     gpg \
-    && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
-    | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg > /dev/null \
-    && echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' \
-    | tee /etc/apt/sources.list.d/kitware.list >/dev/null \
-    && apt-get update -y \
-    && DEBIAN_FRONTEND=noninteractive \
-    apt-get install --no-install-recommends -y \
-    kitware-archive-keyring \
     cmake \
-    iwyu \
     ninja-build \
     ccache \
     lcov \
-    llvm-defaults
-
+    cppcheck \
+    cpplint \
+    iwyu \
+    clang-14 \
+    clang-format-14 \
+    clang-tidy-14 \
+    clang-tools-14\
+    clangd-14 \
+    libc++-14-dev \
+    libc++abi-14-dev \
+    libc++abi1-14 \
+    libclang-14-dev \
+    libclang-common-14-dev \
+    libclang-cpp14 \
+    libclang-cpp14-dev \
+    libclang1-14 \
+    libclc-14 \
+    libclc-14-dev \
+    libfuzzer-14-dev \
+    liblld-14 \
+    liblld-14-dev \
+    liblldb-14 \
+    liblldb-14-dev \
+    libllvm-14-ocaml-dev \
+    libllvm14 \
+    libmlir-14 \
+    libmlir-14-dev \
+    libomp-14-dev \
+    libomp-14-doc \
+    libomp5-14 \
+    libunwind-14 \
+    libunwind-14-dev \
+    lld-14 \
+    lldb-14 \
+    llvm-14 \
+    llvm-14-dev \
+    llvm-14-linker-tools \
+    llvm-14-runtime \
+    llvm-14-tools \
+    mlir-14-tools \
+    python3-clang-14 \
+    python3-lldb-14
 
 # Documentation dev tools
 # RUN DEBIAN_FRONTEND=noninteractive \
