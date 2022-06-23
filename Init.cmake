@@ -115,3 +115,10 @@ if(NOT EXISTS ${CMAKE_SOURCE_DIR}/cmake-variants.yaml)
     configure_file(${CMAKE_CURRENT_LIST_DIR}/External/vscode.cmake-variants.yaml
         ${CMAKE_SOURCE_DIR}/cmake-variants.yaml)
 endif()
+
+###################
+# Setup for gitlab ci
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/.gitlab-ci.yml)
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/External/.gitlab-ci.yml.default
+        ${CMAKE_SOURCE_DIR}/.gitlab-ci.yml)
+endif()
