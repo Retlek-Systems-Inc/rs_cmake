@@ -253,9 +253,10 @@ if(BUILD_TEST)
         -cppcoreguidelines-pro-type-const-cast
         -cppcoreguidelines-pro-type-vararg
         -fuchsia-trailing-return
+        -google-readability-casting
+        -hicpp-explicit-conversions
         -hicpp-deprecated-headers
         -hicpp-vararg
-        -google-readability-casting
         -llvm-include-order
         -llvmlibc-callee-namespace
         -llvmlibc-implementation-in-namespace
