@@ -97,17 +97,93 @@ if(BUILD_TEST)
 
     target_clang_tidy_definitions(TARGET gtest
       CHECKS
+        -*-braces-around-statements
+        -*-deprecated-headers
+        -*-else-after-return
+        -*-explicit-constructor
+        -*-magic-numbers
+        -*-member-init
+        -*-named-parameter
+        -*-no-malloc
+        -*-qualified-auto
+        -*-uppercase-literal-suffix
+        -*-use-auto
+        -*-use-emplace
+        -*-use-equals-default
+        -*-use-equals-delete
+        -altera-id-dependent-backward-branch
+        -altera-struct-pack-align
+        -altera-unroll-loops
+        -android-cloexec-dup
+        -android-cloexec-pipe
+        -bugprone-branch-clone
+        -bugprone-easily-swappable-parameters
         -bugprone-exception-escape
+        -bugprone-misplaced-widening-cast
+        -bugprone-reserved-identifier
+        -bugprone-signed-char-misuse
+        -bugprone-sizeof-expression
         -bugprone-suspicious-include
+        -cert-dcl21-cpp
+        -cert-dcl37-c
+        -cert-dcl50-cpp
+        -cert-dcl51-cpp
+        -cert-err33-c
+        -cert-err58-cpp
+        -cert-oop54-cpp
+        -cert-str34-c
+        -clang-analyzer-optin.performance.Padding
+        -concurrency-mt-unsafe
+        -cppcoreguidelines-avoid-non-const-global-variables
+        -cppcoreguidelines-c-copy-assignment-signature
+        -cppcoreguidelines-init-variables
+        -cppcoreguidelines-pro-bounds-constant-array-index
+        -cppcoreguidelines-pro-type-const-cast
+        -cppcoreguidelines-pro-type-cstyle-cast
+        -cppcoreguidelines-pro-type-union-access
         -cppcoreguidelines-pro-type-vararg
-        -hicpp-deprecated-headers
+        -cppcoreguidelines-virtual-class-destructor
+        -fuchsia-trailing-return
+        -google-upgrade-googletest-case
+        -hicpp-exception-baseclass
+        -hicpp-multiway-paths-covered
+        -hicpp-noexcept-move
+        -hicpp-no-assembler
         -hicpp-vararg
         -llvm-include-order
+        -llvm-namespace-comment
         -llvmlibc-callee-namespace
         -llvmlibc-implementation-in-namespace
         -llvmlibc-restrict-system-libc-headers
-        -modernize-deprecated-headers
+        -misc-no-recursion
+        -misc-redundant-expression
+        -misc-unconventional-assign-operator
+        -modernize-loop-convert
+        -modernize-make-unique
+        -modernize-pass-by-value
+        -modernize-raw-string-literal
+        -modernize-return-braced-init-list
+        -modernize-pass-by-value
+        -modernize-use-default-member-init
         -modernize-use-trailing-return-type
+        -modernize-use-transparent-functors
+        -performance-no-automatic-move
+        -performance-noexcept-move-constructor
+        -performance-unnecessary-value-param
+        -readability-container-data-pointer
+        -readability-container-size-empty
+        -readability-convert-member-functions-to-static
+        -readability-function-cognitive-complexity
+        -readability-identifier-length
+        -readability-implicit-bool-conversion
+        -readability-inconsistent-declaration-parameter-name
+        -readability-isolate-declaration
+        -readability-redundant-access-specifiers
+        -readability-redundant-string-cstr
+        -readability-redundant-string-init
+        -readability-redundant-smartptr-get
+        -readability-simplify-boolean-expr
+        -readability-static-accessed-through-instance
     )
 
     target_cppcheck_definitions(TARGET gtest
@@ -150,17 +226,57 @@ if(BUILD_TEST)
 
     target_clang_tidy_definitions(TARGET gmock
       CHECKS
+        -*-braces-around-statements
+        -*-else-after-return
+        -*-explicit-constructor
+        -*-magic-numbers
+        -*-member-init
+        -*-named-parameter
+        -*-narrowing-conversions
+        -*-qualified-auto
+        -*-use-auto
+        -*-use-equals-default
+        -altera-id-dependent-backward-branch
+        -altera-struct-pack-align
+        -altera-unroll-loops
+        -bugprone-easily-swappable-parameters
         -bugprone-exception-escape
+        -bugprone-forwarding-reference-overload
         -bugprone-suspicious-include
+        -cert-err09-cpp
+        -cert-err58-cpp
+        -cert-err61-cpp
+        -cert-oop54-cpp
+        -cppcoreguidelines-avoid-non-const-global-variables
+        -cppcoreguidelines-c-copy-assignment-signature
+        -cppcoreguidelines-init-variables
+        -cppcoreguidelines-pro-type-const-cast
         -cppcoreguidelines-pro-type-vararg
+        -fuchsia-trailing-return
         -hicpp-deprecated-headers
         -hicpp-vararg
+        -google-readability-casting
         -llvm-include-order
         -llvmlibc-callee-namespace
         -llvmlibc-implementation-in-namespace
         -llvmlibc-restrict-system-libc-headers
+        -misc-no-recursion
+        -misc-throw-by-value-catch-by-reference
+        -misc-unconventional-assign-operator
         -modernize-deprecated-headers
+        -modernize-loop-convert
+        -modernize-pass-by-value
+        -modernize-return-braced-init-list
+        -modernize-use-default-member-init
         -modernize-use-trailing-return-type
+        -readability-container-size-empty
+        -readability-const-return-type
+        -readability-convert-member-functions-to-static
+        -readability-function-cognitive-complexity
+        -readability-identifier-length
+        -readability-implicit-bool-conversion
+        -readability-isolate-declaration
+        -readability-simplify-boolean-expr
     )
 
     target_cppcheck_definitions(TARGET gmock
