@@ -20,9 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
-# Default GCC, latest cmake and ninja-build
+# Default GCC, latest cmake and ninja-build, clang (14)
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
     apt-get install --no-install-recommends -y \
@@ -41,7 +41,9 @@ RUN apt-get update -y \
     iwyu \
     ninja-build \
     ccache \
-    lcov
+    lcov \
+    llvm-defaults
+
 
 # Documentation dev tools
 # RUN DEBIAN_FRONTEND=noninteractive \
@@ -60,18 +62,5 @@ RUN apt-get update -y \
 #     && popd \
 #     && python3 -m pip install sphinx_rdt_theme \
 #     && python3 -m pip install breathe
-
-# Clang 13 + Tools + debugger (may upgrade later)
-RUN wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh \
-    && ./llvm.sh 13 \
-    && DEBIAN_FRONTEND=noninteractive \
-    apt-get install --no-install-recommends -y \
-    libldb-13-dev \
-    && git clone https://github.com/lldb-tools/lldb-mi \
-    && cd lldb-mi \
-    && cmake . \
-    && cmake --build . \
-    && make install \
-    && export LLDB_DEBUGSERVER_PATH=/usr/bin/lldb-server-13
 
 WORKDIR /tmp
