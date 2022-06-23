@@ -37,6 +37,7 @@ RUN apt-get update -y \
     cppcheck \
     cpplint \
     iwyu \
+    build-essential \
     clang-14 \
     clang-format-14 \
     clang-tidy-14 \
