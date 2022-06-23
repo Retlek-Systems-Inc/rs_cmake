@@ -1,4 +1,4 @@
-# @copyright 2017 Retlek Systems Inc.
+# @copyright 2021 Retlek Systems Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -17,33 +17,24 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-#
 
-find_program(CLANG_FORMAT
-    NAMES
-        clang-format
-        clang-format-14
-        clang-format-13
-        clang-format-11
-        clang-format-10
-        clang-format-9
-        clang-format-8
-        clang-format-7
-        clang-format-6.0
-)
+stages:
+  - build
 
-if(NOT CLANG_FORMAT)
-  message(WARNING "Could not find clang-format, must be installed to update with format.")
-  return()
-endif()
-
-set(CLANG_FORMAT_CXX_FILE_EXTENSIONS ${CLANG_FORMAT_CXX_FILE_EXTENSIONS} *.cpp *.h *.cxx *.hxx *.hpp *.cc *.ipp)
-
-file(GLOB_RECURSE ALL_SOURCE_FILES ${CLANG_FORMAT_CXX_FILE_EXTENSIONS})
-add_custom_target(format
-  COMMENT "Reformat source files to match clang-format standard definition"
-  COMMAND ${CLANG_FORMAT}
-	      -style=file
-	      -i
-	      ${ALL_SOURCE_FILES}
-)
+sw-dev:build:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/docker/sw-dev/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}/sw-dev:${CI_COMMIT_TAG}"
+  # Use this and comment out rules to check build of docker image.
+  #   --destination "${CI_REGISTRY_IMAGE}/sw-dev:latest"
+  rules:
+    - if: $CI_COMMIT_TAG

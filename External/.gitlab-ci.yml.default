@@ -1,0 +1,321 @@
+# @copyright 2021 Retlek Systems Inc.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+stages:
+  - prepare
+  - build
+  - test
+  - analysis
+# - benchmark
+# - deploy
+
+variables:
+  BASE_BUILD_DIR: ci_build
+  DEPS_DIR: ${BASE_BUILD_DIR}/deps
+
+default:
+  image: registry.gitlab.com/retleksystems/env/cmake/sw-dev:latest
+  before_script:
+    # Setup git access using ssh keys
+    - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
+    - eval $(ssh-agent -s)
+    - echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+    # Setup git access using gitlab ci token and username
+    # - git config --global credential.helper store
+    # - echo "https://${RS_CI_DEPLOY_USER}:${RS_CI_DEPLOY_TOKEN}@gitlab.com" > ~/.git-credentials
+    # after_script:
+    # - rm ~/.git-credentials
+
+cache: &global_cache
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - ${BASE_BUILD_DIR}
+  policy: pull-push
+
+#------------------------------------------------------------------------------
+gcc-all:prepare:
+  stage: prepare
+  #  only: [main, merge_requests]
+  inherit:
+    default: [image, before_script]
+  cache:
+    # inherit all global cache settings
+    <<: *global_cache
+  script:
+    - mkdir -p ${BASE_BUILD_DIR}/gcc-debug
+    - cmake -G Ninja -B${BASE_BUILD_DIR}/gcc-debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} -DSTATIC_ANALYSIS=OFF .
+    - mkdir -p ${BASE_BUILD_DIR}/gcc-coverage
+    - cmake -G Ninja -B${BASE_BUILD_DIR}/gcc-coverage -DCMAKE_BUILD_TYPE=coverage -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} -DSTATIC_ANALYSIS=OFF .
+    - mkdir -p ${BASE_BUILD_DIR}/gcc-relwithdebinfo
+    - cmake -G Ninja -B${BASE_BUILD_DIR}/gcc-relwithdebinfo -DCMAKE_BUILD_TYPE=ReleaseWithDebInfo -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} -DSTATIC_ANALYSIS=OFF .
+
+clang-all:prepare:
+  stage: prepare
+  needs: ["gcc-all:prepare"]
+  #  only: [main, merge_requests]
+  inherit:
+    default: [image, before_script]
+  cache:
+    <<: *global_cache
+  script:
+    # Note: Clang-tidy performed on debug build.
+    - mkdir -p ${BASE_BUILD_DIR}/clang-debug
+    - cmake -G Ninja -B${BASE_BUILD_DIR}/clang-debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang-13 -DCMAKE_CXX_COMPILER=clang++-13 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} -DSTATIC_ANALYSIS=ON .
+    - mkdir -p ${BASE_BUILD_DIR}/clang-asan
+    - cmake -G Ninja -B${BASE_BUILD_DIR}/clang-asan -DCMAKE_BUILD_TYPE=asan -DCMAKE_C_COMPILER=clang-13 -DCMAKE_CXX_COMPILER=clang++-13 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} -DSTATIC_ANALYSIS=OFF .
+    - mkdir -p ${BASE_BUILD_DIR}/clang-tsan
+    - cmake -G Ninja -B${BASE_BUILD_DIR}/clang-tsan -DCMAKE_BUILD_TYPE=tsan -DCMAKE_C_COMPILER=clang-13 -DCMAKE_CXX_COMPILER=clang++-13 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} -DSTATIC_ANALYSIS=OFF .
+    - mkdir -p ${BASE_BUILD_DIR}/clang-cppcheck
+    - cmake -G Ninja -B${BASE_BUILD_DIR}/clang-cppcheck -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang-13 -DCMAKE_CXX_COMPILER=clang++-13 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=OFF -DUSE_CPPCHECK=ON .
+
+#------------------------------------------------------------------------------
+gcc-debug:build:
+  stage: build
+  needs: ["gcc-all:prepare"]
+  cache:
+    <<: *global_cache
+  variables:
+    BUILD_DIR: ${BASE_BUILD_DIR}/gcc-debug
+  script:
+    - cmake --build ${BUILD_DIR}
+
+gcc-debug:test:
+  stage: test
+  needs: ["gcc-debug:build"]
+  cache:
+    <<: *global_cache
+    policy: pull
+  variables:
+    BUILD_DIR: ${BASE_BUILD_DIR}/gcc-debug
+  script:
+    - cd ${BUILD_DIR}
+    - ctest --output-on-failure --output-junit report.xml
+    #- cmake --build . --target memcheck - check with valgrind TODO(phelter)
+  artifacts:
+    when: always
+    reports:
+      junit: ${BUILD_DIR}/report.xml
+
+#------------------------------------------------------------------------------
+clang-debug:build:
+  stage: build
+  needs: ["clang-all:prepare"]
+  #  only: [main, merge_requests]
+  inherit:
+    default: [image, before_script]
+  cache:
+    <<: *global_cache
+  variables:
+    BUILD_DIR: ${BASE_BUILD_DIR}/clang-debug
+  script:
+    - cmake --build ${BUILD_DIR}
+
+clang-debug:test:
+  stage: test
+  needs: ["clang-debug:build"]
+  cache:
+    <<: *global_cache
+    policy: pull
+  variables:
+    BUILD_DIR: ${BASE_BUILD_DIR}/clang-debug
+  script:
+    - cd ${BUILD_DIR}
+    - ctest --output-on-failure --output-junit report.xml
+    #- cmake --build . --target memcheck - check with valgrind TODO(phelter)
+  artifacts:
+    when: always
+    reports:
+      junit: ${BUILD_DIR}/report.xml
+
+#------------------------------------------------------------------------------
+clang-asan:build:
+  stage: build
+  needs: ["clang-all:prepare"]
+  #  only: [main, merge_requests]
+  inherit:
+    default: [image, before_script]
+  cache:
+    <<: *global_cache
+  variables:
+    BUILD_DIR: ${BASE_BUILD_DIR}/clang-asan
+  script:
+    - cmake --build ${BUILD_DIR}
+
+clang-asan:test:
+  stage: test
+  needs: ["clang-asan:build"]
+  cache:
+    <<: *global_cache
+    policy: pull
+  variables:
+    BUILD_DIR: ${BASE_BUILD_DIR}/clang-asan
+  script:
+    - cd ${BUILD_DIR}
+    - ctest --output-on-failure --output-junit report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: ${BUILD_DIR}/report.xml
+
+#------------------------------------------------------------------------------
+clang-tsan:build:
+  stage: build
+  needs: ["clang-all:prepare"]
+  #  only: [main, merge_requests]
+  inherit:
+    default: [image, before_script]
+  cache:
+    <<: *global_cache
+  variables:
+    BUILD_DIR: ${BASE_BUILD_DIR}/clang-tsan
+  script:
+    - cmake --build ${BUILD_DIR}
+
+clang-tsan:test:
+  stage: test
+  needs: ["clang-tsan:build"]
+  cache:
+    <<: *global_cache
+    policy: pull
+  variables:
+    BUILD_DIR: ${BASE_BUILD_DIR}/clang-tsan
+  script:
+    - cd ${BUILD_DIR}
+    - ctest --output-on-failure --output-junit report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: ${BUILD_DIR}/report.xml
+# TODO:
+# clang-msan
+# clang-ubsan
+
+#------------------------------------------------------------------------------
+gcc-coverage:build:
+  stage: build
+  needs: ["gcc-all:prepare"]
+  cache:
+    <<: *global_cache
+  variables:
+    BUILD_DIR: ${BASE_BUILD_DIR}/gcc-coverage
+  script:
+    - cmake --build ${BUILD_DIR}
+
+gcc-coverage:test:
+  stage: test
+  needs: ["gcc-coverage:build"]
+  cache:
+    <<: *global_cache
+    policy: pull
+  variables:
+    BUILD_DIR: ${BASE_BUILD_DIR}/gcc-coverage
+  script:
+    - cd ${BUILD_DIR}
+    - ctest --output-on-failure --output-junit report.xml
+    - cmake --build . --target code-coverage
+  artifacts:
+    when: always
+    reports:
+      junit: ${BUILD_DIR}/report.xml
+    paths:
+      - $BUILD_DIR/coverage
+
+#------------------------------------------------------------------------------
+# clang-format:
+#   stage: analysis
+#   needs: ["clang-all:prepare"]
+#   #  only: [main, merge_requests]
+#   inherit:
+#     default: [image, before_script]
+#   variables:
+#     BUILD_DIR: ${BASE_BUILD_DIR}/clang-cppcheck
+#   script:
+#     - cmake --build . --target format
+
+clang-cppcheck:build:
+  stage: analysis
+  needs: ["clang-all:prepare"]
+  #  only: [main, merge_requests]
+  inherit:
+    default: [image, before_script]
+  cache:
+    <<: *global_cache
+  variables:
+    BUILD_DIR: ${BASE_BUILD_DIR}/clang-cppcheck
+  script:
+    - cmake --build ${BUILD_DIR}
+  # TODO: Add in logging checks for cpp logs?
+#------------------------------------------------------------------------------
+# document:
+#   inherit:
+#     default: [image, before_script]
+#   stage: analysis
+#   before_script:
+#     - apt -y install doxygen graphviz default-jdk python3-sphinx python3-pip
+#     - mkdir ~/java && wget -O ~/java/platnuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
+# #    - python3 -m pip install sphinx_rtd_theme breathe
+#     - doxygen --version
+#     # TODO: Any other versions?
+#   variables:
+#     PLANTUML_DIR: ~/java
+#     BUILD_DIR: ci_build/cmake.document
+#   script:
+#     - mkdir -p $BUILD_DIR && cd $BUILD_DIR
+#     - cmake -G Ninja -DBUILD_DOC=ON ../.. | tee build.log
+#     - ninja doc | tee -a build.log
+#   artifacts:
+#     - $BUILD_DIR/docs/html
+
+# # TODO: Others ?
+
+# # TODO: Need to implement cmake target
+# benchmark:
+#   inherit:
+#     gcc-9: [image, before_script, variables]
+#   before_script:
+#     -apt -y install libbenchmark-dev linux-tools-generic
+#   script: benchmark
+#     - mkdir $BUILD_DIR && cd $BUILD_DIR
+#     - cmake -G Ninja -DCMAKE_BUILD_TYPE=ReleaseWithDebInfo -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE ../..
+#     - cmake --build .
+#     - cmake --build . --target benchmark
+
+# deploy-ubuntu-bionic:
+#   inherit:
+#     default: [image, before_script]
+#   stage: deploy
+#   variables:
+#     BUILD_DIR: ci_build/cmake.release-gcc-9.x64
+#     TOOLCHAIN_FILE: ../_deps/buildenv/cmake/toolchain/gcc.toolchain.cmake
+#   script:
+#     - mkdir $BUILD_DIR && cd $BUILD_DIR
+#     - cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE ../..
+#     - cmake --build .
+#     - cpack -G DEB .
+# #  after_script:
+# #    - curl -T $BUILD_DIR/name.deb -???:${BINTRAY_API_KEY} "https://api.bintray.com/content/retleksystems/dpkg/???/0.1.0/pool/main/h/"
+#   artifacts:
+#     paths:
+#       - build/*.deb

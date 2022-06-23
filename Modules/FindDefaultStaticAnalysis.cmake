@@ -33,6 +33,7 @@ if(STATIC_ANALYSIS)
         find_program(CLANG_TIDY 
           NAMES
             clang-tidy
+            clang-tidy-14
             clang-tidy-13
             clang-tidy-11
             clang-tidy-10
