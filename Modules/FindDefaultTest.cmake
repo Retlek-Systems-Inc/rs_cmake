@@ -137,6 +137,7 @@ if(BUILD_TEST)
         -cppcoreguidelines-avoid-non-const-global-variables
         -cppcoreguidelines-c-copy-assignment-signature
         -cppcoreguidelines-init-variables
+        -cppcoreguidelines-prefer-member-initializer
         -cppcoreguidelines-pro-bounds-constant-array-index
         -cppcoreguidelines-pro-type-const-cast
         -cppcoreguidelines-pro-type-cstyle-cast
@@ -146,6 +147,7 @@ if(BUILD_TEST)
         -fuchsia-trailing-return
         -google-upgrade-googletest-case
         -hicpp-exception-baseclass
+        -hicpp-explicit-conversions
         -hicpp-multiway-paths-covered
         -hicpp-noexcept-move
         -hicpp-no-assembler
