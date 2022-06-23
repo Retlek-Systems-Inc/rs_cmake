@@ -29,6 +29,7 @@ RUN apt-get update -y \
     software-properties-common \
     wget \
     gpg \
+    git \
     cmake \
     ninja-build \
     ccache \
