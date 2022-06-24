@@ -20,63 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM ubuntu:22.04
+FROM registry.gitlab.com/retleksystems/env/cmake/sw-dev:latest
 
-# Default GCC, latest cmake and ninja-build, clang (14)
+# Default gtkwave and verilator
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
     apt-get install --no-install-recommends -y \
-    software-properties-common \
-    wget \
-    openssh-client \
-    gpg \
-    git \
-    cmake \
-    ninja-build \
-    ccache \
-    lcov \
-    cppcheck \
-    cpplint \
-    iwyu \
-    build-essential \
-    clang-14 \
-    clang-format-14 \
-    clang-tidy-14 \
-    clang-tools-14\
-    clangd-14 \
-    libc++-14-dev \
-    libc++abi-14-dev \
-    libc++abi1-14 \
-    libclang-14-dev \
-    libclang-common-14-dev \
-    libclang-cpp14 \
-    libclang-cpp14-dev \
-    libclang1-14 \
-    libclc-14 \
-    libclc-14-dev \
-    libfuzzer-14-dev \
-    liblld-14 \
-    liblld-14-dev \
-    liblldb-14 \
-    liblldb-14-dev \
-    libllvm-14-ocaml-dev \
-    libllvm14 \
-    libmlir-14 \
-    libmlir-14-dev \
-    libomp-14-dev \
-    libomp-14-doc \
-    libomp5-14 \
-    libunwind-14 \
-    libunwind-14-dev \
-    lld-14 \
-    lldb-14 \
-    llvm-14 \
-    llvm-14-dev \
-    llvm-14-linker-tools \
-    llvm-14-runtime \
-    llvm-14-tools \
-    mlir-14-tools \
-    python3-clang-14 \
-    python3-lldb-14
+    gtkwave \
+    verilator
 
 WORKDIR /tmp
