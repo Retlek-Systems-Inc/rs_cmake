@@ -231,3 +231,28 @@ Build Options:
     "environment": "mingw_64"
 }
 ```
+
+## Continuous Integration/Deployment Setup
+
+### DockerHub & Bitbucket pipelines setup
+
+DockerHub configuration:
+
+* Goto:  DockerHub and setup an account for yourself
+* Goto: Menu - User -> Account Settings
+  * Select Security and add 2 Personal Access tokens
+  * One Read,Write,Modify <RWM_TOKEN> - this will be for the rs-cmake repo which creates the docker images
+    * One Read only <RO_TOKEN> - this will be for accessing the docker images from other repos that only require
+      consuming the docker image.
+
+Bitbucket configuration:
+
+* Goto the rs-cmake repo and select left hand menu Repository Settings
+  * Left hand Menu - under PIPELINES - select Repository Variables and add secure variables:
+  * DOCKERHUB_PASSWORD - <RWM_TOKEN> - Read/write/modify access token
+* Then go to workspace variables link on that page and add secure variables:
+  * DOCKERHUB_USER - username for docker hub.
+  * DOCKERHUB_PASSWORD - <RO_TOKEN> - Read only access token
+
+This will ensure that the docker hub username and read-only password is available to all repos
+and the docker hub password for read/write/modify is only available to the rs_cmake repo.
