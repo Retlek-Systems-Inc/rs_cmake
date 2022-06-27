@@ -23,6 +23,7 @@
 FROM ubuntu:22.04
 
 # Default GCC, latest cmake and ninja-build, clang (14)
+# hadolint ignore=DL3008
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
     apt-get install --no-install-recommends -y \
@@ -77,7 +78,9 @@ RUN apt-get update -y \
     llvm-14-tools \
     mlir-14-tools \
     python3-clang-14 \
-    python3-lldb-14
+    python3-lldb-14 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Documentation dev tools
 # RUN DEBIAN_FRONTEND=noninteractive \

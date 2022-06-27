@@ -1,51 +1,53 @@
-# Template docker-push
-
-# This template allows you to build and push your docker image to a Docker Hub account.
-# The workflow allows running tests, code linting and security scans on feature branches (as well as master).
-# The docker image will be validated and pushed to the docker registry after the code is merged to master.
-
-# Prerequisites: $DOCKERHUB_USERNAME, $DOCKERHUB_PASSWORD setup as deployment variables
+# Build docker images for development with cmake for bitbucket CI
+#
+# Lints, Builds and deploys the docker images for the following development environments:
+#   sw-dev
+#   hw-dev - todo.
+#
+# Prerequisites: $DOCKERHUB_USER, $DOCKERHUB_PASSWORD setup as deployment variables
 
 image: atlassian/default-image:3
 
 #.common_build_docker: &common_build_docker
-#  - DOCKER_NAME="${BITBUCKET_REPO_FULL_NAME}/${DOCKER_IMAGE}"
-#  - echo ${DOCKERHUB_PASSWORD} | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+#  - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
+#  - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
 #  - docker build -t ${$DOCKER_NAME}:${BITBUCKET_TAG} -f docker/${DOCKER_IMAGE}/Dockerfile
 #  - docker tag ${DOCKER_NAME}:${DOCKER_VERSION} ${DOCKER_NAME}:latest
 #  - docker push ${DOCKER_NAME}
-          
+
 pipelines:
   default:
-    - step: 
+    - step:
         name: Lint Docker files
         image: hadolint/hadolint:latest-debian
         script:
           - hadolint docker/sw-dev/Dockerfile
-          - hadolint docker/hw-dev/Dockerfile
-    - step: 
-        name: Build and Deploy sw-dev
-        script:
-          - DOCKER_IMAGE="sw-dev"
-          - echo ${DOCKERHUB_PASSWORD} | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
-          - DOCKER_NAME="${BITBUCKET_REPO_FULL_NAME}/${DOCKER_IMAGE}"
-          - docker build -t ${$DOCKER_NAME}:${BITBUCKET_TAG} -f docker/${DOCKER_IMAGE}/Dockerfile
-          - docker tag ${DOCKER_NAME}:${DOCKER_VERSION} ${DOCKER_NAME}:latest
-          - docker push ${DOCKER_NAME}
-        services:
-          - docker
-        caches:
-          - docker
-    - step:
-        name: Build and Deploy hw-dev
-        script:
-          - DOCKER_IMAGE="hw-dev"
-          - echo ${DOCKERHUB_PASSWORD} | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
-          - DOCKER_NAME="${BITBUCKET_REPO_FULL_NAME}/${DOCKER_IMAGE}"
-          - docker build -t ${$DOCKER_NAME}:${BITBUCKET_TAG} -f docker/${DOCKER_IMAGE}/Dockerfile
-          - docker tag ${DOCKER_NAME}:${DOCKER_VERSION} ${DOCKER_NAME}:latest
-          - docker push ${DOCKER_NAME}
-        services:
-          - docker
-        caches:
-          - docker
+          # - hadolint docker/hw-dev/Dockerfile
+  tags:
+    v*:
+      - step:
+          name: Build and Deploy sw-dev
+          script:
+            - DOCKER_IMAGE="sw-dev"
+            - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
+            - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
+            - docker build -t ${$DOCKER_NAME}:${BITBUCKET_TAG} -f docker/${DOCKER_IMAGE}/Dockerfile
+            - docker tag ${DOCKER_NAME}:${DOCKER_VERSION} ${DOCKER_NAME}:latest
+            - docker push ${DOCKER_NAME}
+          services:
+            - docker
+          caches:
+            - docker
+    # - step:
+    #     name: Build and Deploy hw-dev
+    #     script:
+    #       - DOCKER_IMAGE="hw-dev"
+    #       - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
+    #       - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
+    #       - docker build -t ${$DOCKER_NAME}:${BITBUCKET_TAG} -f docker/${DOCKER_IMAGE}/Dockerfile
+    #       - docker tag ${DOCKER_NAME}:${DOCKER_VERSION} ${DOCKER_NAME}:latest
+    #       - docker push ${DOCKER_NAME}
+    #     services:
+    #       - docker
+    #     caches:
+    #       - docker
