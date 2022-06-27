@@ -9,8 +9,8 @@
 image: atlassian/default-image:3
 
 #.common_build_docker: &common_build_docker
-#  - DOCKER_NAME="${BITBUCKET_REPO_FULL_NAME}/${DOCKER_IMAGE}"
-#  - echo ${DOCKERHUB_PASSWORD} | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+#  - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USERNAME}" --password-stdin
+#  - DOCKER_NAME="${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}"
 #  - docker build -t ${$DOCKER_NAME}:${BITBUCKET_TAG} -f docker/${DOCKER_IMAGE}/Dockerfile
 #  - docker tag ${DOCKER_NAME}:${DOCKER_VERSION} ${DOCKER_NAME}:latest
 #  - docker push ${DOCKER_NAME}
@@ -27,8 +27,8 @@ pipelines:
         name: Build and Deploy sw-dev
         script:
           - DOCKER_IMAGE="sw-dev"
-          - echo ${DOCKERHUB_PASSWORD} | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
-          - DOCKER_NAME="${BITBUCKET_REPO_FULL_NAME}/${DOCKER_IMAGE}"
+          - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USERNAME}" --password-stdin
+          - DOCKER_NAME="${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}"
           - docker build -t ${$DOCKER_NAME}:${BITBUCKET_TAG} -f docker/${DOCKER_IMAGE}/Dockerfile
           - docker tag ${DOCKER_NAME}:${DOCKER_VERSION} ${DOCKER_NAME}:latest
           - docker push ${DOCKER_NAME}
@@ -40,8 +40,8 @@ pipelines:
     #     name: Build and Deploy hw-dev
     #     script:
     #       - DOCKER_IMAGE="hw-dev"
-    #       - echo ${DOCKERHUB_PASSWORD} | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
-    #       - DOCKER_NAME="${BITBUCKET_REPO_FULL_NAME}/${DOCKER_IMAGE}"
+    #       - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USERNAME}" --password-stdin
+    #       - DOCKER_NAME="${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}"
     #       - docker build -t ${$DOCKER_NAME}:${BITBUCKET_TAG} -f docker/${DOCKER_IMAGE}/Dockerfile
     #       - docker tag ${DOCKER_NAME}:${DOCKER_VERSION} ${DOCKER_NAME}:latest
     #       - docker push ${DOCKER_NAME}
