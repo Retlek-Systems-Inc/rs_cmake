@@ -13,8 +13,9 @@ image: atlassian/default-image:3
 #  - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
 #  - cd docker/${DOCKER_IMAGE}
 #  - docker build -t ${DOCKER_NAME}:${BITBUCKET_TAG} .
+#  - docker push ${DOCKER_NAME}:${BITBUCKET_TAG}
 #  - docker tag ${DOCKER_NAME}:${BITBUCKET_TAG} ${DOCKER_NAME}:latest
-#  - docker push ${DOCKER_NAME}
+#  - docker push ${DOCKER_NAME}:latest
 
 pipelines:
   default:
@@ -34,23 +35,25 @@ pipelines:
             - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
             - cd docker/${DOCKER_IMAGE}
             - docker build -t ${DOCKER_NAME}:${BITBUCKET_TAG} .
+            - docker push ${DOCKER_NAME}:${BITBUCKET_TAG}
             - docker tag ${DOCKER_NAME}:${BITBUCKET_TAG} ${DOCKER_NAME}:latest
-            - docker push ${DOCKER_NAME}
+            - docker push ${DOCKER_NAME}:latest
           services:
             - docker
           caches:
             - docker
-    # - step:
-    #     name: Build and Deploy hw-dev
-    #     script:
-    #       - DOCKER_IMAGE="hw-dev"
-    #       - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
-    #       - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
-    #       - cd docker/${DOCKER_IMAGE}
-    #       - docker build -t ${DOCKER_NAME}:${BITBUCKET_TAG} .
-    #       - docker tag ${DOCKER_NAME}:${BITBUCKET_TAG} ${DOCKER_NAME}:latest
-    #       - docker push ${DOCKER_NAME}
-    #     services:
-    #       - docker
-    #     caches:
-    #       - docker
+      - step:
+          name: Build and Deploy hw-dev
+          script:
+            - DOCKER_IMAGE="hw-dev"
+            - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
+            - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
+            - cd docker/${DOCKER_IMAGE}
+            - docker build -t ${DOCKER_NAME}:${BITBUCKET_TAG} .
+            - docker push ${DOCKER_NAME}:${BITBUCKET_TAG}
+            - docker tag ${DOCKER_NAME}:${BITBUCKET_TAG} ${DOCKER_NAME}:latest
+            - docker push ${DOCKER_NAME}:latest
+          services:
+            - docker
+          caches:
+            - docker
