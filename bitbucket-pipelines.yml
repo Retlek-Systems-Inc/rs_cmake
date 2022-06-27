@@ -4,13 +4,13 @@
 #   sw-dev
 #   hw-dev - todo.
 #
-# Prerequisites: $DOCKERHUB_USERNAME, $DOCKERHUB_PASSWORD setup as deployment variables
+# Prerequisites: $DOCKERHUB_USER, $DOCKERHUB_PASSWORD setup as deployment variables
 
 image: atlassian/default-image:3
 
 #.common_build_docker: &common_build_docker
-#  - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USERNAME}" --password-stdin
-#  - DOCKER_NAME="${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}"
+#  - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
+#  - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
 #  - docker build -t ${$DOCKER_NAME}:${BITBUCKET_TAG} -f docker/${DOCKER_IMAGE}/Dockerfile
 #  - docker tag ${DOCKER_NAME}:${DOCKER_VERSION} ${DOCKER_NAME}:latest
 #  - docker push ${DOCKER_NAME}
@@ -23,25 +23,27 @@ pipelines:
         script:
           - hadolint docker/sw-dev/Dockerfile
           # - hadolint docker/hw-dev/Dockerfile
-    - step:
-        name: Build and Deploy sw-dev
-        script:
-          - DOCKER_IMAGE="sw-dev"
-          - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USERNAME}" --password-stdin
-          - DOCKER_NAME="${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}"
-          - docker build -t ${$DOCKER_NAME}:${BITBUCKET_TAG} -f docker/${DOCKER_IMAGE}/Dockerfile
-          - docker tag ${DOCKER_NAME}:${DOCKER_VERSION} ${DOCKER_NAME}:latest
-          - docker push ${DOCKER_NAME}
-        services:
-          - docker
-        caches:
-          - docker
+  tags:
+    v*:
+      - step:
+          name: Build and Deploy sw-dev
+          script:
+            - DOCKER_IMAGE="sw-dev"
+            - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
+            - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
+            - docker build -t ${$DOCKER_NAME}:${BITBUCKET_TAG} -f docker/${DOCKER_IMAGE}/Dockerfile
+            - docker tag ${DOCKER_NAME}:${DOCKER_VERSION} ${DOCKER_NAME}:latest
+            - docker push ${DOCKER_NAME}
+          services:
+            - docker
+          caches:
+            - docker
     # - step:
     #     name: Build and Deploy hw-dev
     #     script:
     #       - DOCKER_IMAGE="hw-dev"
-    #       - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USERNAME}" --password-stdin
-    #       - DOCKER_NAME="${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}"
+    #       - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
+    #       - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
     #       - docker build -t ${$DOCKER_NAME}:${BITBUCKET_TAG} -f docker/${DOCKER_IMAGE}/Dockerfile
     #       - docker tag ${DOCKER_NAME}:${DOCKER_VERSION} ${DOCKER_NAME}:latest
     #       - docker push ${DOCKER_NAME}
