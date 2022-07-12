@@ -97,6 +97,7 @@ if(BUILD_TEST)
 
     target_clang_tidy_definitions(TARGET gtest
       CHECKS
+        -*-avoid-c-arrays
         -*-braces-around-statements
         -*-deprecated-headers
         -*-else-after-return
@@ -268,6 +269,7 @@ if(BUILD_TEST)
         -cppcoreguidelines-macro-usage
         -cppcoreguidelines-owning-memory
         -cppcoreguidelines-pro-bounds-array-to-pointer-decay
+        -cppcoreguidelines-pro-bounds-pointer-arithmetic
         -cppcoreguidelines-pro-type-const-cast
         -cppcoreguidelines-pro-type-vararg
         -fuchsia-trailing-return
