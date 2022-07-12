@@ -119,6 +119,7 @@ if(BUILD_TEST)
         -bugprone-branch-clone
         -bugprone-easily-swappable-parameters
         -bugprone-exception-escape
+        -bugprone-macro-parentheses
         -bugprone-misplaced-widening-cast
         -bugprone-reserved-identifier
         -bugprone-signed-char-misuse
@@ -137,20 +138,29 @@ if(BUILD_TEST)
         -cppcoreguidelines-avoid-non-const-global-variables
         -cppcoreguidelines-c-copy-assignment-signature
         -cppcoreguidelines-init-variables
+        -cppcoreguidelines-macro-usage
+        -cppcoreguidelines-owning-memory
         -cppcoreguidelines-prefer-member-initializer
+        -cppcoreguidelines-pro-bounds-array-to-pointer-decay
         -cppcoreguidelines-pro-bounds-constant-array-index
+        -cppcoreguidelines-pro-bounds-pointer-arithmetic
         -cppcoreguidelines-pro-type-const-cast
         -cppcoreguidelines-pro-type-cstyle-cast
         -cppcoreguidelines-pro-type-union-access
         -cppcoreguidelines-pro-type-vararg
         -cppcoreguidelines-virtual-class-destructor
+        -fuchsia-multiple-inheritance
+        -fuchsia-statically-constructed-objects
         -fuchsia-trailing-return
+        -google-runtime-int
         -google-upgrade-googletest-case
         -hicpp-exception-baseclass
         -hicpp-explicit-conversions
         -hicpp-multiway-paths-covered
         -hicpp-noexcept-move
+        -hicpp-no-array-decay
         -hicpp-no-assembler
+        -hicpp-signed-bitwise
         -hicpp-vararg
         -llvm-include-order
         -llvm-namespace-comment
@@ -169,6 +179,7 @@ if(BUILD_TEST)
         -modernize-use-default-member-init
         -modernize-use-trailing-return-type
         -modernize-use-transparent-functors
+        -modernize-use-using
         -performance-no-automatic-move
         -performance-noexcept-move-constructor
         -performance-unnecessary-value-param
@@ -228,6 +239,7 @@ if(BUILD_TEST)
 
     target_clang_tidy_definitions(TARGET gmock
       CHECKS
+        -*-avoid-c-arrays
         -*-braces-around-statements
         -*-else-after-return
         -*-explicit-constructor
@@ -244,6 +256,7 @@ if(BUILD_TEST)
         -bugprone-easily-swappable-parameters
         -bugprone-exception-escape
         -bugprone-forwarding-reference-overload
+        -bugprone-macro-parentheses
         -bugprone-suspicious-include
         -cert-err09-cpp
         -cert-err58-cpp
@@ -252,12 +265,18 @@ if(BUILD_TEST)
         -cppcoreguidelines-avoid-non-const-global-variables
         -cppcoreguidelines-c-copy-assignment-signature
         -cppcoreguidelines-init-variables
+        -cppcoreguidelines-macro-usage
+        -cppcoreguidelines-owning-memory
+        -cppcoreguidelines-pro-bounds-array-to-pointer-decay
         -cppcoreguidelines-pro-type-const-cast
         -cppcoreguidelines-pro-type-vararg
         -fuchsia-trailing-return
+        -fuchsia-statically-constructed-objects
         -google-readability-casting
         -hicpp-explicit-conversions
         -hicpp-deprecated-headers
+        -hicpp-no-array-decay
+        -hicpp-signed-bitwise
         -hicpp-vararg
         -llvm-include-order
         -llvmlibc-callee-namespace
@@ -272,6 +291,7 @@ if(BUILD_TEST)
         -modernize-return-braced-init-list
         -modernize-use-default-member-init
         -modernize-use-trailing-return-type
+        -modernize-use-using
         -readability-container-size-empty
         -readability-const-return-type
         -readability-convert-member-functions-to-static

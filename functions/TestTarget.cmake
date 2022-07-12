@@ -227,6 +227,7 @@ function( TestTarget )
             -fuchsia-statically-constructed-objects
             -hicpp-vararg
             -llvmlibc-callee-namespace
+            -llvmlibc-implementation-in-namespace
             -*-avoid-goto # For EXPECT_THROW and EXPECT_DEATH tests.
         )
     elseif(_arg_FRAMEWORK STREQUAL "Benchmark")
