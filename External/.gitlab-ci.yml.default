@@ -19,7 +19,6 @@
 # SOFTWARE.
 
 stages:
-  - prepare
   - build
   - test
   - analysis
@@ -30,11 +29,13 @@ variables:
   BASE_BUILD_DIR: ci_build
   DEPS_DIR: ${BASE_BUILD_DIR}/deps
 
+#default image - TODO(phelter): Move to pre-generated docker image.
 default:
-  image: registry.gitlab.com/retleksystems/env/cmake/sw-dev:latest
+  image: registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.1.3
   before_script:
+    # Subproject tools
+    #    - apt -y install protobuf-compiler python-protobuf libprotobuf-dev
     # Setup git access using ssh keys
-    - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
     - eval $(ssh-agent -s)
     - echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
@@ -54,65 +55,81 @@ cache: &global_cache
     - ${BASE_BUILD_DIR}
   policy: pull-push
 
-#------------------------------------------------------------------------------
-gcc-all:prepare:
-  stage: prepare
-  #  only: [main, merge_requests]
-  inherit:
-    default: [image, before_script]
-  cache:
-    # inherit all global cache settings
-    <<: *global_cache
-  script:
-    - mkdir -p ${BASE_BUILD_DIR}/gcc-debug
-    - cmake -G Ninja -B${BASE_BUILD_DIR}/gcc-debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} -DSTATIC_ANALYSIS=OFF .
-    - mkdir -p ${BASE_BUILD_DIR}/gcc-coverage
-    - cmake -G Ninja -B${BASE_BUILD_DIR}/gcc-coverage -DCMAKE_BUILD_TYPE=coverage -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} -DSTATIC_ANALYSIS=OFF .
-    - mkdir -p ${BASE_BUILD_DIR}/gcc-relwithdebinfo
-    - cmake -G Ninja -B${BASE_BUILD_DIR}/gcc-relwithdebinfo -DCMAKE_BUILD_TYPE=ReleaseWithDebInfo -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} -DSTATIC_ANALYSIS=OFF .
+# Common Build for GCC
+.common_gcc_build: &common_gcc_build
+  - mkdir -p ${DEPS_DIR}
+  - mkdir -p ${BUILD_DIR}
+  - cmake -G Ninja -B${BUILD_DIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+  - cmake --build ${BUILD_DIR} -- -k 10000
 
-clang-all:prepare:
-  stage: prepare
-  needs: ["gcc-all:prepare"]
-  #  only: [main, merge_requests]
-  inherit:
-    default: [image, before_script]
-  cache:
-    <<: *global_cache
-  script:
-    # Note: Clang-tidy performed on debug build.
-    - mkdir -p ${BASE_BUILD_DIR}/clang-debug
-    - cmake -G Ninja -B${BASE_BUILD_DIR}/clang-debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang-13 -DCMAKE_CXX_COMPILER=clang++-13 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} -DSTATIC_ANALYSIS=ON .
-    - mkdir -p ${BASE_BUILD_DIR}/clang-asan
-    - cmake -G Ninja -B${BASE_BUILD_DIR}/clang-asan -DCMAKE_BUILD_TYPE=asan -DCMAKE_C_COMPILER=clang-13 -DCMAKE_CXX_COMPILER=clang++-13 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} -DSTATIC_ANALYSIS=OFF .
-    - mkdir -p ${BASE_BUILD_DIR}/clang-tsan
-    - cmake -G Ninja -B${BASE_BUILD_DIR}/clang-tsan -DCMAKE_BUILD_TYPE=tsan -DCMAKE_C_COMPILER=clang-13 -DCMAKE_CXX_COMPILER=clang++-13 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} -DSTATIC_ANALYSIS=OFF .
-    - mkdir -p ${BASE_BUILD_DIR}/clang-cppcheck
-    - cmake -G Ninja -B${BASE_BUILD_DIR}/clang-cppcheck -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang-13 -DCMAKE_CXX_COMPILER=clang++-13 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=OFF -DUSE_CPPCHECK=ON .
+# Common Build for Clang
+.common_clang_build: &common_clang_build
+  - mkdir -p ${DEPS_DIR}
+  - mkdir -p ${BUILD_DIR}
+  - cmake -G Ninja -B${BUILD_DIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+  - cmake --build ${BUILD_DIR} -- -k 10000
+
+# Common Run Tests
+.common_run_test: &common_run_test
+  - cd ${BUILD_DIR}
+  - ctest --output-on-failure --output-junit report.xml
+
+# prepare
+# Use gcc-debug:build as prepare - all other builds must wait on this to ensure
+# cache is built for deps and ccache.
 
 #------------------------------------------------------------------------------
 gcc-debug:build:
   stage: build
-  needs: ["gcc-all:prepare"]
   cache:
     <<: *global_cache
   variables:
     BUILD_DIR: ${BASE_BUILD_DIR}/gcc-debug
+    BUILD_TYPE: Debug
+    CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
   script:
-    - cmake --build ${BUILD_DIR}
+    - *common_gcc_build
 
 gcc-debug:test:
   stage: test
   needs: ["gcc-debug:build"]
+  extends: gcc-debug:build
   cache:
     <<: *global_cache
     policy: pull
-  variables:
-    BUILD_DIR: ${BASE_BUILD_DIR}/gcc-debug
   script:
-    - cd ${BUILD_DIR}
-    - ctest --output-on-failure --output-junit report.xml
-    #- cmake --build . --target memcheck - check with valgrind TODO(phelter)
+    - *common_gcc_build # cache not guaranteed
+    - *common_run_test
+    #- cmake --build . --target memcheck -- -k 10000 - check with valgrind TODO(phelter)
+  artifacts:
+    when: always
+    reports:
+      junit: ${BUILD_DIR}/report.xml
+
+#------------------------------------------------------------------------------
+gcc-relwithdebinfo:build:
+  stage: build
+  needs: ["gcc-debug:build"]
+  cache:
+    <<: *global_cache
+  variables:
+    BUILD_DIR: ${BASE_BUILD_DIR}/gcc-relwithdebinfo
+    BUILD_TYPE: ReleaseWithDebInfo
+    CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
+  script:
+    - *common_gcc_build
+
+gcc-relwithdebinfo:test:
+  stage: test
+  needs: ["gcc-relwithdebinfo:build"]
+  extends: gcc-relwithdebinfo:build
+  cache:
+    <<: *global_cache
+    policy: pull
+  script:
+    - *common_gcc_build # cache not guaranteed
+    - *common_run_test
+    #- cmake --build . --target memcheck -- -k 10000 - check with valgrind TODO(phelter)
   artifacts:
     when: always
     reports:
@@ -121,7 +138,7 @@ gcc-debug:test:
 #------------------------------------------------------------------------------
 clang-debug:build:
   stage: build
-  needs: ["clang-all:prepare"]
+  needs: ["gcc-debug:build"]
   #  only: [main, merge_requests]
   inherit:
     default: [image, before_script]
@@ -129,21 +146,21 @@ clang-debug:build:
     <<: *global_cache
   variables:
     BUILD_DIR: ${BASE_BUILD_DIR}/clang-debug
+    BUILD_TYPE: Debug
+    CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=ON
   script:
-    - cmake --build ${BUILD_DIR}
+    - *common_clang_build
 
 clang-debug:test:
   stage: test
   needs: ["clang-debug:build"]
+  extends: clang-debug:build
   cache:
     <<: *global_cache
     policy: pull
-  variables:
-    BUILD_DIR: ${BASE_BUILD_DIR}/clang-debug
   script:
-    - cd ${BUILD_DIR}
-    - ctest --output-on-failure --output-junit report.xml
-    #- cmake --build . --target memcheck - check with valgrind TODO(phelter)
+    - *common_clang_build # cache not guaranteed
+    - *common_run_test
   artifacts:
     when: always
     reports:
@@ -152,7 +169,7 @@ clang-debug:test:
 #------------------------------------------------------------------------------
 clang-asan:build:
   stage: build
-  needs: ["clang-all:prepare"]
+  needs: ["gcc-debug:build"]
   #  only: [main, merge_requests]
   inherit:
     default: [image, before_script]
@@ -160,20 +177,21 @@ clang-asan:build:
     <<: *global_cache
   variables:
     BUILD_DIR: ${BASE_BUILD_DIR}/clang-asan
+    BUILD_TYPE: asan
+    CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
   script:
-    - cmake --build ${BUILD_DIR}
+    - *common_clang_build
 
 clang-asan:test:
   stage: test
   needs: ["clang-asan:build"]
+  extends: clang-asan:build
   cache:
     <<: *global_cache
     policy: pull
-  variables:
-    BUILD_DIR: ${BASE_BUILD_DIR}/clang-asan
   script:
-    - cd ${BUILD_DIR}
-    - ctest --output-on-failure --output-junit report.xml
+    - *common_clang_build # cache not guaranteed
+    - *common_run_test
   artifacts:
     when: always
     reports:
@@ -182,7 +200,7 @@ clang-asan:test:
 #------------------------------------------------------------------------------
 clang-tsan:build:
   stage: build
-  needs: ["clang-all:prepare"]
+  needs: ["gcc-debug:build"]
   #  only: [main, merge_requests]
   inherit:
     default: [image, before_script]
@@ -190,20 +208,21 @@ clang-tsan:build:
     <<: *global_cache
   variables:
     BUILD_DIR: ${BASE_BUILD_DIR}/clang-tsan
+    BUILD_TYPE: tsan
+    CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
   script:
-    - cmake --build ${BUILD_DIR}
+    - *common_clang_build
 
 clang-tsan:test:
   stage: test
   needs: ["clang-tsan:build"]
+  extends: clang-tsan:build
   cache:
     <<: *global_cache
     policy: pull
-  variables:
-    BUILD_DIR: ${BASE_BUILD_DIR}/clang-tsan
   script:
-    - cd ${BUILD_DIR}
-    - ctest --output-on-failure --output-junit report.xml
+    - *common_clang_build # cache not guaranteed
+    - *common_run_test
   artifacts:
     when: always
     reports:
@@ -215,32 +234,37 @@ clang-tsan:test:
 #------------------------------------------------------------------------------
 gcc-coverage:build:
   stage: build
-  needs: ["gcc-all:prepare"]
+  needs: ["gcc-debug:build"]
+  inherit:
+    default: [image, before_script]
   cache:
     <<: *global_cache
   variables:
     BUILD_DIR: ${BASE_BUILD_DIR}/gcc-coverage
+    BUILD_TYPE: coverage
+    CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
   script:
-    - cmake --build ${BUILD_DIR}
+    - *common_gcc_build
 
 gcc-coverage:test:
   stage: test
   needs: ["gcc-coverage:build"]
+  extends: gcc-coverage:build
+  inherit:
+    default: [image, before_script]
   cache:
     <<: *global_cache
     policy: pull
-  variables:
-    BUILD_DIR: ${BASE_BUILD_DIR}/gcc-coverage
   script:
-    - cd ${BUILD_DIR}
-    - ctest --output-on-failure --output-junit report.xml
+    - *common_gcc_build # cache not guaranteed
+    - *common_run_test
     - cmake --build . --target code-coverage
   artifacts:
     when: always
     reports:
       junit: ${BUILD_DIR}/report.xml
     paths:
-      - $BUILD_DIR/coverage
+      - ${BUILD_DIR}/coverage
 
 #------------------------------------------------------------------------------
 # clang-format:
@@ -256,16 +280,36 @@ gcc-coverage:test:
 
 clang-cppcheck:build:
   stage: analysis
-  needs: ["clang-all:prepare"]
+  needs: ["gcc-debug:build"]
   #  only: [main, merge_requests]
   inherit:
     default: [image, before_script]
   cache:
     <<: *global_cache
+    policy: pull
   variables:
     BUILD_DIR: ${BASE_BUILD_DIR}/clang-cppcheck
+    BUILD_TYPE: Debug
+    CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=OFF -DUSE_CPPCHECK=ON
   script:
-    - cmake --build ${BUILD_DIR}
+    - *common_clang_build
+  # TODO: Add in logging checks for cpp logs?
+
+clang-cpplint:build:
+  stage: analysis
+  needs: ["gcc-debug:build"]
+  #  only: [main, merge_requests]
+  inherit:
+    default: [image, before_script]
+  cache:
+    <<: *global_cache
+    policy: pull
+  variables:
+    BUILD_DIR: ${BASE_BUILD_DIR}/clang-cpplint
+    BUILD_TYPE: Debug
+    CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=OFF -DUSE_CPPLINT=ON
+  script:
+    - *common_clang_build
   # TODO: Add in logging checks for cpp logs?
 #------------------------------------------------------------------------------
 # document:
@@ -299,7 +343,7 @@ clang-cppcheck:build:
 #   script: benchmark
 #     - mkdir $BUILD_DIR && cd $BUILD_DIR
 #     - cmake -G Ninja -DCMAKE_BUILD_TYPE=ReleaseWithDebInfo -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE ../..
-#     - cmake --build .
+#     - cmake --build . -- -k 10000
 #     - cmake --build . --target benchmark
 
 # deploy-ubuntu-bionic:
@@ -312,7 +356,7 @@ clang-cppcheck:build:
 #   script:
 #     - mkdir $BUILD_DIR && cd $BUILD_DIR
 #     - cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE ../..
-#     - cmake --build .
+#     - cmake --build . -- -k 10000
 #     - cpack -G DEB .
 # #  after_script:
 # #    - curl -T $BUILD_DIR/name.deb -???:${BINTRAY_API_KEY} "https://api.bintray.com/content/retleksystems/dpkg/???/0.1.0/pool/main/h/"

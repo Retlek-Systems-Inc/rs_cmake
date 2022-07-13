@@ -8,6 +8,8 @@
 
 image: atlassian/default-image:3
 
+# Cannot have Yaml anchors for list merging so lots of duplication.
+
 #.common_build_docker: &common_build_docker
 #  - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
 #  - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
@@ -24,7 +26,7 @@ pipelines:
         image: hadolint/hadolint:latest-debian
         script:
           - hadolint docker/sw-dev/Dockerfile
-          # - hadolint docker/hw-dev/Dockerfile
+          - hadolint docker/hw-dev/Dockerfile
   tags:
     v*:
       - step:
