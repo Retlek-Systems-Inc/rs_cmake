@@ -33,6 +33,7 @@ pipelines:
           name: Build and Deploy sw-dev
           script:
             - DOCKER_IMAGE="sw-dev"
+            # common_build_docker Start
             - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
             - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
             - cd docker/${DOCKER_IMAGE}
@@ -40,6 +41,7 @@ pipelines:
             - docker push ${DOCKER_NAME}:${BITBUCKET_TAG}
             - docker tag ${DOCKER_NAME}:${BITBUCKET_TAG} ${DOCKER_NAME}:latest
             - docker push ${DOCKER_NAME}:latest
+            # common_build_docker End
           services:
             - docker
           caches:
@@ -48,6 +50,7 @@ pipelines:
           name: Build and Deploy hw-dev
           script:
             - DOCKER_IMAGE="hw-dev"
+            # common_build_docker Start
             - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
             - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
             - cd docker/${DOCKER_IMAGE}
@@ -55,6 +58,7 @@ pipelines:
             - docker push ${DOCKER_NAME}:${BITBUCKET_TAG}
             - docker tag ${DOCKER_NAME}:${BITBUCKET_TAG} ${DOCKER_NAME}:latest
             - docker push ${DOCKER_NAME}:latest
+            # common_build_docker End
           services:
             - docker
           caches:

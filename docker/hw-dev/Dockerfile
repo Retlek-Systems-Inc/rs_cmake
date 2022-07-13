@@ -20,7 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM phelter/sw-dev:v0.1.4
+# hadolint ignore=DL3007,DL3008
+FROM phelter/sw-dev:latest
 #FROM registry.gitlab.com/retleksystems/env/cmake/sw-dev:latest
 
 # Default gtkwave and verilator
@@ -28,8 +29,56 @@ RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
     apt-get install --no-install-recommends -y \
     gtkwave=3.3.104-2build1 \
-    verilator=4.038-1 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Instead of installing default
+#    verilator=4.038-1 \
+
+# Install Verilator
+# modified from: https://github.com/verilator/verilator/blob/master/ci/docker/run/Dockerfile
+# hadolint ignore=DL3008
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive \
+    apt-get install --no-install-recommends -y \
+        autoconf \
+        bc \
+        bison \
+        build-essential \
+        ca-certificates \
+        ccache \
+        flex \
+        git \
+        libfl-dev \
+        libgoogle-perftools-dev \
+        perl \
+        python3 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Using version 4.222
+ARG REPO=https://github.com/verilator/verilator
+ARG SOURCE_COMMIT=v4.222
+
+WORKDIR /tmp
+
+# Add an exception for the linter, we want to cd here in one layer
+# to reduce the number of layers (and thereby size).
+# hadolint ignore=DL3003
+RUN git clone "${REPO}" verilator && \
+    cd verilator && \
+    git checkout "${SOURCE_COMMIT}" && \
+    autoconf && \
+    ./configure && \
+    make -j "$(nproc)" && \
+    make install && \
+    cd .. && \
+    rm -r verilator
+
+COPY verilator-wrap.sh /usr/local/bin/verilator-wrap.sh
+
+# WORKDIR /work
+
+# ENTRYPOINT [ "/usr/local/bin/verilator-wrap.sh" ]
 
 WORKDIR /tmp
