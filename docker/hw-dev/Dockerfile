@@ -37,22 +37,23 @@ RUN apt-get update -y \
 
 # Install Verilator
 # modified from: https://github.com/verilator/verilator/blob/master/ci/docker/run/Dockerfile
+
+# Note libunwind-14 is installed with llvm-14 tools.  This clashes with libunwind-dev used by
+# libgoogle-perftools-dev so removing it for now.  This means cannot use libc++abi* but must use
+# gcc version libstdc++abi.
+RUN DEBIAN_FRONTEND=noninteractive \
+    apt-get -y autoremove --purge libunwind-14
+
 # hadolint ignore=DL3008
-RUN apt-get update \
+RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
     apt-get install --no-install-recommends -y \
         autoconf \
         bc \
         bison \
-        build-essential \
-        ca-certificates \
-        ccache \
         flex \
-        git \
         libfl-dev \
         libgoogle-perftools-dev \
-        perl \
-        python3 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -75,7 +76,7 @@ RUN git clone "${REPO}" verilator && \
     cd .. && \
     rm -r verilator
 
-COPY verilator-wrap.sh /usr/local/bin/verilator-wrap.sh
+# COPY verilator-wrap.sh /usr/local/bin/verilator-wrap.sh
 
 # WORKDIR /work
 

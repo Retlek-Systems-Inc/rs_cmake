@@ -2,7 +2,7 @@
 #
 # Lints, Builds and deploys the docker images for the following development environments:
 #   sw-dev
-#   hw-dev - todo.
+#   hw-dev
 #
 # Prerequisites: $DOCKERHUB_USER, $DOCKERHUB_PASSWORD setup as deployment variables
 
@@ -19,47 +19,56 @@ image: atlassian/default-image:3
 #  - docker tag ${DOCKER_NAME}:${BITBUCKET_TAG} ${DOCKER_NAME}:latest
 #  - docker push ${DOCKER_NAME}:latest
 
-pipelines:
-  default:
-    - step:
+definitions:
+  steps:
+    - step: &lint_docker_files
         name: Lint Docker files
         image: hadolint/hadolint:latest-debian
         script:
           - hadolint docker/sw-dev/Dockerfile
           - hadolint docker/hw-dev/Dockerfile
+    - step: &sw_dev_build_deploy
+        name: Build and Deploy sw-dev
+        script:
+          - DOCKER_IMAGE="sw-dev"
+          # common_build_docker Start
+          - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
+          - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
+          - cd docker/${DOCKER_IMAGE}
+          - docker build -t ${DOCKER_NAME}:${BITBUCKET_TAG} .
+          - docker push ${DOCKER_NAME}:${BITBUCKET_TAG}
+          - docker tag ${DOCKER_NAME}:${BITBUCKET_TAG} ${DOCKER_NAME}:latest
+          - docker push ${DOCKER_NAME}:latest
+          # common_build_docker End
+        services:
+          - docker
+        caches:
+          - docker
+    - step: &hw_dev_build_deploy
+        name: Build and Deploy hw-dev
+        script:
+          - DOCKER_IMAGE="hw-dev"
+          # common_build_docker Start
+          - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
+          - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
+          - cd docker/${DOCKER_IMAGE}
+          - docker build -t ${DOCKER_NAME}:${BITBUCKET_TAG} .
+          - docker push ${DOCKER_NAME}:${BITBUCKET_TAG}
+          - docker tag ${DOCKER_NAME}:${BITBUCKET_TAG} ${DOCKER_NAME}:latest
+          - docker push ${DOCKER_NAME}:latest
+          # common_build_docker End
+        services:
+          - docker
+        caches:
+          - docker
+
+pipelines:
+  default:
+    - step:
+        <<: *lint_docker_files
   tags:
     v*:
       - step:
-          name: Build and Deploy sw-dev
-          script:
-            - DOCKER_IMAGE="sw-dev"
-            # common_build_docker Start
-            - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
-            - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
-            - cd docker/${DOCKER_IMAGE}
-            - docker build -t ${DOCKER_NAME}:${BITBUCKET_TAG} .
-            - docker push ${DOCKER_NAME}:${BITBUCKET_TAG}
-            - docker tag ${DOCKER_NAME}:${BITBUCKET_TAG} ${DOCKER_NAME}:latest
-            - docker push ${DOCKER_NAME}:latest
-            # common_build_docker End
-          services:
-            - docker
-          caches:
-            - docker
+          <<: *sw_dev_build_deploy
       - step:
-          name: Build and Deploy hw-dev
-          script:
-            - DOCKER_IMAGE="hw-dev"
-            # common_build_docker Start
-            - echo ${DOCKERHUB_PASSWORD} | docker login --username "${DOCKERHUB_USER}" --password-stdin
-            - DOCKER_NAME="${DOCKERHUB_USER}/${DOCKER_IMAGE}"
-            - cd docker/${DOCKER_IMAGE}
-            - docker build -t ${DOCKER_NAME}:${BITBUCKET_TAG} .
-            - docker push ${DOCKER_NAME}:${BITBUCKET_TAG}
-            - docker tag ${DOCKER_NAME}:${BITBUCKET_TAG} ${DOCKER_NAME}:latest
-            - docker push ${DOCKER_NAME}:latest
-            # common_build_docker End
-          services:
-            - docker
-          caches:
-            - docker
+          <<: *hw_dev_build_deploy
