@@ -22,7 +22,7 @@
 
 # Currently using verilator for testing.
 if (VERILOG_TEST)
-    find_package(verilator 4.2.2 REQUIRED
+    find_package(verilator 4.222 REQUIRED
         HINTS
         /usr/local
         $ENV{VERILATOR_ROOT}
@@ -147,6 +147,49 @@ if (VERILOG_TEST)
         )
         unset(_inc_dir)
 
+        target_clang_tidy_definitions(TARGET verilator_base
+            CHECKS
+              -*-braces-around-statements
+              -*-else-after-return
+              -*-magic-numbers
+              -*-named-parameter
+              -*-narrowing-conversions
+              -*-use-auto
+              -*-use-equals-default
+              -*-use-override
+              -altera-id-dependent-backward-branch
+              -altera-struct-pack-align
+              -altera-unroll-loops
+              -bugprone-easily-swappable-parameters
+              -bugprone-reserved-identifier
+              -cert-dcl37-c
+              -cert-dcl51-cpp
+              -clang-analyzer-core.CallAndMessage
+              -cppcoreguidelines-avoid-non-const-global-variables
+              -cppcoreguidelines-c-copy-assignment-signature
+              -cppcoreguidelines-explicit-virtual-functions
+              -cppcoreguidelines-init-variables
+              -cppcoreguidelines-pro-bounds-constant-array-index
+              -cppcoreguidelines-pro-type-const-cast
+              -cppcoreguidelines-pro-type-member-init
+              -cppcoreguidelines-pro-type-union-access
+              -cppcoreguidelines-virtual-class-destructor
+              -google-explicit-constructor
+              -google-readability-casting
+              -hicpp-explicit-conversions
+              -hicpp-member-init
+              -hicpp-noexcept-move
+              -llvm-include-order
+              -misc-unconventional-assign-operator
+              -modernize-use-nodiscard
+              -performance-noexcept-move-constructor
+              -readability-avoid-const-params-in-decls
+              -readability-identifier-length
+              -readability-implicit-bool-conversion
+              -readability-make-member-function-const
+              -readability-redundant-access-specifiers
+        )
+  
         target_link_libraries( verilator_base
             PUBLIC
             atomic # For some reason missing __atomic_is_lock_free definition.
