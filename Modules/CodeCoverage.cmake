@@ -140,6 +140,13 @@ mark_as_advanced(CMAKE_CXX_FLAGS_COVERAGE
 #     )
 # endif() # NOT CMAKE_BUILD_TYPE STREQUAL "Debug"
 
+get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if (isMultiConfig)
+    if (NOT "Coverage" IN_LIST CMAKE_CONFIGURATION_TYPES)
+        list(APPEND CMAKE_CONFIGURATION_TYPES Coverage)
+    endif()
+endif()
+
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   link_libraries(gcov)
 # else()

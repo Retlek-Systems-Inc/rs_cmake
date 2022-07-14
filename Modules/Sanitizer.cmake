@@ -132,4 +132,11 @@ function(SETUP_FOR_SANITIZE)
                      CMAKE_SHARED_LINKER_FLAGS_${_buildName}
                      CMAKE_STATIC_LINKER_FLAGS_${_buildName}
                      CMAKE_MODULE_LINKER_FLAGS_${_buildName})
-endfunction() # SETUP_FOR_SANITIZER
+
+    get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+    if (isMultiConfig)
+        if (NOT ${San_BUILD_TYPE} IN_LIST CMAKE_CONFIGURATION_TYPES)
+            list(APPEND CMAKE_CONFIGURATION_TYPES ${San_BUILD_TYPE})
+        endif()
+    endif()
+endfunction() # SETUP_FOR_SANITIZE

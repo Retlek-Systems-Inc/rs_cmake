@@ -19,7 +19,7 @@
 # SOFTWARE.
 #
 
-# See accompanying file Copyright.txt or https://tbd for details.
+# See accompanying file LICENSE for details.
 include(CMakeDependentOption)
 
 ###################
@@ -50,6 +50,24 @@ list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/Modules" )
 include(CMakePrintHelpers)
 cmake_print_variables(CMAKE_MODULE_PATH)
 
+###################
+# Multi-config and build type settings
+# set(allowedBuildTypes Debug Release ReleaseWithDebInfo MinSizeRel Asan Tsan Msan Ubsan Coverage)
+get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
+if(isMultiConfig)
+    # Config build types are setup in the CodeCoverage.cmake and Sanitizer.cmake modules.
+else()
+    set(allowedBuildTypes Debug Release ReleaseWithDebInfo MinSizeRel Asan Tsan Coverage)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${allowedBuildTypes}")
+    if(NOT CMAKE_BUILD_TYPE)
+        set(CMAKE_BUILD_TYPE Debug CACHE STRING "" FORCE)
+    elseif(NOT CMAKE_BUILD_TYPE IN_LIST allowedBuildTypes)
+        message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
+    endif()
+endif()
+
+###################
 # Add in CCache if available.
 find_package(CCache)
 
@@ -58,12 +76,6 @@ if ( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
     message( FATAL_ERROR "Do not perform build in source directory. Make a separate directory for build:\n\tmkdir build; cd build; cmake ..\n And ensure it is empty.")
 endif()
 
-
-#Limit it to Makefile or Ninja for now.
-if ( NOT CMAKE_BUILD_TYPE AND ( (CMAKE_GENERATOR MATCHES ".*Makefile.*") OR (CMAKE_GENERATOR MATCHES ".*Ninja.*")))
-    message( STATUS "Makefile generator detected and build type not defined. Defaulting to `release`.")
-    set( CMAKE_BUILD_TYPE release CACHE STRING "Choose the type of build" FORCE )
-endif()
 
 # Common Functions and Macros
 file( GLOB _functions ${CMAKE_CURRENT_LIST_DIR}/functions/*.cmake )
