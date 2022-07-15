@@ -51,10 +51,10 @@ buildType:
       buildType: Release
       settings:
         STATIC_ANALYSIS: "OFF"
-    releaseWithDebInfo:
-      short: ReleaseWithDebInfo
+    relWithDebInfo:
+      short: RelWithDebInfo
       long: Release with Debug Information - optimizations but with debug info
-      buildType: ReleaseWithDebInfo
+      buildType: RelWithDebInfo
       settings:
         STATIC_ANALYSIS: "OFF"
     asan:

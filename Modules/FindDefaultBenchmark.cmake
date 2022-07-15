@@ -24,7 +24,7 @@
 # of the test environment from there.
 
 if( BUILD_BENCHMARK )
-    set(isRelBuild "$<BOOL:$<CONFIG:Release,ReleaseWithDebInfo>>")
+    set(isRelBuild "$<BOOL:$<CONFIG:Release,RelWithDebInfo,MinSizeRel>>")
     if( BUILD_BENCHMARK_RELEASE_ONLY AND NOT isRelBuild )
         message(STATUS "Not building benchmark with CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
         return()

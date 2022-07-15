@@ -26,9 +26,6 @@
 macro(setup_code_coverage_target)
     # Create a code coverage target.
     set(_coverageTarget code-coverage)
-    include(CodeCoverage)
-    APPEND_COVERAGE_COMPILER_FLAGS()
-
     # Exclude standard and test framework environment builds.
     list(APPEND COVERAGE_LCOV_EXCLUDES
         '/usr/include/*'

@@ -52,13 +52,13 @@ cmake_print_variables(CMAKE_MODULE_PATH)
 
 ###################
 # Multi-config and build type settings
-# set(allowedBuildTypes Debug Release ReleaseWithDebInfo MinSizeRel Asan Tsan Msan Ubsan Coverage)
+# set(allowedBuildTypes Debug Release RelWithDebInfo MinSizeRel Asan Tsan Msan Ubsan Coverage)
 get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
 if(isMultiConfig)
     # Config build types are setup in the CodeCoverage.cmake and Sanitizer.cmake modules.
 else()
-    set(allowedBuildTypes Debug Release ReleaseWithDebInfo MinSizeRel Asan Tsan Coverage)
+    set(allowedBuildTypes Debug Release RelWithDebInfo MinSizeRel Asan Tsan Coverage)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${allowedBuildTypes}")
     if(NOT CMAKE_BUILD_TYPE)
         set(CMAKE_BUILD_TYPE Debug CACHE STRING "" FORCE)

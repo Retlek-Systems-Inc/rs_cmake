@@ -81,7 +81,7 @@ definitions:
     - step: &gcc_relwithdebinfo_build_and_test
         name: GCC ReleaseWithDebInfo - Build and Test
         script:
-          - BUILD_TYPE=ReleaseWithDebInfo
+          - BUILD_TYPE=RelWithDebInfo
           - CMAKE_BUILD_ARGS="-DSTATIC_ANALYSIS=OFF"
           #common_env_setup Start
           - BASE_BUILD_DIR=ci_build #common_env_setup - start
