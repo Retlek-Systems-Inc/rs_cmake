@@ -50,15 +50,28 @@ list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/Modules" )
 include(CMakePrintHelpers)
 cmake_print_variables(CMAKE_MODULE_PATH)
 
+# Common Functions and Macros
+file( GLOB _functions ${CMAKE_CURRENT_LIST_DIR}/functions/*.cmake )
+foreach( _f ${_functions} )
+  include( ${_f} )
+endforeach()
+
 ###################
 # Multi-config and build type settings
 # set(allowedBuildTypes Debug Release RelWithDebInfo MinSizeRel Asan Tsan Msan Ubsan Coverage)
 get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
+set(allowedBuildTypes Debug Release RelWithDebInfo MinSizeRel Coverage
+    Asan Tsan Msan Ubsan Cfisan
+)
+
 if(isMultiConfig)
-    # Config build types are setup in the CodeCoverage.cmake and Sanitizer.cmake modules.
+    message(STATUS "CMAKE_CONFIGURATION_TYPES = ${CMAKE_CONFIGURATION_TYPES}")
+    set(configTypes ${CMAKE_CONFIGURATION_TYPES})
+    list(APPEND configTypes ${allowedBuildTypes})
+    list(REMOVE_DUPLICATES configTypes)
+    set(CMAKE_CONFIGURATION_TYPES ${configTypes} CACHE STRING "" FORCE)
 else()
-    set(allowedBuildTypes Debug Release RelWithDebInfo MinSizeRel Asan Tsan Coverage)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${allowedBuildTypes}")
     if(NOT CMAKE_BUILD_TYPE)
         set(CMAKE_BUILD_TYPE Debug CACHE STRING "" FORCE)
@@ -66,6 +79,10 @@ else()
         message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
     endif()
 endif()
+
+# Now add the definitions of each
+include(CodeCoverage)
+include(Sanitizer)
 
 ###################
 # Add in CCache if available.
@@ -76,12 +93,6 @@ if ( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
     message( FATAL_ERROR "Do not perform build in source directory. Make a separate directory for build:\n\tmkdir build; cd build; cmake ..\n And ensure it is empty.")
 endif()
 
-
-# Common Functions and Macros
-file( GLOB _functions ${CMAKE_CURRENT_LIST_DIR}/functions/*.cmake )
-foreach( _f ${_functions} )
-  include( ${_f} )
-endforeach()
 
 ###################
 # Default Package includes

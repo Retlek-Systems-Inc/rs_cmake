@@ -51,68 +51,30 @@
 include(CMakeParseArguments)
 include(CMakeDependentOption)
 
-set(COVERAGE_COMPILER_FLAGS  "-g -O0 --coverage" CACHE INTERNAL "")
-set(COVERAGE_LINKER_FLAGS    "--coverage"        CACHE INTERNAL "")
-
-get_property(enabledLanguages GLOBAL PROPERTY ENABLED_LANGUAGES)
-
-foreach(_LANG IN LISTS enabledLanguages)
-	include(Check${_LANG}CompilerFlag OPTIONAL)
-	set(CMAKE_REQUIRED_LIBRARIES ${COVERAGE_LINKER_FLAGS}) # This is ugly, but better than rewriting/fixing check_<LANG>_compiler_flag
-
-	if(_LANG STREQUAL "C")
-		check_c_compiler_flag("--coverage" ${_LANG}_COVERAGE_SUPPORTED)
-	elseif(_LANG STREQUAL "CXX")
-		check_cxx_compiler_flag("--coverage" ${_LANG}_COVERAGE_SUPPORTED)
-	else()
-		if(DEFINED ${_LANG}_COVERAGE_SUPPORTED)
-			message(STATUS "Skipping ${_LANG}, not supported by Coverage.cmake script")
-		endif()
-		set(${_LANG}_COVERAGE_SUPPORTED FALSE)
-		continue()
-	endif()
-	if(${_LANG}_COVERAGE_SUPPORTED)
-		set(CMAKE_${_LANG}_FLAGS_COVERAGE
-			${COVERAGE_COMPILER_FLAGS}
-			CACHE STRING "Flags used by the ${_LANG} compiler during coverage builds."
-		)
-		mark_as_advanced(CMAKE_${_LANG}_FLAGS_COVERAGE)
-		set(COVERAGE_SUPPORTED TRUE CACHE INTERNAL "Whether or not coverage is supported by at least one compiler.")
-	endif()
-endforeach()
-
-if(COVERAGE_SUPPORTED)
-	set(CMAKE_EXE_LINKER_FLAGS_COVERAGE
-		"${COVERAGE_LINKER_FLAGS}"
-		CACHE STRING "Flags used for linking binaries during coverage builds."
-	)
-	set(CMAKE_SHARED_LINKER_FLAGS_COVERAGE
-		"${COVERAGE_LINKER_FLAGS}"
-		CACHE STRING "Flags used by the shared libraries linker during coverage builds."
-	)
-	mark_as_advanced(
-		CMAKE_EXE_LINKER_FLAGS_COVERAGE
-		CMAKE_SHARED_LINKER_FLAGS_COVERAGE
-	)
-endif()
-
+# Add the Coverage configuration type
+AddConfiguration( CONFIG Coverage
+    BASE_CONFIG Debug
+    COMPILE_FLAGS
+        --coverage
+    LINKER_FLAGS
+        --coverage
+)
 
 get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-if (isMultiConfig)
+if(isMultiConfig)
     if (NOT "Coverage" IN_LIST CMAKE_CONFIGURATION_TYPES)
-        list(APPEND CMAKE_CONFIGURATION_TYPES Coverage)
+        message(WARNING "Coverage configuration not defined in configuration types. Use AddConfiguration.")
+        return()
+    endif()
+else()
+    set(isCoverageBuild "$<BOOL:$<CONFIG:Coverage>")
+    if (NOT isCoverageBuild)
+        # Not a multi-config and not a coverage build so don't bother adding these.
+        return()
     endif()
 endif()
 
-if(isMultiConfig)
-	# Modify this only if using a multi-config generator, some modules rely on this variable to detect those generators.
-    if (COVERAGE_SUPPORTED AND NOT "Coverage" IN_LIST CMAKE_CONFIGURATION_TYPES)
-        list(APPEND CMAKE_CONFIGURATION_TYPES Coverage)
-    elseif( NOT COVERAGE_SUPPORTED AND "Coverage" IN_LIST CMAKE_CONFIGURATION_TYPES)
-        list(REMOVE_DUPLICATES CMAKE_CONFIGURATION_TYPES)
-        list(REMOVE_ITEM CMAKE_CONFIGURATION_TYPES Coverage)
-    endif()
-endif()
+# TODO(phelter): Figure out how to do the code-coverage target just for the Coverage build.
 
 # Check prereqs
 find_program(GCOV_PATH
@@ -170,12 +132,9 @@ elseif(NOT ${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
 endif()
 
 
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-  link_libraries(gcov)
-# else()
-#   set(CMAKE_EXE_LINKER_FLAGS
-#       "${CMAKE_EXE_LINKER_FLAGS} -fprofile-instr-generate")
-endif()
+link_libraries(
+    $<$<AND:$<C_COMPILER_ID:GNU>,$<CONFIG:Coverage>>:gcov>
+)
 
 # Defines a target for running and collection code coverage information Builds
 # dependencies, runs the given executable and outputs reports. NOTE! The

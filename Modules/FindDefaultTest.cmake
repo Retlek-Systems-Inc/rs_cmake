@@ -23,6 +23,8 @@
 # Note googletest/googlemock are down-loaded into the build dir and compiled as part
 # of the test environment from there.
 
+include(CodeCoverage)
+
 macro(setup_code_coverage_target)
     # Create a code coverage target.
     set(_coverageTarget code-coverage)
@@ -325,13 +327,4 @@ if(BUILD_TEST)
         set(ctest_test_args ${ctest_test_args} PARALLEL_LEVEL ${_numProcessors})
     endif()
 
-    # Code analysis
-    if (UNIX)
-        include(CodeCoverage)
-        include(Sanitizer)
-        SETUP_FOR_SANITIZE(BUILD_TYPE ASAN)
-        SETUP_FOR_SANITIZE(BUILD_TYPE TSAN)
-        SETUP_FOR_SANITIZE(BUILD_TYPE MSAN)
-        SETUP_FOR_SANITIZE(BUILD_TYPE UBSAN)
-    endif(UNIX)
 endif(BUILD_TEST)
