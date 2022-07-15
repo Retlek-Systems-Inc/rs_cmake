@@ -1,48 +1,40 @@
-# Copyright (c) 2012 - 2017, Lars Bilke All rights reserved.
+# @copyright 2022 Retlek Systems Inc.
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# 1. Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-# 1. Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 #
-# 1. Neither the name of the copyright holder nor the names of its contributors
-#   may be used to endorse or promote products derived from this software
-#   without specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# Based on:
+# https://github.com/navarrothiago/test-ci/blob/3618332452374401b29c49f80ddddf059ddcdc1f/cmake/Coverage.cmake
+# https://github.com/lugt/algorithms-tester/blob/6fb0ae34584695486f98604790a5fc5b26e12eb7/cmake/CodeCoverage.cmake
+
 #
-# CHANGES:
+# CMake module that detects if the compilers support coverage
 #
-# 2012-01-31, Lars Bilke - Enable Code Coverage
-#
-# 2013-09-17, Joakim Söderberg - Added support for Clang. - Some additional
-# usage instructions.
-#
-# 2016-02-03, Lars Bilke - Refactored functions to use named parameters
-#
-# 2017-06-02, Lars Bilke - Merged with modified version from github.com/ufz/ogs
+# If this is the case, the build type Coverage is set up for coverage, and COVERAGE_SUPPORTED is set to true.
+# By default the Coverage build type is added to CMAKE_CONFIGURATION_TYPES on multi-config generators.
+# This can be controlled through the COVERAGE_IN_CONFIGURATION_TYPES option.
 #
 # USAGE:
 #
 # 1. Copy this file into your cmake modules path.
 #
 # 1. Add the following line to your CMakeLists.txt: include(CodeCoverage)
-#
-# 1. Append necessary compiler flags: APPEND_COVERAGE_COMPILER_FLAGS()
 #
 # 1. If you need to exclude additional directories from the report, specify them
 #   using the COVERAGE_LCOV_EXCLUDES variable before calling
@@ -57,6 +49,70 @@
 #
 
 include(CMakeParseArguments)
+include(CMakeDependentOption)
+
+set(COVERAGE_COMPILER_FLAGS  "-g -O0 --coverage" CACHE INTERNAL "")
+set(COVERAGE_LINKER_FLAGS    "--coverage"        CACHE INTERNAL "")
+
+get_property(enabledLanguages GLOBAL PROPERTY ENABLED_LANGUAGES)
+
+foreach(_LANG IN LISTS enabledLanguages)
+	include(Check${_LANG}CompilerFlag OPTIONAL)
+	set(CMAKE_REQUIRED_LIBRARIES ${COVERAGE_LINKER_FLAGS}) # This is ugly, but better than rewriting/fixing check_<LANG>_compiler_flag
+
+	if(_LANG STREQUAL "C")
+		check_c_compiler_flag("--coverage" ${_LANG}_COVERAGE_SUPPORTED)
+	elseif(_LANG STREQUAL "CXX")
+		check_cxx_compiler_flag("--coverage" ${_LANG}_COVERAGE_SUPPORTED)
+	else()
+		if(DEFINED ${_LANG}_COVERAGE_SUPPORTED)
+			message(STATUS "Skipping ${_LANG}, not supported by Coverage.cmake script")
+		endif()
+		set(${_LANG}_COVERAGE_SUPPORTED FALSE)
+		continue()
+	endif()
+	if(${_LANG}_COVERAGE_SUPPORTED)
+		set(CMAKE_${_LANG}_FLAGS_COVERAGE
+			${COVERAGE_COMPILER_FLAGS}
+			CACHE STRING "Flags used by the ${_LANG} compiler during coverage builds."
+		)
+		mark_as_advanced(CMAKE_${_LANG}_FLAGS_COVERAGE)
+		set(COVERAGE_SUPPORTED TRUE CACHE INTERNAL "Whether or not coverage is supported by at least one compiler.")
+	endif()
+endforeach()
+
+if(COVERAGE_SUPPORTED)
+	set(CMAKE_EXE_LINKER_FLAGS_COVERAGE
+		"${COVERAGE_LINKER_FLAGS}"
+		CACHE STRING "Flags used for linking binaries during coverage builds."
+	)
+	set(CMAKE_SHARED_LINKER_FLAGS_COVERAGE
+		"${COVERAGE_LINKER_FLAGS}"
+		CACHE STRING "Flags used by the shared libraries linker during coverage builds."
+	)
+	mark_as_advanced(
+		CMAKE_EXE_LINKER_FLAGS_COVERAGE
+		CMAKE_SHARED_LINKER_FLAGS_COVERAGE
+	)
+endif()
+
+
+get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if (isMultiConfig)
+    if (NOT "Coverage" IN_LIST CMAKE_CONFIGURATION_TYPES)
+        list(APPEND CMAKE_CONFIGURATION_TYPES Coverage)
+    endif()
+endif()
+
+if(isMultiConfig)
+	# Modify this only if using a multi-config generator, some modules rely on this variable to detect those generators.
+    if (COVERAGE_SUPPORTED AND NOT "Coverage" IN_LIST CMAKE_CONFIGURATION_TYPES)
+        list(APPEND CMAKE_CONFIGURATION_TYPES Coverage)
+    elseif( NOT COVERAGE_SUPPORTED AND "Coverage" IN_LIST CMAKE_CONFIGURATION_TYPES)
+        list(REMOVE_DUPLICATES CMAKE_CONFIGURATION_TYPES)
+        list(REMOVE_ITEM CMAKE_CONFIGURATION_TYPES Coverage)
+    endif()
+endif()
 
 # Check prereqs
 find_program(GCOV_PATH
@@ -113,39 +169,6 @@ elseif(NOT ${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
   message(FATAL_ERROR "Compiler is not GNU gcc! Aborting...")
 endif()
 
-set(COVERAGE_COMPILER_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage" CACHE INTERNAL "")
-#TODO: Support Clang "$<$<CXX_COMPILER_ID:Clang,AppleClang>:-fprofile-instr-generate -fcoverage-mapping>"
-
-set(CMAKE_CXX_FLAGS_COVERAGE ${COVERAGE_COMPILER_FLAGS}
-    CACHE STRING "Flags used by the C++ compiler during coverage builds."
-    FORCE)
-set(CMAKE_C_FLAGS_COVERAGE ${COVERAGE_COMPILER_FLAGS}
-    CACHE STRING "Flags used by the C compiler during coverage builds."
-    FORCE)
-set(CMAKE_EXE_LINKER_FLAGS_COVERAGE ""
-    CACHE STRING "Flags used for linking binaries during coverage builds."
-    FORCE)
-set(CMAKE_SHARED_LINKER_FLAGS_COVERAGE ""
-    CACHE STRING
-          "Flags used by the shared libraries linker during coverage builds."
-    FORCE)
-mark_as_advanced(CMAKE_CXX_FLAGS_COVERAGE
-                 CMAKE_C_FLAGS_COVERAGE
-                 CMAKE_EXE_LINKER_FLAGS_COVERAGE
-                 CMAKE_SHARED_LINKER_FLAGS_COVERAGE)
-
-# if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-#   message( WARNING
-#       "Code coverage results with an optimised (non-Debug) build may be misleading"
-#     )
-# endif() # NOT CMAKE_BUILD_TYPE STREQUAL "Debug"
-
-get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-if (isMultiConfig)
-    if (NOT "Coverage" IN_LIST CMAKE_CONFIGURATION_TYPES)
-        list(APPEND CMAKE_CONFIGURATION_TYPES Coverage)
-    endif()
-endif()
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   link_libraries(gcov)

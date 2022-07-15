@@ -30,7 +30,7 @@ cd build
 
 ```bash
 cd build
-cmake -G Ninja Multi-Config ..
+cmake -G"Ninja Multi-Config" ..
 cmake --build . --config Debug
 ```
 
@@ -40,7 +40,7 @@ cmake --build . --config Debug
 
 ```bash
 cd build
-cmake -G Ninja Multi-Config -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
+cmake -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
 cmake --build . --config Debug
 ```
 
@@ -48,7 +48,7 @@ cmake --build . --config Debug
 
 ```bash
 cd build
-cmake -G Ninja Multi-Config -DBUILD_TEST=OFF -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/arm-gcc.toolchain.cmake ..
+cmake -G"Ninja Multi-Config" -DBUILD_TEST=OFF -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/arm-gcc.toolchain.cmake ..
 cmake --build . --config Release
 ```
 
@@ -58,7 +58,7 @@ cmake --build . --config Release
 
 ```bash
 cd build
-cmake -G Ninja Multi-Config -DBUILD_TEST=OFF -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/arm-clang.toolchain.cmake ..
+cmake -G"Ninja Multi-Config" -DBUILD_TEST=OFF -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/arm-clang.toolchain.cmake ..
 cmake --build . --config Release
 ```
 
@@ -72,7 +72,7 @@ Note: Not all issues are fixable by clang-tidy so some of the reported errors/wa
 
 ```bash
 cd build
-cmake -G Ninja Multi-Config -DCLANG_TIDY_FIX=1 ..
+cmake -G"Ninja Multi-Config" -DCLANG_TIDY_FIX=1 ..
 cmake --build . --config Debug
 ```
 
@@ -105,7 +105,7 @@ Once compiled each test resides in `build/test/UnitTest_<target>`.
 ```bash
 # Note must be run with GCC.
 cd build
-cmake -G Ninja Multi-Config ..
+cmake -G"Ninja Multi-Config" ..
 # This will generate the code coverage directory.
 cmake --build . --config Coverage --target code-coverage
 # This will display the code coverage.
@@ -120,7 +120,7 @@ All of the HTML output of code coverage resides in `build/code-coverage`.
 
 ```bash
 cd build
-cmake -G Ninja Multi-Config -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON ../.
+cmake -G"Ninja Multi-Config" -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON ../.
 cmake --build . --config Debug
 ```
 
@@ -128,7 +128,7 @@ cmake --build . --config Debug
 
 ```bash
 cd build
-cmake -G Ninja Multi-Config -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON -DCLANG_TIDY_FIX=ON ../.
+cmake -G"Ninja Multi-Config" -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON -DCLANG_TIDY_FIX=ON ../.
 cmake --build . --config Debug
 ```
 
@@ -140,7 +140,7 @@ cmake --build . --config Debug
 
 ```bash
 cd build
-cmake -G Ninja Multi-Config -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
+cmake -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
 cmake --build . --config Asan --target test
 ```
 
@@ -148,7 +148,7 @@ cmake --build . --config Asan --target test
 
 ```bash
 cd build
-cmake -G Ninja Multi-Config -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
+cmake -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
 cmake --build . --config Tsan --target test
 ```
 
@@ -156,14 +156,14 @@ For Memory Sanitizer - run on suite of tests:
 
 ```bash
 cd build
-cmake -G Ninja Multi-Config -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
+cmake -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
 cmake --build . --config Msan --target test
 ```
 
 For Undefined Behavior Sanitizer - run on suite of tests:
 
 ```bash
-cmake -G Ninja Multi-Config -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
+cmake -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
 cmake --build . --config Ubsan --target test
 ```
 
