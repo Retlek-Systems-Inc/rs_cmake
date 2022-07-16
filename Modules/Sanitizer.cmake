@@ -51,19 +51,19 @@ AddConfiguration( CONFIG Tsan
         ${_commonSanFlags}
 )
 
-AddConfiguration( CONFIG Msan
-    BASE_CONFIG RelWithDebInfo
-    COMPILE_FLAGS
-        -fsanitize=memory
-#        -fsanitize=leak
-        ${_commonSanFlags}
-        --fsanitize-memory-track-origins
-    LINKER_FLAGS
-        -fsanitize=thread
-#        -fsanitize=leak
-        ${_commonSanFlags}
-        --fsanitize-memory-track-origins
-)
+# AddConfiguration( CONFIG Msan
+#     BASE_CONFIG RelWithDebInfo
+#     COMPILE_FLAGS
+#         -fsanitize=memory
+# #        -fsanitize=leak
+#         ${_commonSanFlags}
+# #        --fsanitize-memory-track-origins
+#     LINKER_FLAGS
+#         -fsanitize=thread
+# #        -fsanitize=leak
+#         ${_commonSanFlags}
+# #        --fsanitize-memory-track-origins
+# )
 
 AddConfiguration( CONFIG Ubsan
     BASE_CONFIG RelWithDebInfo
@@ -77,15 +77,15 @@ AddConfiguration( CONFIG Ubsan
         #-fsanitize-blacklist=BLACKLIST_FILE
 )
 
-AddConfiguration( CONFIG Cfisan
-    BASE_CONFIG RelWithDebInfo
-    COMPILE_FLAGS
-        -fsanitize=cfi
-        ${_commonSanFlags}
-    LINKER_FLAGS
-        -fsanitize=cfi
-        ${_commonSanFlags}
-)
+# AddConfiguration( CONFIG Cfisan
+#     BASE_CONFIG RelWithDebInfo
+#     COMPILE_FLAGS
+#         -fsanitize=cfi
+#         ${_commonSanFlags}
+#     LINKER_FLAGS
+#         -fsanitize=cfi
+#         ${_commonSanFlags}
+# )
 
 #Valgrind specific options
 # TODO: Investigate :

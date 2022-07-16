@@ -30,6 +30,9 @@ Examples:
 
 .. code-block:: cmake
 
+  # After project(... LANGUAGES <LANG>...)
+  # or enable_language( <LANG> )
+  # Perform
   AddConfiguration(
     CONFIG Coverage
     BASE_CONFIG Debug
@@ -72,33 +75,33 @@ function( AddConfiguration )
         if (${arg_BASE_CONFIG} STREQUAL "")
             message( WARNING "Note no Base configuration for ${arg_CONFIG}")
         else()
-            message( FATAL_ERROR "The Base Configuration ${arg_BASE_CONFIG} is not in ${CMAKE_CONFIGURATION_TYPES}, and not empty")
+            message( SEND_ERROR "The Base Configuration ${arg_BASE_CONFIG} is not in ${CMAKE_CONFIGURATION_TYPES}, and not empty")
             return()
         endif()
     endif()
 
-    #message(STATUS "Running AddConfiguration with ${arg_CONFIG}, base = ${arg_BASE_CONFIG}")
+    #message(STATUS "Running AddConfiguration with ${arg_CONFIG}, Base: ${arg_BASE_CONFIG}")
     # Check Base config is in the list
 
     string(TOUPPER ${arg_CONFIG} _configName)
-    if (arg_BASE_CONFIG STREQUAL "")
+    if (NOT "${arg_BASE_CONFIG}" STREQUAL "")
         string(TOUPPER ${arg_BASE_CONFIG} _baseConfigName)
     endif()
 
-    get_property(enabledLanguages GLOBAL PROPERTY ENABLED_LANGUAGES)
-    foreach(_LANG IN LISTS enabledLanguages)
+    get_property(_supportedLanguages GLOBAL PROPERTY ENABLED_LANGUAGES)
+    foreach(_LANG IN LISTS _supportedLanguages)
         include(CheckCompilerFlag OPTIONAL)
         # Hack to get around checking linking in check_<LANG>_compiler_flag
         set(CMAKE_REQUIRED_LIBRARIES ${arg_LINKER_FLAGS})
+
         check_compiler_flag(${_LANG} "${arg_COMPILE_FLAGS}" ${_LANG}_${_configName}_SUPPORTED)
+
         if(${_LANG}_${_configName}_SUPPORTED)
             if (DEFINED _baseConfigName)
-                #message(STATUS "Have base CMAKE_${_LANG}_FLAGS_${_baseConfigName} = ${CMAKE_${_LANG}_FLAGS_${_baseConfigName}}")
                 set(_flags ${CMAKE_${_LANG}_FLAGS_${_baseConfigName}} ${arg_COMPILE_FLAGS})
             else()
                 set(_flags ${arg_COMPILE_FLAGS})
             endif()
-            #message(STATUS "Setting CMAKE_${_LANG}_FLAGS_${_configName} flags= '${_flags}'")
 
             set(CMAKE_${_LANG}_FLAGS_${_configName}
                 ${_flags}
@@ -118,12 +121,10 @@ function( AddConfiguration )
         set(linkerObjects EXE SHARED STATIC MODULE)
         foreach(_OBJ IN LISTS linkerObjects)
             if (DEFINED _baseConfigName)
-                #message(STATUS "Have base CMAKE_${_OBJ}_LINKER_FLAGS_${_baseConfigName} = ${CMAKE_${_OBJ}_LINKER_FLAGS_${_baseConfigName}}")
                 set(_flags ${CMAKE_${OBJ}_LINKER_FLAGS_${_baseConfigName}} ${arg_COMPILE_FLAGS})
             else()
                 set(_flags ${arg_LINKER_FLAGS})
             endif()
-            #message(STATUS "Setting CMAKE_${_OBJ}_LINKER_FLAGS_${_configName} flags= '${_flags}'")
 
             set(CMAKE_${_OBJ}_LINKER_FLAGS_${_configName}
                 ${_flags}

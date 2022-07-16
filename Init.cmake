@@ -62,7 +62,8 @@ endforeach()
 get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
 set(allowedBuildTypes Debug Release RelWithDebInfo MinSizeRel Coverage
-    Asan Tsan Msan Ubsan Cfisan
+    Asan Tsan Ubsan
+    #Msan Cfisan
 )
 
 if(isMultiConfig)
@@ -80,9 +81,6 @@ else()
     endif()
 endif()
 
-# Now add the definitions of each
-include(CodeCoverage)
-include(Sanitizer)
 
 ###################
 # Add in CCache if available.
