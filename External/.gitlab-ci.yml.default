@@ -114,7 +114,7 @@ gcc-relwithdebinfo:build:
     <<: *global_cache
   variables:
     BUILD_DIR: ${BASE_BUILD_DIR}/gcc-relwithdebinfo
-    BUILD_TYPE: ReleaseWithDebInfo
+    BUILD_TYPE: RelWithDebInfo
     CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
   script:
     - *common_gcc_build
@@ -342,7 +342,7 @@ clang-cpplint:build:
 #     -apt -y install libbenchmark-dev linux-tools-generic
 #   script: benchmark
 #     - mkdir $BUILD_DIR && cd $BUILD_DIR
-#     - cmake -G Ninja -DCMAKE_BUILD_TYPE=ReleaseWithDebInfo -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE ../..
+#     - cmake -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE ../..
 #     - cmake --build . -- -k 10000
 #     - cmake --build . --target benchmark
 
