@@ -37,8 +37,6 @@ AddConfiguration( CONFIG Asan
         -fno-optimize-sibling-calls
     LINKER_FLAGS
         -fsanitize=address
-        ${_commonSanFlags}
-        -fno-optimize-sibling-calls
 )
 
 AddConfiguration( CONFIG Tsan
@@ -48,7 +46,6 @@ AddConfiguration( CONFIG Tsan
         ${_commonSanFlags}
     LINKER_FLAGS
         -fsanitize=thread
-        ${_commonSanFlags}
 )
 
 # AddConfiguration( CONFIG Msan
@@ -73,8 +70,6 @@ AddConfiguration( CONFIG Ubsan
         #-fsanitize-blacklist=BLACKLIST_FILE
     LINKER_FLAGS
         -fsanitize=undefined
-        ${_commonSanFlags}
-        #-fsanitize-blacklist=BLACKLIST_FILE
 )
 
 # AddConfiguration( CONFIG Cfisan
@@ -84,7 +79,6 @@ AddConfiguration( CONFIG Ubsan
 #         ${_commonSanFlags}
 #     LINKER_FLAGS
 #         -fsanitize=cfi
-#         ${_commonSanFlags}
 # )
 
 #Valgrind specific options

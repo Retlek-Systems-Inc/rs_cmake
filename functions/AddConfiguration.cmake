@@ -98,10 +98,11 @@ function( AddConfiguration )
 
         if(${_LANG}_${_configName}_SUPPORTED)
             if (DEFINED _baseConfigName)
-                set(_flags ${CMAKE_${_LANG}_FLAGS_${_baseConfigName}} ${arg_COMPILE_FLAGS})
+                string(JOIN " " _flags ${CMAKE_${_LANG}_FLAGS_${_baseConfigName}} ${arg_COMPILE_FLAGS})
             else()
-                set(_flags ${arg_COMPILE_FLAGS})
+                string(JOIN " " _flags ${arg_COMPILE_FLAGS})
             endif()
+            #message(STATUS "Flags to be added to Lang ${_LANG}, ${_configName} = ${_flags}")
 
             set(CMAKE_${_LANG}_FLAGS_${_configName}
                 ${_flags}
@@ -118,13 +119,14 @@ function( AddConfiguration )
     endforeach()
 
     if (${_configName}_SUPPORTED)
-        set(linkerObjects EXE SHARED STATIC MODULE)
+        set(linkerObjects EXE SHARED MODULE) #STATIC
         foreach(_OBJ IN LISTS linkerObjects)
             if (DEFINED _baseConfigName)
-                set(_flags ${CMAKE_${OBJ}_LINKER_FLAGS_${_baseConfigName}} ${arg_COMPILE_FLAGS})
+                string(JOIN " " _flags ${CMAKE_${_OBJ}_FLAGS_${_baseConfigName}} ${arg_LINKER_FLAGS})
             else()
-                set(_flags ${arg_LINKER_FLAGS})
+                string(JOIN " " _flags ${arg_LINKER_FLAGS})
             endif()
+            #message(STATUS "Flags to be added to Obj ${_OBJ}, ${_configName} = ${_flags}")
 
             set(CMAKE_${_OBJ}_LINKER_FLAGS_${_configName}
                 ${_flags}
