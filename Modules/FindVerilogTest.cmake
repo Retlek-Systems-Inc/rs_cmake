@@ -165,6 +165,12 @@ if (VERILOG_TEST)
               -cert-dcl37-c
               -cert-dcl51-cpp
               -clang-analyzer-core.CallAndMessage
+              -clang-analyzer-core.NonNullParamChecker
+              -clang-analyzer-core.NullDereference
+              -clang-analyzer-core.UndefinedBinaryOperatorResult
+              -clang-analyzer-optin.cplusplus.UninitializedObject
+              -clang-analyzer-optin.portability.UnixAPI
+              -clang-analyzer-security.insecureAPI.strcpy
               -cppcoreguidelines-avoid-non-const-global-variables
               -cppcoreguidelines-c-copy-assignment-signature
               -cppcoreguidelines-explicit-virtual-functions
