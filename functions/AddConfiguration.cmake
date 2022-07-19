@@ -71,7 +71,7 @@ function( AddConfiguration )
     endif()
 
     # Check Base Config empty or defined
-    if (NOT ${arg_BASE_CONFIG} IN_LIST CMAKE_CONFIGURATION_TYPES)
+    if (isMultiCOnfig AND NOT ${arg_BASE_CONFIG} IN_LIST CMAKE_CONFIGURATION_TYPES)
         if (${arg_BASE_CONFIG} STREQUAL "")
             message( WARNING "Note no Base configuration for ${arg_CONFIG}")
         else()
