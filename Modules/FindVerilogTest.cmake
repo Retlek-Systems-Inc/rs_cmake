@@ -132,11 +132,12 @@ if (VERILOG_TEST)
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-over-aligned>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-undefined-func-template>
           PRIVATE
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-macros>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-covered-switch-default>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-cast-align>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-extra-semi-stmt>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shadow>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-const-variable>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-macros>
         )
 
         target_include_directories( verilator_base
