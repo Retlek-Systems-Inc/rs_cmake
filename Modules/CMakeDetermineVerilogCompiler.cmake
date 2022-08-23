@@ -19,9 +19,8 @@
 # SOFTWARE.
 #
 
-# Kits
-#   Linux-Verible-Verilog.cmake     - TODO
-#   Linux-Verilator-Verilog.cmake   - TODO
+# Platforms
+#   Linux-Verilator-Verilog.cmake
 #   Linux-Icarus-Verilog.cmake      - TODO
 #   Linux-Cadence-Verilog.cmake     - TODO
 #   Linux-Synopsys-Verilog.cmake    - TODO
@@ -42,39 +41,44 @@
 #   _CMAKE_TOOLCHAIN_PREFIX
 # This is based on: https://stackoverflow.com/questions/38293535/generic-rule-from-makefile-to-cmake
 
-include(${CMAKE_ROOT}/Modules/CMakeDetermineCompiler.cmake)
-
-set ( lang Verilog )
-# Only support make directives.
-set( _supported_generators "Make" "Ninja" )
-if( NOT ( CMAKE_GENERATOR IN_LIST _supported_generators ) )
-    message(FATAL_ERROR "${lang} language not currently supported by \"${CMAKE_GENERATOR}\" generator")
-endif()
-unset( _supported_generators )
-
 # Find the compiler
 find_program(
-    CMAKE_${lang}_COMPILER 
-        NAMES "verible-verilog-lint" 
+    CMAKE_Verilog_COMPILER 
+        NAMES "verilator" 
         HINTS "${CMAKE_SOURCE_DIR}"
         DOC "Verilog compiler" 
 )
-mark_as_advanced(CMAKE_${lang}_COMPILER)
+mark_as_advanced(CMAKE_FOO_COMPILER)
 
+set(CMAKE_Verilog_COMPILER_ID     "Verilator")
 
-# Note - not platform specific. Ignore any platform definitions.
-# Could have Platform be ASIC or FPGA - TBD.
+set(CMAKE_Veriog_SOURCE_FILE_EXTENSIONS v;sv)
+set(CMAKE_Verilog_OUTPUT_EXTENSION .o)
+set(CMAKE_Verilog_COMPILER_ENV_VAR "VERILOG_COMPILER")
 
-# Note - no Architecture specific items either Ignoring Architectore definitions.
-
-set(CMAKE_${lang}_COMPILER_ID     "Verible")
-
-set(CMAKE_${lang}_SOURCE_FILE_EXTENSIONS .v;.sv;.vh;.svh)
-set(CMAKE_${lang}_OUTPUT_EXTENSION .vo)
-
-
+# Configure variables set in this file for fast reload later on
+configure_file(${CMAKE_CURRENT_LIST_DIR}/CMakeVerilogCompiler.cmake.in
+               ${CMAKE_PLATFORM_INFO_DIR}/CMakeVerilogCompiler.cmake)
+               
 # TODO: Debug this later.
 
+#include(${CMAKE_ROOT}/Modules/CMakeDetermineCompiler.cmake)
+#
+#set(lang "Verilog")
+#
+# Only support make directives.
+#if( NOT ( ("${CMAKE_GENERATOR}" MATCHES "Make") OR
+#          ("${CMAKE_GENERATOR}" MATCHES "Ninja") )
+#  message(FATAL_ERROR "${lang} language not currently supported by \"${CMAKE_GENERATOR}\" generator")
+#endif()
+#
+#
+#mark_as_advanced(CMAKE_${lang}_COMPILER)
+
+# Load system-specific compiler preferences for this language.
+#include(Platform/${CMAKE_SYSTEM_NAME}-Determine-${lang} OPTIONAL)
+#include(Platform/${CMAKE_SYSTEM_NAME}-${lang} OPTIONAL)
+#
 #if(NOT CMAKE_${lang}_COMPILER_NAMES)
 #  set(CMAKE_${lang}_COMPILER_NAMES "Verilator")
 #endif()
@@ -138,10 +142,39 @@ set(CMAKE_${lang}_OUTPUT_EXTENSION .vo)
 #
   # Try to identify the compiler.
 #  set(CMAKE_${lang}_COMPILER_ID)
-
+#  set(CMAKE_${lang}_PLATFORM_ID)
+#  file(READ ${CMAKE_ROOT}/Modules/CMakePlatformId.h.in
+#    CMAKE_${lang}_COMPILER_ID_PLATFORM_CONTENT)
+#
+  # The IAR compiler produces weird output.
+  # See https://gitlab.kitware.com/cmake/cmake/issues/10176#note_153591
+#  list(APPEND CMAKE_${lang}_COMPILER_ID_VENDORS IAR)
+#  set(CMAKE_${lang}_COMPILER_ID_VENDOR_FLAGS_IAR )
+#  set(CMAKE_${lang}_COMPILER_ID_VENDOR_REGEX_IAR "IAR .+ Compiler")
+#
+  # Match the link line from xcodebuild output of the form
+  #  Ld ...
+  #      ...
+  #      /path/to/cc ...CompilerIdCXX/...
+  # to extract the compiler front-end for the language.
+#  set(CMAKE_${lang}_COMPILER_ID_TOOL_MATCH_REGEX "\nLd[^\n]*(\n[ \t]+[^\n]*)*\n[ \t]+([^ \t\r\n]+)[^\r\n]*-o[^\r\n]*CompilerIdCXX/(\\./)?(CompilerIdCXX.xctest/)?CompilerIdCXX[ \t\n\\\"]")
+#  set(CMAKE_${lang}_COMPILER_ID_TOOL_MATCH_INDEX 2)
+#
 #  include(${CMAKE_ROOT}/Modules/CMakeDetermineCompilerId.cmake)
 #  CMAKE_DETERMINE_COMPILER_ID(${lang} ${lang}FLAGS CMake${lang}CompilerId.cpp)
 #  CMAKE_DIAGNOSE_UNSUPPORTED_CLANG(${lang} ${lang})
+#
+  # Set old compiler and platform id variables.
+#  if(CMAKE_${lang}_COMPILER_ID STREQUAL "GNU")
+#    set(CMAKE_COMPILER_IS_GNU${lang} 1)
+#  endif()
+#  if(CMAKE_${lang}_PLATFORM_ID MATCHES "MinGW")
+#    set(CMAKE_COMPILER_IS_MINGW 1)
+#  elseif(CMAKE_${lang}_PLATFORM_ID MATCHES "Cygwin")
+#    set(CMAKE_COMPILER_IS_CYGWIN 1)
+#  endif()
+#endif()
+#
 #
 #if (NOT _CMAKE_TOOLCHAIN_LOCATION)
 #  get_filename_component(_CMAKE_TOOLCHAIN_LOCATION "${CMAKE_${lang}_COMPILER}" PATH)
@@ -153,14 +186,19 @@ set(CMAKE_${lang}_OUTPUT_EXTENSION .vo)
 #include(Compiler/${CMAKE_${lang}_COMPILER_ID}-FindBinUtils OPTIONAL)
 #unset(_CMAKE_PROCESSING_LANGUAGE)
 #
-
+#if(CMAKE_${lang}_COMPILER_ARCHITECTURE_ID)
+#  set(_SET_CMAKE_${lang}_COMPILER_ARCHITECTURE_ID
+#    "set(CMAKE_${lang}_COMPILER_ARCHITECTURE_ID ${CMAKE_${lang}_COMPILER_ARCHITECTURE_ID})")
+#else()
+#  set(_SET_CMAKE_${lang}_COMPILER_ARCHITECTURE_ID "")
+#endif()
+#
 # configure all variables set in this file
-configure_file(
-    ${CMAKE_CURRENT_LIST_DIR}/CMake${lang}Compiler.cmake.in
-    ${CMAKE_PLATFORM_INFO_DIR}/CMake${lang}Compiler.cmake
-    @ONLY
-)
+#configure_file(${CMAKE_ROOT}/Modules/CMake${lang}Compiler.cmake.in
+#  ${CMAKE_PLATFORM_INFO_DIR}/CMake${lang}Compiler.cmake
+#  @ONLY
+#  )
+#
+#unset(lang)
 
-unset(lang)
-
-set(CMAKE_VERILOG_COMPILER_ENV_VAR "VERILOG_COMPILER")
+#set(CMAKE_VERILOG_COMPILER_ENV_VAR "VERILOG_COMPILER")
