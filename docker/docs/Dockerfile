@@ -20,26 +20,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM ubuntu:22.04
+FROM registry.gitlab.com/retleksystems/env/cmake/sw-dev:latest
 
 # Documentation dev tools
-# hadolint ignore=DL3008
 RUN DEBIAN_FRONTEND=noninteractive \
-    apt-get install --no-install-recommends -y \
-        cmake \
-        ninja-build \
-        doxygen \
-        graphviz \
-        default-jdk \
-        python3-sphinx \
-        python3-pip \
-        graphviz \
-    && mkdir -p /usr/java \
-    && wget --progress=dot:giga -O /usr/java/plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download \
-    && export PLANTUML_DIR="/usr/java" \
-    && python3 -m pip install --no-cache-dir sphinx_rdt_theme \
-    && python3 -m pip install --no-cache-dir breathe
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+        apt-get install --no-install-recommends -y \
+            doxygen \
+            graphviz \
+            default-jdk \
+            python3-sphinx \
+            python3-pip \
+            graphviz \
+    && pushd ~/. \
+    && mkdir java \
+    && cd java \
+    && wget -O plantuml.jar http://sourceforge.net/projects/plantuml/files/plantuml.jar/download \
+    && export PLANTUML_DIR="~/java" \
+    && popd \
+    && python3 -m pip install sphinx_rdt_theme \
+    && python3 -m pip install breathe
 
 WORKDIR /tmp

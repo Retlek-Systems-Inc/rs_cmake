@@ -20,23 +20,16 @@
 #
 
 #
-# This file sets the basic flags for the C++ language in CMake.
+# This file sets the basic flags for the Verilog language in CMake.
 # It also loads the available platform file for the system-compiler
 # if it exists.
 # It also loads a system - compiler - processor (or target hardware)
 # specific file, which is mainly useful for crosscompiling and embedded systems.
 
 include(CMakeLanguageInformation)
-
 # some compilers use different extensions (e.g. sdcc uses .rel)
 # so set the extension here first so it can be overridden by the compiler specific file
-if(UNIX)
-  # TODO:
-  set(CMAKE_Verilog_OUTPUT_EXTENSION .o)
-else()
-  # TODO:
-  set(CMAKE_Verilog_OUTPUT_EXTENSION .o)
-endif()
+set(CMAKE_Verilog_OUTPUT_EXTENSION .o)
 
 set(_INCLUDED_FILE 0)
 
@@ -317,8 +310,7 @@ endif()
 
 # compile a C++ file into an object file
 if(NOT CMAKE_Verilog_COMPILE_OBJECT)
-  set(CMAKE_Verilog_COMPILE_OBJECT
-    "<CMAKE_Verilog_COMPILER>  <DEFINES> <INCLUDES> <FLAGS> -o <OBJECT> -c <SOURCE>")
+    set(CMAKE_Verilog_COMPILE_OBJECT "<CMAKE_Verilog_COMPILER> <DEFINES> <INCLUDES> <FLAGS> <SOURCE>")
 endif()
 
 if(NOT CMAKE_Verilog_LINK_EXECUTABLE)

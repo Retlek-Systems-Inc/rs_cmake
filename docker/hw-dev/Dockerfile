@@ -21,8 +21,8 @@
 # SOFTWARE.
 
 # hadolint ignore=DL3007,DL3008
-FROM phelter/sw-dev:latest
-#FROM registry.gitlab.com/retleksystems/env/cmake/sw-dev:latest
+#FROM phelter/sw-dev:latest
+FROM registry.gitlab.com/retleksystems/env/cmake/sw-dev:latest
 
 # Default gtkwave and verilator
 RUN apt-get update -y \

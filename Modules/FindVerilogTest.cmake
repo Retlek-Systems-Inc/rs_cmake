@@ -34,8 +34,14 @@ if (VERILOG_TEST)
         # Install instructions here: https://verilator.org/guide/latest/install.html
     endif()
 
-    option(VERILATOR_ENABLE_SC "Enable System C" OFF)
-    option(VERILATOR_THREADS   "Number of Threads"  0)
+    option(VERILATOR_COVERAGE  "Enable Coverage" ON)
+    option(VERILATOR_SYSTEMC   "Enable System C" OFF)
+    option(VERILATOR_THREADED  "Enable Threads"  OFF)
+    option(VERILATOR_TRACE_VCD "Enable Trace VCD" ON)
+    option(VERILATOR_TRACE_FST "Enable Trace FST" OFF)
+
+    # Note: RSVerilate.cmake in functions used for change of verilate function.
+
     if (NOT TARGET Verilator::base)
         # -----------------------------------------------------------------------------
         add_library(verilator_base STATIC)
@@ -44,8 +50,8 @@ if (VERILOG_TEST)
         set (_inc_dir ${verilator_DIR}/include)
         target_sources( verilator_base
           PRIVATE
-            $<$<NOT:$<BOOL:${VERILATOR_ENABLE_SC}>>:${_inc_dir}/verilated.cpp>
-            $<$<NOT:$<BOOL:${VERILATOR_ENABLE_SC}>>:${_inc_dir}/verilated.h>
+            $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated.cpp>
+            $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated.h>
             #${_inc_dir}/verilated.v
             ${_inc_dir}/verilated_config.h
             #${_inc_dir}/verilated_config.h.in
@@ -54,10 +60,10 @@ if (VERILOG_TEST)
             ${_inc_dir}/verilated_cov_key.h
             ${_inc_dir}/verilated_dpi.cpp
             ${_inc_dir}/verilated_dpi.h
-            $<$<NOT:$<BOOL:${VERILATOR_ENABLE_SC}>>:${_inc_dir}/verilated_fst_c.cpp>
-            $<$<NOT:$<BOOL:${VERILATOR_ENABLE_SC}>>:${_inc_dir}/verilated_fst_c.h>
-            $<$<BOOL:${VERILATOR_ENABLE_SC}>:${_inc_dir}/verilated_fst_sc.cpp>
-            $<$<BOOL:${VERILATOR_ENABLE_SC}>:${_inc_dir}/verilated_fst_sc.h>
+            $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated_fst_c.cpp>
+            $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated_fst_c.h>
+            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_fst_sc.cpp>
+            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_fst_sc.h>
             ${_inc_dir}/verilated_funcs.h
             ${_inc_dir}/verilated_heavy.h
             ${_inc_dir}/verilated_imp.h
@@ -66,30 +72,34 @@ if (VERILOG_TEST)
             #${_inc_dir}/verilated_profiler.h
             ${_inc_dir}/verilated_save.cpp
             ${_inc_dir}/verilated_save.h
-            $<$<BOOL:${VERILATOR_ENABLE_SC}>:${_inc_dir}/verilated_sc.h>
+            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_sc.h>
             ${_inc_dir}/verilated_sym_props.h
             ${_inc_dir}/verilated_syms.h
-            $<$<BOOL:${VERILATOR_THREADS}>:${_inc_dir}/verilated_threads.cpp>
-            $<$<BOOL:${VERILATOR_THREADS}>:${_inc_dir}/verilated_threads.h>
+            $<$<BOOL:${VERILATOR_THREADED}>:${_inc_dir}/verilated_threads.cpp>
+            $<$<BOOL:${VERILATOR_THREADED}>:${_inc_dir}/verilated_threads.h>
             ${_inc_dir}/verilated_trace.h
             ${_inc_dir}/verilated_trace_defs.h
             #${_inc_dir}/verilated_trace_imp.cpp
             ${_inc_dir}/verilated_types.h
             ${_inc_dir}/verilated_vcd_c.cpp
             ${_inc_dir}/verilated_vcd_c.h
-            $<$<BOOL:${VERILATOR_ENABLE_SC}>:${_inc_dir}/verilated_vcd_sc.cpp>
-            $<$<BOOL:${VERILATOR_ENABLE_SC}>:${_inc_dir}/verilated_vcd_sc.h>
+            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_vcd_sc.cpp>
+            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_vcd_sc.h>
             ${_inc_dir}/verilated_vpi.cpp
             ${_inc_dir}/verilated_vpi.h
             ${_inc_dir}/verilatedos.h
         )
 
-        # Ignored for Verilated info at this point in time
+        # Verilator Base defines the COVERAGE, SC, TRACE and VCD/FST values
+        # for everything that includes it.
         target_compile_definitions( verilator_base
           PUBLIC
-            VL_THREADED=$<BOOL:${VERILATOR_THREADS}>
-            VM_SC=$<BOOL:${VERILATOR_ENABLE_SC}>
-            VM_TRACE=1
+            VM_COVERAGE=$<BOOL:${VERILATOR_COVERAGE}> # TODO: use if ifdef with this in code - bad.
+            VM_SC=$<BOOL:${VERILATOR_SYSTEMC}>
+            $<$<BOOL: ${VERILATOR_THREADED}>:VL_THREADED>
+            VM_TRACE=$<OR:$<BOOL: ${VERILATOR_TRACE_VCD}>, $<BOOL:${VERILATOR_TRACE_FST}>>
+            VM_TRACE_VCD=$<BOOL: ${VERILATOR_TRACE_VCD}>
+            VM_TRACE_FST=$<BOOL: ${VERILATOR_TRACE_FST}>
         )
 
         target_compile_options( verilator_base
@@ -141,7 +151,7 @@ if (VERILOG_TEST)
         )
 
         target_include_directories( verilator_base
-            PUBLIC
+          PUBLIC
             ${_inc_dir}
             ${_inc_dir}/gtkwave
             ${_inc_dir}/vltstd
@@ -197,11 +207,19 @@ if (VERILOG_TEST)
               -readability-redundant-access-specifiers
         )
   
+        if (VERILATOR_THREADED)
+          set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+          find_package(Threads REQUIRED)
+        endif()
+
         target_link_libraries( verilator_base
             PUBLIC
+            $<$<BOOL:${VERILATOR_THREADED}>:-mt>
+            $<$<BOOL:${VERILATOR_THREADED}>:Threads::Threads>
             atomic # For some reason missing __atomic_is_lock_free definition.
         )
-        if( VERILATOR_ENABLE_SC )
+
+        if( VERILATOR_SYSTEMC )
             verilator_link_systemc(verilator_base)
         endif()
     endif()
@@ -231,7 +249,7 @@ if (VERILOG_TEST)
 
 # Other options later:
 #    FetchContent_Declare(
-#      icarus 
+#      icarus
 #      GIT_REPOSITORY   https://github.com/steveicarus/iverilog.git
 #      GIT_TAG          TBD
 #    )
