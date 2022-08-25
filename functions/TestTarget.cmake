@@ -220,6 +220,14 @@ function( TestTarget )
           CHECKS
             -cert-err58-cpp
             -cppcoreguidelines-avoid-non-const-global-variables
+            -cppcoreguidelines-owning-memory
+            -cppcoreguidelines-pro-type-vararg
+            -fuchsia-default-arguments-calls
+            -fuchsia-multiple-inheritance # For Parameterized tests WithParamInterface
+            -fuchsia-statically-constructed-objects
+            -hicpp-vararg
+            -llvmlibc-callee-namespace
+            -llvmlibc-implementation-in-namespace
             -*-avoid-goto # For EXPECT_THROW and EXPECT_DEATH tests.
         )
     elseif(_arg_FRAMEWORK STREQUAL "Benchmark")

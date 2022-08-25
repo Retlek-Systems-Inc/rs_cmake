@@ -1,0 +1,278 @@
+# @copyright 2022 Retlek Systems Inc.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# The pipelines will scan for report files:
+# See: https://support.atlassian.com/bitbucket-cloud/docs/test-reporting-in-pipelines/
+
+image: phelter/sw-dev:v0.1.4
+
+# Yaml Anchors - cannot have anchors of just lists so lots of duplicate code
+# common_env_setup: &common_env_setup
+#   - BASE_BUILD_DIR=ci_build
+#   - DEPS_DIR=deps
+#   - TEST_RPT_DIR=${BUILD_DIR}/test_reports
+#   - mkdir -p ${DEPS_DIR}
+# common_gcc_build: &common_gcc_build
+#   #common_gcc_build Start
+#   - BUILD_DIR=${BASE_BUILD_DIR}/gcc-${BUILD_TYPE}
+#   - mkdir -p ${BUILD_DIR}
+#   - cmake -G Ninja -B${BUILD_DIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+#   - cmake --build ${BUILD_DIR} -- -k 10000
+#   #common_gcc_build End
+# common_clang_build: &common_clang_build
+#   #common_clang_build Start
+#   - BUILD_DIR=${BASE_BUILD_DIR}/clang-${BUILD_TYPE}
+#   - mkdir -p ${BUILD_DIR}
+#   - cmake -G Ninja -B${BUILD_DIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+#   - cmake --build ${BUILD_DIR} -- -k 10000
+#   #common_clang_build End
+# common_run_test: &common_run_test
+#   # common_run_test Start
+#   - cd ${BUILD_DIR}
+#   - ctest --output-on-failure --output-junit ${TEST_RPT_DIR}/report.xml
+#   # common_run_test End
+
+# Cannot run multiple back-to-back scripts in one script and cannot merge via yaml anchors
+# multiple lists so lots of duplicate code here.
+definitions:
+  caches:
+    deps: deps # Fetch Content dependency cache.
+  steps:
+    - step: &gcc_debug_build_and_test
+        name: GCC Debug - Build and Test
+        script:
+          - BUILD_TYPE=Debug
+          - CMAKE_BUILD_ARGS="-DSTATIC_ANALYSIS=OFF"
+          #common_env_setup Start
+          - BASE_BUILD_DIR=ci_build
+          - DEPS_DIR=deps
+          - TEST_RPT_DIR=${BUILD_DIR}/test_reports
+          - mkdir -p ${DEPS_DIR}
+          #common_env_setup End
+          #common_gcc_build Start
+          - BUILD_DIR=${BASE_BUILD_DIR}/gcc-${BUILD_TYPE}
+          - mkdir -p ${BUILD_DIR}
+          - cmake -G Ninja -B${BUILD_DIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+          - cmake --build ${BUILD_DIR} -- -k 10000
+          #common_gcc_build End
+          # common_run_test Start
+          - cd ${BUILD_DIR}
+          - ctest --output-on-failure --output-junit ${TEST_RPT_DIR}/report.xml
+          # common_run_test End
+        caches:
+          - deps
+    - step: &gcc_relwithdebinfo_build_and_test
+        name: GCC ReleaseWithDebInfo - Build and Test
+        script:
+          - BUILD_TYPE=RelWithDebInfo
+          - CMAKE_BUILD_ARGS="-DSTATIC_ANALYSIS=OFF"
+          #common_env_setup Start
+          - BASE_BUILD_DIR=ci_build #common_env_setup - start
+          - DEPS_DIR=deps
+          - TEST_RPT_DIR=${BUILD_DIR}/test_reports
+          - mkdir -p ${DEPS_DIR}
+          #common_env_setup End
+          #common_gcc_build Start
+          - BUILD_DIR=${BASE_BUILD_DIR}/gcc-${BUILD_TYPE}
+          - mkdir -p ${BUILD_DIR}
+          - cmake -G Ninja -B${BUILD_DIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+          - cmake --build ${BUILD_DIR} -- -k 10000
+          #common_gcc_build End
+          # common_run_test Start
+          - cd ${BUILD_DIR}
+          - ctest --output-on-failure --output-junit ${TEST_RPT_DIR}/report.xml
+          # common_run_test End
+        caches:
+          - deps
+    - step: &clang_debug_build_and_test
+        name: Clang Debug - Build, Test, Clang Tidy Static Analysis
+        script:
+          - BUILD_TYPE=Debug
+          - CMAKE_BUILD_ARGS="-DSTATIC_ANALYSIS=ON"
+          #common_env_setup Start
+          - BASE_BUILD_DIR=ci_build #common_env_setup - start
+          - DEPS_DIR=deps
+          - TEST_RPT_DIR=${BUILD_DIR}/test_reports
+          - mkdir -p ${DEPS_DIR}
+          #common_env_setup End
+          #common_clang_build Start
+          - BUILD_DIR=${BASE_BUILD_DIR}/clang-${BUILD_TYPE}
+          - mkdir -p ${BUILD_DIR}
+          - cmake -G Ninja -B${BUILD_DIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+          - cmake --build ${BUILD_DIR} -- -k 10000
+          #common_clang_build End
+          # common_run_test Start
+          - cd ${BUILD_DIR}
+          - ctest --output-on-failure --output-junit ${TEST_RPT_DIR}/report.xml
+          # common_run_test End
+        caches:
+          - deps
+        artifacts:
+          - ci_build/gcc-Debug/verilog-code-coverage.tar.gz
+    - step: &clang_asan_build_and_test
+        name: Clang Asan - Build and Test
+        script:
+          - BUILD_TYPE=asan
+          - CMAKE_BUILD_ARGS="-DSTATIC_ANALYSIS=OFF"
+          #common_env_setup Start
+          - BASE_BUILD_DIR=ci_build #common_env_setup - start
+          - DEPS_DIR=deps
+          - TEST_RPT_DIR=${BUILD_DIR}/test_reports
+          - mkdir -p ${DEPS_DIR}
+          #common_env_setup End
+          #common_clang_build Start
+          - BUILD_DIR=${BASE_BUILD_DIR}/clang-${BUILD_TYPE}
+          - mkdir -p ${BUILD_DIR}
+          - cmake -G Ninja -B${BUILD_DIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+          - cmake --build ${BUILD_DIR} -- -k 10000
+          #common_clang_build End
+          # common_run_test Start
+          - cd ${BUILD_DIR}
+          - ctest --output-on-failure --output-junit ${TEST_RPT_DIR}/report.xml
+          # common_run_test End
+        caches:
+          - deps
+    - step: &clang_tsan_build_and_test
+        name: Clang Tsan - Build and Test
+        script:
+          - BUILD_TYPE=tsan
+          - CMAKE_BUILD_ARGS="-DSTATIC_ANALYSIS=OFF"
+          #common_env_setup Start
+          - BASE_BUILD_DIR=ci_build #common_env_setup - start
+          - DEPS_DIR=deps
+          - TEST_RPT_DIR=${BUILD_DIR}/test_reports
+          - mkdir -p ${DEPS_DIR}
+          #common_env_setup End
+          #common_clang_build Start
+          - BUILD_DIR=${BASE_BUILD_DIR}/clang-${BUILD_TYPE}
+          - mkdir -p ${BUILD_DIR}
+          - cmake -G Ninja -B${BUILD_DIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+          - cmake --build ${BUILD_DIR} -- -k 10000
+          #common_clang_build End
+          # common_run_test Start
+          - cd ${BUILD_DIR}
+          - ctest --output-on-failure --output-junit ${TEST_RPT_DIR}/report.xml
+          # common_run_test End
+        caches:
+          - deps
+    - step: &gcc_coverage_build_and_test
+        name: GCC Coverage - Build and Test
+        script:
+          - BUILD_TYPE=coverage
+          - CMAKE_BUILD_ARGS="-DSTATIC_ANALYSIS=OFF"
+          #common_env_setup Start
+          - BASE_BUILD_DIR=ci_build #common_env_setup - start
+          - DEPS_DIR=deps
+          - TEST_RPT_DIR=${BUILD_DIR}/test_reports
+          - mkdir -p ${DEPS_DIR}
+          #common_env_setup End
+          #common_gcc_build Start
+          - BUILD_DIR=${BASE_BUILD_DIR}/gcc-${BUILD_TYPE}
+          - mkdir -p ${BUILD_DIR}
+          - cmake -G Ninja -B${BUILD_DIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+          - cmake --build ${BUILD_DIR} -- -k 10000
+          #common_gcc_build End
+          # common_run_test Start
+          - cd ${BUILD_DIR}
+          - ctest --output-on-failure --output-junit ${TEST_RPT_DIR}/report.xml
+          # common_run_test End
+          - cmake --build . --target code-coverage
+        caches:
+          - deps
+        artifacts:
+          - ${BUILD_DIR}/coverage
+    - step: &clang_cppcheck_analysis
+        name: Clang CppCheck - Analysis
+        script:
+          - BUILD_TYPE=Debug
+          - CMAKE_BUILD_ARGS="-DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=OFF -DUSE_CPPCHECK=ON"
+          #common_env_setup Start
+          - BASE_BUILD_DIR=ci_build #common_env_setup - start
+          - DEPS_DIR=deps
+          - TEST_RPT_DIR=${BUILD_DIR}/test_reports
+          - mkdir -p ${DEPS_DIR}
+          #common_env_setup End
+          #common_clang_build Start
+          - BUILD_DIR=${BASE_BUILD_DIR}/clang-${BUILD_TYPE}
+          - mkdir -p ${BUILD_DIR}
+          - cmake -G Ninja -B${BUILD_DIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+          - cmake --build ${BUILD_DIR} -- -k 10000
+          #common_clang_build End
+        caches:
+          - deps
+    - step: &clang_cpplint_analysis
+        name: Clang CppCheck - Analysis
+        script:
+          - BUILD_TYPE=Debug
+          - CMAKE_BUILD_ARGS="-DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=OFF -DUSE_CPPLINT=ON"
+          #common_env_setup Start
+          - BASE_BUILD_DIR=ci_build
+          - DEPS_DIR=deps
+          - TEST_RPT_DIR=${BUILD_DIR}/test_reports
+          - mkdir -p ${DEPS_DIR}
+          #common_env_setup End
+          #common_clang_build Start
+          - BUILD_DIR=${BASE_BUILD_DIR}/clang-${BUILD_TYPE}
+          - mkdir -p ${BUILD_DIR}
+          - cmake -G Ninja -B${BUILD_DIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+          - cmake --build ${BUILD_DIR} -- -k 10000
+          #common_clang_build End
+        caches:
+          - deps
+
+pipelines:
+  pull-requests:
+    "**":
+      - step:
+          <<: *gcc_debug_build_and_test
+      - parallel:
+          - step:
+              <<: *gcc_relwithdebinfo_build_and_test
+          - step:
+              <<: *clang_debug_build_and_test
+          - step:
+              <<: *clang_asan_build_and_test
+          - step:
+              <<: *clang_tsan_build_and_test
+          - step:
+              <<: *gcc_coverage_build_and_test
+          - step:
+              <<: *clang_cppcheck_analysis
+          - step:
+              <<: *clang_cpplint_analysis
+  branches:
+    master:
+      - step:
+          <<: *gcc_debug_build_and_test
+      - parallel:
+          - step:
+              <<: *gcc_relwithdebinfo_build_and_test
+          - step:
+              <<: *clang_debug_build_and_test
+          - step:
+              <<: *clang_asan_build_and_test
+          - step:
+              <<: *clang_tsan_build_and_test
+          - step:
+              <<: *gcc_coverage_build_and_test
+          - step:
+              <<: *clang_cppcheck_analysis
+          - step:
+              <<: *clang_cpplint_analysis

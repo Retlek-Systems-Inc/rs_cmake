@@ -30,8 +30,8 @@ cd build
 
 ```bash
 cd build
-cmake -G Ninja ..
-ninja
+cmake -G"Ninja Multi-Config" ..
+cmake --build . --config Debug
 ```
 
 ## Alternative builds.
@@ -40,16 +40,16 @@ ninja
 
 ```bash
 cd build
-cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain/clang.toolchain.cmake ..
-ninja
+cmake -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
+cmake --build . --config Debug
 ```
 
 * For Cross Compile using GCC, note that tests are turned off for these.
 
 ```bash
 cd build
-cmake -G Ninja -DBUILD_TEST=OFF -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/arm-gcc.toolchain.cmake ..
-ninja
+cmake -G"Ninja Multi-Config" -DBUILD_TEST=OFF -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/arm-gcc.toolchain.cmake ..
+cmake --build . --config Release
 ```
 
 *Output is in TBD: - will sort this out later.*
@@ -58,8 +58,8 @@ ninja
 
 ```bash
 cd build
-cmake -G Ninja -DBUILD_TEST=OFF -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/arm-clang.toolchain.cmake ..
-ninja
+cmake -G"Ninja Multi-Config" -DBUILD_TEST=OFF -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/arm-clang.toolchain.cmake ..
+cmake --build . --config Release
 ```
 
 ## Code Cleanup
@@ -72,8 +72,8 @@ Note: Not all issues are fixable by clang-tidy so some of the reported errors/wa
 
 ```bash
 cd build
-cmake -G Ninja -DCLANG_TIDY_FIX=1 ..
-ninja
+cmake -G"Ninja Multi-Config" -DCLANG_TIDY_FIX=1 ..
+cmake --build . --config Debug
 ```
 
 
@@ -85,8 +85,7 @@ For Linux environment the following can be run:
 
 ```bash
 cd build
-ninja
-ninja test
+cmake --build . --config Debug
 ```
 
 Performing `ninja test` runs all of the unit tests under the CTest framework.  This will all gtest `TestTarget` executables one after another and give pass-fail per `TestTarget`
@@ -95,7 +94,7 @@ To perform an independent test and see the more detailed test results for each t
 
 ```bash
 cd build
-ninja
+cmake --build . --config Debug
 test/UnitTest_<target>
 ```
 
@@ -106,10 +105,9 @@ Once compiled each test resides in `build/test/UnitTest_<target>`.
 ```bash
 # Note must be run with GCC.
 cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=COVERAGE ..
-ninja
+cmake -G"Ninja Multi-Config" ..
 # This will generate the code coverage directory.
-ninja code-coverage
+cmake --build . --config Coverage --target code-coverage
 # This will display the code coverage.
 firefox code-coverage/index.html
 ```
@@ -122,16 +120,16 @@ All of the HTML output of code coverage resides in `build/code-coverage`.
 
 ```bash
 cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON ../.
-ninja
+cmake -G"Ninja Multi-Config" -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON ../.
+cmake --build . --config Debug
 ```
 
 * For Clang Tidy - Fixes
 
 ```bash
 cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON -DCLANG_TIDY_FIX=ON ../.
-ninja
+cmake -G"Ninja Multi-Config" -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON -DCLANG_TIDY_FIX=ON ../.
+cmake --build . --config Debug
 ```
 
 ### Running Tests with Sanitizers
@@ -142,36 +140,31 @@ ninja
 
 ```bash
 cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=ASAN -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/clang.toolchain.cmake ..
-ninja
-ninja test
+cmake -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
+cmake --build . --config Asan --target test
 ```
 
 * For Thread Sanitizer - run on suite of tests:
 
 ```bash
 cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=TSAN -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/clang.toolchain.cmake ..
-ninja
-ninja test
+cmake -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
+cmake --build . --config Tsan --target test
 ```
 
 For Memory Sanitizer - run on suite of tests:
 
 ```bash
 cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=MSAN -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/clang.toolchain.cmake ..
-ninja
-ninja test
+cmake -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
+cmake --build . --config Msan --target test
 ```
 
 For Undefined Behavior Sanitizer - run on suite of tests:
 
 ```bash
-cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=UBSAN -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/clang.toolchain.cmake ..
-ninja
-ninja test
+cmake -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
+cmake --build . --config Ubsan --target test
 ```
 
 For Valgrind - run on suite of tests:
@@ -231,3 +224,28 @@ Build Options:
     "environment": "mingw_64"
 }
 ```
+
+## Continuous Integration/Deployment Setup
+
+### DockerHub & Bitbucket pipelines setup
+
+DockerHub configuration:
+
+* Goto:  DockerHub and setup an account for yourself
+* Goto: Menu - User -> Account Settings
+  * Select Security and add 2 Personal Access tokens
+  * One Read,Write,Modify <RWM_TOKEN> - this will be for the rs-cmake repo which creates the docker images
+    * One Read only <RO_TOKEN> - this will be for accessing the docker images from other repos that only require
+      consuming the docker image.
+
+Bitbucket configuration:
+
+* Goto the rs-cmake repo and select left hand menu Repository Settings
+  * Left hand Menu - under PIPELINES - select Repository Variables and add secure variables:
+  * DOCKERHUB_PASSWORD - <RWM_TOKEN> - Read/write/modify access token
+* Then go to workspace variables link on that page and add secure variables:
+  * DOCKERHUB_USER - username for docker hub.
+  * DOCKERHUB_PASSWORD - <RO_TOKEN> - Read only access token
+
+This will ensure that the docker hub username and read-only password is available to all repos
+and the docker hub password for read/write/modify is only available to the rs_cmake repo.

@@ -19,7 +19,7 @@
 # SOFTWARE.
 #
 
-# See accompanying file Copyright.txt or https://tbd for details.
+# See accompanying file LICENSE for details.
 include(CMakeDependentOption)
 
 ###################
@@ -50,6 +50,39 @@ list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/Modules" )
 include(CMakePrintHelpers)
 cmake_print_variables(CMAKE_MODULE_PATH)
 
+# Common Functions and Macros
+file( GLOB _functions ${CMAKE_CURRENT_LIST_DIR}/functions/*.cmake )
+foreach( _f ${_functions} )
+  include( ${_f} )
+endforeach()
+
+###################
+# Multi-config and build type settings
+# set(allowedBuildTypes Debug Release RelWithDebInfo MinSizeRel Asan Tsan Msan Ubsan Coverage)
+get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
+set(allowedBuildTypes Debug Release RelWithDebInfo MinSizeRel Coverage
+    Asan Tsan Ubsan
+    #Msan Cfisan
+)
+
+if(isMultiConfig)
+    message(STATUS "CMAKE_CONFIGURATION_TYPES = ${CMAKE_CONFIGURATION_TYPES}")
+    set(configTypes ${CMAKE_CONFIGURATION_TYPES})
+    list(APPEND configTypes ${allowedBuildTypes})
+    list(REMOVE_DUPLICATES configTypes)
+    set(CMAKE_CONFIGURATION_TYPES ${configTypes} CACHE STRING "" FORCE)
+else()
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${allowedBuildTypes}")
+    if(NOT DEFINED CMAKE_BUILD_TYPE)
+        set(CMAKE_BUILD_TYPE Debug CACHE STRING "" FORCE)
+    elseif(NOT CMAKE_BUILD_TYPE IN_LIST allowedBuildTypes)
+        message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
+    endif()
+endif()
+
+
+###################
 # Add in CCache if available.
 find_package(CCache)
 
@@ -58,18 +91,6 @@ if ( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
     message( FATAL_ERROR "Do not perform build in source directory. Make a separate directory for build:\n\tmkdir build; cd build; cmake ..\n And ensure it is empty.")
 endif()
 
-
-#Limit it to Makefile or Ninja for now.
-if ( NOT CMAKE_BUILD_TYPE AND ( (CMAKE_GENERATOR MATCHES ".*Makefile.*") OR (CMAKE_GENERATOR MATCHES ".*Ninja.*")))
-    message( STATUS "Makefile generator detected and build type not defined. Defaulting to `release`.")
-    set( CMAKE_BUILD_TYPE release CACHE STRING "Choose the type of build" FORCE )
-endif()
-
-# Common Functions and Macros
-file( GLOB _functions ${CMAKE_CURRENT_LIST_DIR}/functions/*.cmake )
-foreach( _f ${_functions} )
-  include( ${_f} )
-endforeach()
 
 ###################
 # Default Package includes
@@ -120,5 +141,5 @@ endif()
 # Setup for gitlab ci
 if(NOT EXISTS ${CMAKE_SOURCE_DIR}/.gitlab-ci.yml)
     configure_file(${CMAKE_CURRENT_LIST_DIR}/External/.gitlab-ci.yml.default
-        ${CMAKE_SOURCE_DIR}/.gitlab-ci.yml)
+        ${CMAKE_SOURCE_DIR}/.gitlab-ci.yml COPYONLY)
 endif()

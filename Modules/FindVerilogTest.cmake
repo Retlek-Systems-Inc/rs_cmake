@@ -142,11 +142,12 @@ if (VERILOG_TEST)
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-over-aligned>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-undefined-func-template>
           PRIVATE
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-macros>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-covered-switch-default>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-cast-align>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-extra-semi-stmt>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shadow>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-const-variable>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-macros>
         )
 
         target_include_directories( verilator_base
@@ -157,6 +158,55 @@ if (VERILOG_TEST)
         )
         unset(_inc_dir)
 
+        target_clang_tidy_definitions(TARGET verilator_base
+            CHECKS
+              -*-braces-around-statements
+              -*-else-after-return
+              -*-magic-numbers
+              -*-named-parameter
+              -*-narrowing-conversions
+              -*-use-auto
+              -*-use-equals-default
+              -*-use-override
+              -altera-id-dependent-backward-branch
+              -altera-struct-pack-align
+              -altera-unroll-loops
+              -bugprone-easily-swappable-parameters
+              -bugprone-reserved-identifier
+              -cert-dcl37-c
+              -cert-dcl51-cpp
+              -clang-analyzer-core.CallAndMessage
+              -clang-analyzer-core.NonNullParamChecker
+              -clang-analyzer-core.NullDereference
+              -clang-analyzer-core.UndefinedBinaryOperatorResult
+              -clang-analyzer-optin.cplusplus.UninitializedObject
+              -clang-analyzer-optin.portability.UnixAPI
+              -clang-analyzer-security.insecureAPI.strcpy
+              -cppcoreguidelines-avoid-non-const-global-variables
+              -cppcoreguidelines-c-copy-assignment-signature
+              -cppcoreguidelines-explicit-virtual-functions
+              -cppcoreguidelines-init-variables
+              -cppcoreguidelines-pro-bounds-constant-array-index
+              -cppcoreguidelines-pro-type-const-cast
+              -cppcoreguidelines-pro-type-member-init
+              -cppcoreguidelines-pro-type-union-access
+              -cppcoreguidelines-virtual-class-destructor
+              -google-explicit-constructor
+              -google-readability-casting
+              -hicpp-explicit-conversions
+              -hicpp-member-init
+              -hicpp-noexcept-move
+              -llvm-include-order
+              -misc-unconventional-assign-operator
+              -modernize-use-nodiscard
+              -performance-noexcept-move-constructor
+              -readability-avoid-const-params-in-decls
+              -readability-identifier-length
+              -readability-implicit-bool-conversion
+              -readability-make-member-function-const
+              -readability-redundant-access-specifiers
+        )
+  
         if (VERILATOR_THREADED)
           set(THREADS_PREFER_PTHREAD_FLAG TRUE)
           find_package(Threads REQUIRED)

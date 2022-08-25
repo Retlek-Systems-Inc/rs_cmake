@@ -23,34 +23,30 @@
 # Note googletest/googlemock are down-loaded into the build dir and compiled as part
 # of the test environment from there.
 
+include(CodeCoverage)
+
 macro(setup_code_coverage_target)
     # Create a code coverage target.
     set(_coverageTarget code-coverage)
-    string(TOLOWER ${CMAKE_BUILD_TYPE} _buildType)
-    if ( ${_buildType} STREQUAL coverage AND NOT TARGET ${_coverageTarget} )
-        include(CodeCoverage)
-        APPEND_COVERAGE_COMPILER_FLAGS()
+    # Exclude standard and test framework environment builds.
+    list(APPEND COVERAGE_LCOV_EXCLUDES
+        '/usr/include/*'
+        '${googletest_SOURCE_DIR}/*'
+    )
+    message(STATUS "Coverage Excludes: ${COVERAGE_LCOV_EXCLUDES}")
 
-        # Exclude standard and test framework environment builds.
-        list(APPEND COVERAGE_LCOV_EXCLUDES
-            '/usr/include/*'
-            '${googletest_SOURCE_DIR}/*'
-        )
-        message(STATUS "Coverage Excludes: ${COVERAGE_LCOV_EXCLUDES}")
-
-        SETUP_TARGET_FOR_COVERAGE_LCOV_HTML(
-            NAME ${_coverageTarget}
-            EXECUTABLE ctest
-            EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
-            LCOV_ARGS
-                --strip 1
-                --rc lcov_branch_coverage=1
-            GENHTML_ARGS
-                --rc genhtml_branch_coverage=1
-                --demangle-cpp
-                --prefix ${CMAKE_SOURCE_DIR}
-        )
-    endif()
+    SETUP_TARGET_FOR_COVERAGE_LCOV_HTML(
+        NAME ${_coverageTarget}
+        EXECUTABLE ctest
+        EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
+        LCOV_ARGS
+            --strip 1
+            --rc lcov_branch_coverage=1
+        GENHTML_ARGS
+            --rc genhtml_branch_coverage=1
+            --demangle-cpp
+            --prefix ${CMAKE_SOURCE_DIR}
+    )
 endmacro()
 
 if(BUILD_TEST)
@@ -97,6 +93,7 @@ if(BUILD_TEST)
 
     target_clang_tidy_definitions(TARGET gtest
       CHECKS
+        -*-avoid-c-arrays
         -*-braces-around-statements
         -*-deprecated-headers
         -*-else-after-return
@@ -119,6 +116,7 @@ if(BUILD_TEST)
         -bugprone-branch-clone
         -bugprone-easily-swappable-parameters
         -bugprone-exception-escape
+        -bugprone-macro-parentheses
         -bugprone-misplaced-widening-cast
         -bugprone-reserved-identifier
         -bugprone-signed-char-misuse
@@ -137,20 +135,29 @@ if(BUILD_TEST)
         -cppcoreguidelines-avoid-non-const-global-variables
         -cppcoreguidelines-c-copy-assignment-signature
         -cppcoreguidelines-init-variables
+        -cppcoreguidelines-macro-usage
+        -cppcoreguidelines-owning-memory
         -cppcoreguidelines-prefer-member-initializer
+        -cppcoreguidelines-pro-bounds-array-to-pointer-decay
         -cppcoreguidelines-pro-bounds-constant-array-index
+        -cppcoreguidelines-pro-bounds-pointer-arithmetic
         -cppcoreguidelines-pro-type-const-cast
         -cppcoreguidelines-pro-type-cstyle-cast
         -cppcoreguidelines-pro-type-union-access
         -cppcoreguidelines-pro-type-vararg
         -cppcoreguidelines-virtual-class-destructor
+        -fuchsia-multiple-inheritance
+        -fuchsia-statically-constructed-objects
         -fuchsia-trailing-return
+        -google-runtime-int
         -google-upgrade-googletest-case
         -hicpp-exception-baseclass
         -hicpp-explicit-conversions
         -hicpp-multiway-paths-covered
         -hicpp-noexcept-move
+        -hicpp-no-array-decay
         -hicpp-no-assembler
+        -hicpp-signed-bitwise
         -hicpp-vararg
         -llvm-include-order
         -llvm-namespace-comment
@@ -169,6 +176,7 @@ if(BUILD_TEST)
         -modernize-use-default-member-init
         -modernize-use-trailing-return-type
         -modernize-use-transparent-functors
+        -modernize-use-using
         -performance-no-automatic-move
         -performance-noexcept-move-constructor
         -performance-unnecessary-value-param
@@ -228,6 +236,7 @@ if(BUILD_TEST)
 
     target_clang_tidy_definitions(TARGET gmock
       CHECKS
+        -*-avoid-c-arrays
         -*-braces-around-statements
         -*-else-after-return
         -*-explicit-constructor
@@ -244,6 +253,7 @@ if(BUILD_TEST)
         -bugprone-easily-swappable-parameters
         -bugprone-exception-escape
         -bugprone-forwarding-reference-overload
+        -bugprone-macro-parentheses
         -bugprone-suspicious-include
         -cert-err09-cpp
         -cert-err58-cpp
@@ -252,12 +262,19 @@ if(BUILD_TEST)
         -cppcoreguidelines-avoid-non-const-global-variables
         -cppcoreguidelines-c-copy-assignment-signature
         -cppcoreguidelines-init-variables
+        -cppcoreguidelines-macro-usage
+        -cppcoreguidelines-owning-memory
+        -cppcoreguidelines-pro-bounds-array-to-pointer-decay
+        -cppcoreguidelines-pro-bounds-pointer-arithmetic
         -cppcoreguidelines-pro-type-const-cast
         -cppcoreguidelines-pro-type-vararg
         -fuchsia-trailing-return
+        -fuchsia-statically-constructed-objects
         -google-readability-casting
         -hicpp-explicit-conversions
         -hicpp-deprecated-headers
+        -hicpp-no-array-decay
+        -hicpp-signed-bitwise
         -hicpp-vararg
         -llvm-include-order
         -llvmlibc-callee-namespace
@@ -272,6 +289,7 @@ if(BUILD_TEST)
         -modernize-return-braced-init-list
         -modernize-use-default-member-init
         -modernize-use-trailing-return-type
+        -modernize-use-using
         -readability-container-size-empty
         -readability-const-return-type
         -readability-convert-member-functions-to-static
@@ -309,18 +327,4 @@ if(BUILD_TEST)
         set(ctest_test_args ${ctest_test_args} PARALLEL_LEVEL ${_numProcessors})
     endif()
 
-    # Code analysis
-    if (UNIX)
-        string(TOLOWER ${CMAKE_BUILD_TYPE} _buildType)
-        if ( ${_buildType} STREQUAL coverage )
-            include(CodeCoverage)
-            APPEND_COVERAGE_COMPILER_FLAGS()
-        endif()
-
-        include(${CMAKE_CURRENT_LIST_DIR}/Sanitizer.cmake)
-        SETUP_FOR_SANITIZE(BUILD_TYPE ASAN)
-        SETUP_FOR_SANITIZE(BUILD_TYPE TSAN)
-        SETUP_FOR_SANITIZE(BUILD_TYPE MSAN)
-        SETUP_FOR_SANITIZE(BUILD_TYPE UBSAN)
-    endif(UNIX)
 endif(BUILD_TEST)
