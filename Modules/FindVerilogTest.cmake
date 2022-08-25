@@ -22,7 +22,7 @@
 
 # Currently using verilator for testing.
 if (VERILOG_TEST)
-    find_package(verilator 4.2.2 REQUIRED
+    find_package(verilator 4.222 REQUIRED
         HINTS
         /usr/local
         $ENV{VERILATOR_ROOT}

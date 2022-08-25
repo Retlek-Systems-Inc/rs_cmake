@@ -37,6 +37,7 @@ RUN apt-get update -y \
 
 # Install Verilator
 # modified from: https://github.com/verilator/verilator/blob/master/ci/docker/run/Dockerfile
+# Also used: https://verilator.org/guide/latest/install.html#git-quick-install
 
 # Note libunwind-14 is installed with llvm-14 tools.  This clashes with libunwind-dev used by
 # libgoogle-perftools-dev so removing it for now.  This means cannot use libc++abi* but must use
@@ -52,10 +53,14 @@ RUN apt-get update -y \
         bc \
         bison \
         flex \
+        libfl2 \
         libfl-dev \
+        zlib1g \
+        zlib1g-dev \
         libgoogle-perftools-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
 
 # Using version 4.222
 ARG REPO=https://github.com/verilator/verilator
