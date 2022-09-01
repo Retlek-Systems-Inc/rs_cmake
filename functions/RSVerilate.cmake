@@ -28,8 +28,9 @@ Based off of: https://github.com/verilator/verilator/blob/v4.222/verilator-confi
 And fixes following issues:
 * Ability to run verilator at the build stage and not the generate stage of cmake
   * Remove need to consume a local cmake file in the generated directory
-  * TODO: Still requires two stage run of build cmake due to FILE GLOB being updated,
-    but if file names don't change and the files are regenerated - this is reduced to 1.
+  * Add Custom target GenerateVerilatedCode to have verilated code be able to execute on its own
+    two stage run of build cmake due to FILE GLOB being updated, but if file names don't change and the
+    files are regenerated - this is reduced to 1.
 * Ability to have file changes re-run the verilator function
   * TODO: Sub modules still may not cause this to happen - i.e. files from include
 * Ability to clean out generated files with clean
@@ -309,4 +310,11 @@ function(RSVerilate TARGET)
   )
 
   target_compile_features(${TARGET} PRIVATE cxx_std_11)
+
+  # Add target to GenerateVerilatedCode custom target.
+  if (NOT TARGET GenerateVerilatedCode)
+    add_custom_target(GenerateVerilatedCode)
+  endif()
+  add_dependencies(GenerateVerilatedCode ${TARGET})
+
 endfunction()
