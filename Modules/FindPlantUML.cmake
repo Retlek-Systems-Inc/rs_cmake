@@ -31,17 +31,5 @@ if(NOT DEFINED PlantUML_FOUND)
   
   if (PlantUML_FOUND)
     message( STATUS "Found PlantUML: ${PLANTUML_JARFILE}" )
-    
-  else()  
-#    include(FetchContent)
-#    FetchContent_Declare(
-#      PlantUML
-#      URL http://sourceforge.net/projects/plantuml/files/plantuml.jar
-#    )
-#    FetchContent_MakeAvailable(PlantUML)
-#    find_file(PLANTUML_JARFILE
-#      NAMES plantuml.jar
-#      HINTS "_deps/PlantUML" ENV PLANTUML_DIR
-#    )
   endif()
 endif()

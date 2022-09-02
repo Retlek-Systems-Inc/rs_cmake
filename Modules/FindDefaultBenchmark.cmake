@@ -44,9 +44,9 @@ if( BUILD_BENCHMARK )
     
     FetchContent_MakeAvailable(benchmark)
     # Add clang-tidy definition to include warnings/errors for benchmark.
-    # Clang-Tidy all file for build dir /_deps - anything third-party or grabbed from elsewhere don't do clang tidy on.
+    # Clang-Tidy all file for benchmark source dir (override).
     configure_file( "${CMAKE_CURRENT_LIST_DIR}/StaticAnalysis/.clang-tidy.all.in"
-                    "${CMAKE_BINARY_DIR}/_deps/.clang-tidy" COPYONLY )
+                    "${benchmark_SOURCE_DIR}/.clang-tidy" COPYONLY )
 
     target_compile_options( benchmark
       PUBLIC

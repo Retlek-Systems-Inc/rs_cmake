@@ -30,7 +30,7 @@ if(STATIC_ANALYSIS)
     option(USE_CLANG_TIDY "Use Clang Tidy to view any inefficiencies or good practices." ON)
 
     if (USE_CLANG_TIDY)
-        find_program(CLANG_TIDY 
+        find_program(CLANG_TIDY
           NAMES
             clang-tidy
             clang-tidy-14
@@ -60,10 +60,12 @@ if(STATIC_ANALYSIS)
             endif()
         endif()
     endif()
-    # Clang-Tidy None file for build dir /_deps - anything third-party or grabbed from elsewhere don't do clang tidy on.
+    # Clang-Tidy None file for FETCHCONTENT_BASE_DIR (anything third-party)
+    # or grabbed from elsewhere don't do clang tidy on. If the repos have
+    # their own clang-tidy file then it will override the none with their own.
     configure_file( "${CMAKE_CURRENT_LIST_DIR}/StaticAnalysis/.clang-tidy.none.in"
-                    "${CMAKE_BINARY_DIR}/_deps/.clang-tidy" COPYONLY )
-    
+                    "${FETCHCONTENT_BASE_DIR}/.clang-tidy" COPYONLY )
+
     # CppCheck - http://cppcheck.sourceforge.net/
     option(USE_CPPCHECK "Use CPP check to view any inefficiencies or good practices." OFF)
     if (USE_CPPCHECK)
@@ -85,7 +87,7 @@ if(STATIC_ANALYSIS)
                 "--template='{file}:{line} {severity} ({id}):{message}'")
         endif()
     endif(USE_CPPCHECK)
-                
+
     #Google style checks:
     # https://github.com/cpplint/cpplint
     option(USE_CPPLINT "Use CPP Lint to view any inefficiencies or good practices." OFF)
@@ -104,8 +106,8 @@ if(STATIC_ANALYSIS)
     # Include what you use
     option(USE_IWYU "Use Include What You Use static analysis." OFF)
     if (USE_IWYU)
-        find_program(INCLUDE_WHAT_YOU_USE 
-          NAMES 
+        find_program(INCLUDE_WHAT_YOU_USE
+          NAMES
             iwyu
             include-what-you-use
         )

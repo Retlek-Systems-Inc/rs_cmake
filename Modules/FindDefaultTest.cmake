@@ -64,9 +64,11 @@ if(BUILD_TEST)
 
     FetchContent_MakeAvailable(googletest)
     # Add clang-tidy definition to include warnings/errors for googletest.
-    # Clang-Tidy all file for build dir /_deps - anything third-party or grabbed from elsewhere don't do clang tidy on.
+    # Clang-Tidy all file for gtest/gmock related code
     configure_file( "${CMAKE_CURRENT_LIST_DIR}/StaticAnalysis/.clang-tidy.all.in"
-                    "${CMAKE_BINARY_DIR}/_deps/.clang-tidy" COPYONLY )
+                    "${gtest_SOURCE_DIR}/.clang-tidy" COPYONLY )
+    configure_file( "${CMAKE_CURRENT_LIST_DIR}/StaticAnalysis/.clang-tidy.all.in"
+                    "${gmock_SOURCE_DIR}/.clang-tidy" COPYONLY )
 
     add_library(GTest::GTest ALIAS gtest)
     add_library(GTest::Main ALIAS gtest_main)

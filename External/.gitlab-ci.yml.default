@@ -319,7 +319,7 @@ clang-cpplint:build:
 #   stage: deploy
 #   variables:
 #     BUILD_DIR: ci_build/cmake.release-gcc-9.x64
-#     TOOLCHAIN_FILE: ../_deps/buildenv/cmake/toolchain/gcc.toolchain.cmake
+#     TOOLCHAIN_FILE: ${DEPS_DIR}/cmake/toolchain/gcc.toolchain.cmake
 #   script:
 #     - mkdir $BUILD_DIR && cd $BUILD_DIR
 #     - cmake -G "Ninja Multi-Config" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE ../..
