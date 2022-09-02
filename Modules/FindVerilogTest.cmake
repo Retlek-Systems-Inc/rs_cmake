@@ -206,7 +206,7 @@ if (VERILOG_TEST)
               -readability-make-member-function-const
               -readability-redundant-access-specifiers
         )
-  
+
         if (VERILATOR_THREADED)
           set(THREADS_PREFER_PTHREAD_FLAG TRUE)
           find_package(Threads REQUIRED)
@@ -229,7 +229,7 @@ if (VERILOG_TEST)
     include(CMakeParseArguments)
 
     # Check prereqs
-    find_program(VERILATOR_COVERAGE
+    find_program(VERILATOR_COVERAGE_EXE
         NAMES verilator_coverage
         PATHS
         $ENV{PATH}
@@ -282,7 +282,7 @@ function(SETUP_VERILOG_TARGET_FOR_COVERAGE_LCOV_HTML)
                         "${multiValueArgs}"
                         ${ARGN})
 
-  if(NOT VERILATOR_COVERAGE)
+  if(NOT VERILATOR_COVERAGE_EXE)
     message(FATAL_ERROR "verilator_coverage not found, Aborting...")
   endif()
 
@@ -311,7 +311,7 @@ function(SETUP_VERILOG_TARGET_FOR_COVERAGE_LCOV_HTML)
     # Run tests
     COMMAND ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
     # Capturing lcov counters and generating report
-    COMMAND ${VERILATOR_COVERAGE}
+    COMMAND ${VERILATOR_COVERAGE_EXE}
         --rank
         --write-info ${Coverage_NAME}.info
         ${Coverage_DATA_FILES}
@@ -331,7 +331,7 @@ function(SETUP_VERILOG_TARGET_FOR_COVERAGE_LCOV_HTML)
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     DEPENDS ${Coverage_DEPENDENCIES}
     COMMENT
-      "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
+      "Resetting code coverage counters to zero. Processing code coverage counters and generating report."
     )
 
   # Show where to find the lcov info report
@@ -362,19 +362,38 @@ macro(setup_verilog_code_coverage_target)
 #    string(TOLOWER ${CMAKE_BUILD_TYPE} _buildType)
 #    if ( ${_buildType} STREQUAL coverage AND NOT TARGET ${_coverageTarget} )
     if ( NOT TARGET ${_coverageTarget} )
-        SETUP_VERILOG_TARGET_FOR_COVERAGE_LCOV_HTML(
-            NAME ${_coverageTarget}
-            EXECUTABLE ctest
-            EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
-            DATA_FILES
+        if (NOT GENERATOR_IS_MULTI_CONFIG)
+            SETUP_VERILOG_TARGET_FOR_COVERAGE_LCOV_HTML(
+              NAME ${_coverageTarget}
+              EXECUTABLE ctest
+              EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
+              DATA_FILES
                 ${_coverageDataFiles}
-            LCOV_ARGS
+              LCOV_ARGS
                 --strip 1
-#                --rc lcov_branch_coverage=1
-            GENHTML_ARGS
-#                --rc genhtml_branch_coverage=1
-#                --demangle-cpp
+                #--rc lcov_branch_coverage=1
+              GENHTML_ARGS
+                #--rc genhtml_branch_coverage=1
+                #--demangle-cpp
                 --prefix ${CMAKE_SOURCE_DIR}
-        )
+            )
+        else()
+            SETUP_VERILOG_TARGET_FOR_COVERAGE_LCOV_HTML(
+              NAME ${_coverageTarget}
+              EXECUTABLE ctest
+              EXECUTABLE_ARGS
+                -C CMAKE_BUILD_TYPE
+                ${CTEST_BUILD_FLAGS}
+              DATA_FILES
+               ${_coverageDataFiles}
+              LCOV_ARGS
+                --strip 1
+                #--rc lcov_branch_coverage=1
+              GENHTML_ARGS
+                #--rc genhtml_branch_coverage=1
+                #--demangle-cpp
+                --prefix ${CMAKE_SOURCE_DIR}
+            )
+        endif()
     endif()
 endmacro()
