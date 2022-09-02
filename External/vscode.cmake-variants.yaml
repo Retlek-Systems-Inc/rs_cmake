@@ -45,6 +45,22 @@ buildType:
         STATIC_ANALYSIS: "ON"
         USE_CLANG_TIDY: "ON"
         CLANG_TIDY_FIX: "ON"
+    debugCppCheck:
+      short: Debug CppCheck
+      long: Debug Build - with CppCheck
+      buldType: Debug
+      settings:
+        STATIC_ANALYSIS: "ON"
+        USE_CLANG_TIDY: "OFF"
+        USE_CPPCHECK: "ON"
+    debugCppLint:
+      short: Debug CppLint
+      long: Debug Build - with CppLint
+      buldType: Debug
+      settings:
+        STATIC_ANALYSIS: "ON"
+        USE_CLANG_TIDY: "OFF"
+        USE_CPPLINT: "ON"
     release:
       short: Release
       long: Release Build - optimizations
@@ -59,14 +75,20 @@ buildType:
         STATIC_ANALYSIS: "OFF"
     asan:
       short: ASan
-      long: Address Sanitizer Debug Build
-      buildType: asan
+      long: Address Sanitizer Build
+      buildType: Asan
       settings:
         STATIC_ANALYSIS: "OFF"
     tsan:
       short: TSan
-      long: Thread Sanitizer Debug Build
-      buildType: tsan
+      long: Thread Sanitizer Build
+      buildType: Tsan
+      settings:
+        STATIC_ANALYSIS: "OFF"
+    ubsan:
+      short: UbSan
+      long: Undefined Behavior Sanitizer Build
+      buildType: Ubsan
       settings:
         STATIC_ANALYSIS: "OFF"
     coverage:
