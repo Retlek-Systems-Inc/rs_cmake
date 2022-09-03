@@ -59,7 +59,67 @@ if( BUILD_BENCHMARK )
 
     target_clang_tidy_definitions( TARGET benchmark
       CHECKS
+        -*-avoid-c-arrays
+        -*-braces-around-statements
+        -*-else-after-return
+        -*-magic-numbers
+        -*-member-init
+        -*-narrowing-conversions
+        -*-named-parameter
+        -*-use-auto
+        -*-use-emplace
+        -*-use-equals-default
+        -*-vararg
+        -altera-id-dependent-backward-branch
+        -altera-struct-pack-align
+        -altera-unroll-loops
+        -bugprone-easily-swappable-parameters
+        -bugprone-implicit-widening-of-multiplication-result
+        -cert-dcl50-cpp
+        -cert-err58-cpp
+        -concurrency-mt-unsafe
+        -cppcoreguidelines-avoid-non-const-global-variables
+        -cppcoreguidelines-init-variables
+        -cppcoreguidelines-owning-memory
+        -cppcoreguidelines-pro-bounds-array-to-pointer-decay
+        -cppcoreguidelines-pro-bounds-pointer-arithmetic
+        -fuchsia-default-arguments-calls
+        -fuchsia-default-arguments-declarations
+        -fuchsia-statically-constructed-objects
+        -google-build-using-namespace
+        -google-readability-todo
+        -google-runtime-int
+        -hicpp
+        -hicpp-multiway-paths-covered
+        -hicpp-no-array-decay
+        -hicpp-signed-bitwise
+        -llvm-namespace-comment
+        -llvmlibc-callee-namespace
+        -llvmlibc-implementation-in-namespace
+        -llvmlibc-restrict-system-libc-headers
+        -modernize-pass-by-value
+        -modernize-raw-string-literal
+        -modernize-return-braced-init-list
+        -modernize-use-nullptr
+        -modernize-use-trailing-return-type
+        -modernize-use-using
+        -readability-container-size-empty
+        -readability-function-cognitive-complexity
+        -readability-implicit-bool-conversion
+        -readability-inconsistent-declaration-parameter-name
+        -readability-qualified-auto
+        -readability-simplify-boolean-expr
+        -readability-static-accessed-through-instance
+        -readability-static-definition-in-anonymous-namespace
+        -readability-use-anyofallof
         -clang-analyzer-deadcode.DeadStores
     )
+
+  target_clang_tidy_definitions( TARGET benchmark_main
+    CHECKS
+      -llvmlibc-callee-namespace
+      -llvmlibc-implementation-in-namespace
+      -modernize-use-trailing-return-type
+  )
 
 endif(BUILD_BENCHMARK)
