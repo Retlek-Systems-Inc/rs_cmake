@@ -304,12 +304,71 @@ function(RSVerilate TARGET)
 
   # Note the target_link_libraries for Verilator::base are also public so they will migrate to the
   # verilated module as well.
-  target_link_libraries(${TARGET}
+  target_link_libraries( ${TARGET}
     PRIVATE
       Verilator::base
   )
 
-  target_compile_features(${TARGET} PRIVATE cxx_std_11)
+  target_compile_features( ${TARGET} PRIVATE cxx_std_11)
+
+  target_compile_options( ${TARGET}
+    PRIVATE
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-gnu-anonymous-struct>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-bool-operation>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-parentheses-equality>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-const-variable>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-unused-but-set-variable>
+  )
+
+  target_clang_tidy_definitions( TARGET ${TARGET}
+    CHECKS
+      -*-braces-around-statements
+      -*-else-after-return
+      -*-function-size
+      -*-named-parameter
+      -*-magic-numbers
+      -*-member-init
+      -*-narrowing-conversions
+      -*-use-auto
+      -*-use-equals-default
+      -*-use-override
+      -altera-id-dependent-backward-branch
+      -altera-struct-pack-align
+      -altera-unroll-loops
+      -bugprone-branch-clone
+      -bugprone-easily-swappable-parameters
+      -bugprone-reserved-identifier
+      -cert-dcl37-c
+      -cert-dcl51-cpp
+      -clang-analyzer-core.uninitialized.Assign
+      -clang-analyzer-deadcode.DeadStores
+      -cppcoreguidelines-avoid-non-const-global-variables
+      -cppcoreguidelines-c-copy-assignment-signature
+      -cppcoreguidelines-explicit-virtual-functions
+      -cppcoreguidelines-init-variables
+      -cppcoreguidelines-pro-bounds-constant-array-index
+      -cppcoreguidelines-pro-type-const-cast
+      -cppcoreguidelines-pro-type-union-access
+      -google-explicit-constructor
+      -google-readability-casting
+      -hicpp-explicit-conversions
+      -hicpp-no-assembler
+      -hicpp-noexcept-move
+      -llvm-include-order
+      -misc-redundant-expression
+      -misc-unconventional-assign-operator
+      -modernize-use-bool-literals
+      -modernize-use-nodiscard
+      -performance-noexcept-move-constructor
+      -readability-avoid-const-params-in-decls
+      -readability-function-cognitive-complexity
+      -readability-implicit-bool-conversion
+      -readability-inconsistent-declaration-parameter-name
+      -readability-make-member-function-const
+      -readability-redundant-access-specifiers
+      -readability-redundant-declaration
+      -readability-simplify-boolean-expr
+  )
 
   # Add target to GenerateVerilatedCode custom target.
   if (NOT TARGET GenerateVerilatedCode)
