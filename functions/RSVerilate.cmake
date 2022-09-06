@@ -314,7 +314,7 @@ function(RSVerilate TARGET)
   target_compile_options( ${TARGET}
     PRIVATE
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-gnu-anonymous-struct>
-      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-bool-operation>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-bool-operation>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-parentheses-equality>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-const-variable>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-unused-but-set-variable>
@@ -368,6 +368,7 @@ function(RSVerilate TARGET)
       -readability-redundant-access-specifiers
       -readability-redundant-declaration
       -readability-simplify-boolean-expr
+      -readability-static-accessed-through-instance
   )
 
   # Add target to GenerateVerilatedCode custom target.
