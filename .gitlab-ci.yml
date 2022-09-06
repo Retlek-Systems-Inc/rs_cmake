@@ -81,18 +81,17 @@ hw-dev:build:
       - tags
     changes:
       - docker/*/DockerFile
-
-docs:build:
-  stage: build
-  needs: ["sw-dev:build"]
-  inherit:
-    default: [image]
-  variables:
-    DOCKER_IMAGE: docs
-  script:
-    - *common_build_docker
-  only:
-    refs:
-      - tags
-    changes:
-      - docker/*/DockerFile
+# docs:build:
+#   stage: build
+#   needs: ["sw-dev:build"]
+#   inherit:
+#     default: [image]
+#   variables:
+#     DOCKER_IMAGE: docs
+#   script:
+#     - *common_build_docker
+#   only:
+#     refs:
+#       - tags
+#     changes:
+#       - docker/*/DockerFile
