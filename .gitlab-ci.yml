@@ -45,6 +45,7 @@ lint_dockerfiles:lint:
   script:
     - hadolint docker/sw-dev/Dockerfile
     - hadolint docker/hw-dev/Dockerfile
+    - hadolint docker/sw-arm-none-eabi/Dockerfile
     - hadolint docker/docs/Dockerfile
   only:
     refs:
@@ -80,7 +81,22 @@ hw-dev:build:
     refs:
       - tags
     changes:
-      - docker/*/DockerFile
+      - docker/sw-dev/Dockerfile
+      - docker/hw-dev/Dockerfile
+
+sw-arm-none-eabi:build:
+  stage: build
+  inherit:
+    default: [image]
+  variables:
+    DOCKER_IMAGE: sw-arm-none-eabi
+  script:
+    - *common_build_docker
+  only:
+    refs:
+      - tags
+    changes:
+      - docker/sw-arm-none-eabi/Dockerfile
 # docs:build:
 #   stage: build
 #   needs: ["sw-dev:build"]
@@ -94,4 +110,5 @@ hw-dev:build:
 #     refs:
 #       - tags
 #     changes:
-#       - docker/*/DockerFile
+#       - docker/sw-dev/Dockerfile
+#       - docker/docs/DockerFile
