@@ -39,8 +39,8 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 
 # arm-none-eabi from arm/linaro.
-RUN wget https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz \
-    && wget https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz.asc \
+RUN wget --progress=dot:giga https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz \
+    && wget --progress=dot:giga https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz.asc \
     && md5sum --check gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz.asc \
     && mkdir -p /usr/local \
     && tar -xJf gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz -C /usr/local
