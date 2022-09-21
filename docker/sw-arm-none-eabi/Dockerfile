@@ -35,6 +35,7 @@ RUN apt-get update -y \
     cmake \
     ninja-build \
     ccache \
+    xz-utils \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
