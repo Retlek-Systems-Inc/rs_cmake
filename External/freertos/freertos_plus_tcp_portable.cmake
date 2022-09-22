@@ -34,17 +34,18 @@ target_sources( freertos_plus_tcp_port
 target_include_directories( freertos_plus_tcp_port
   PUBLIC
     $<$<C_COMPILER_ID:CCS>:${CMAKE_CURRENT_SOURCE_DIR}/Compiler/CCS>
-    $<$<C_COMPILER_ID:GNU,Clang>:${CMAKE_CURRENT_SOURCE_DIR}/Compiler/GCC>
+    $<$<C_COMPILER_ID:GNU,Clang,ARMClang>:${CMAKE_CURRENT_SOURCE_DIR}/Compiler/GCC>
     $<$<C_COMPILER_ID:IAR>:${CMAKE_CURRENT_SOURCE_DIR}/Compiler/IAR>
-    $<$<C_COMPILER_ID:Keil>:${CMAKE_CURRENT_SOURCE_DIR}/Compiler/Keil>
+    $<$<C_COMPILER_ID:ARMCC>:${CMAKE_CURRENT_SOURCE_DIR}/Compiler/Keil>
     $<$<C_COMPILER_ID:MSVC>:${CMAKE_CURRENT_SOURCE_DIR}/Compiler/MSVC>
-    $<$<C_COMPILER_ID:Renesas>:${CMAKE_CURRENT_SOURCE_DIR}/Compiler/Renesas>
+    # $<$<C_COMPILER_ID:Renesas>:${CMAKE_CURRENT_SOURCE_DIR}/Compiler/Renesas>
 )
 
 target_compile_options( freertos_plus_tcp_port
   PRIVATE
     $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-cast-align>
     $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-extra-semi>
+    $<$<COMPILE_LANG_AND_ID:C,GNU>:-Wno-pedantic> # Strange definition for STATIC_ASSERT
 )
 
 target_link_libraries( freertos_plus_tcp_port

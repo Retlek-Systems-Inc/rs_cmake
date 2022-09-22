@@ -141,7 +141,7 @@ target_include_directories( freertos_plus_tcp SYSTEM
 #TODO(phelter): Investigate and fix in freertos_plus_tcp if not already fixed.
 target_compile_options( freertos_plus_tcp
   PRIVATE
-    $<$<COMPILE_LANG_AND_ID:C,Clang,GNU>:-Wno-address-of-packed-member>
+    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-address-of-packed-member>
     $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-bad-function-cast>
     $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-documentation>
     $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-cast-qual>
@@ -169,8 +169,8 @@ target_compile_options( freertos_plus_tcp
     $<$<COMPILE_LANG_AND_ID:C,GNU>:-Wno-uninitialized>
     $<$<COMPILE_LANG_AND_ID:C,Clang,GNU>:-Wno-unused-but-set-variable>
     $<$<COMPILE_LANG_AND_ID:C,Clang,GNU>:-Wno-unused-function>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-unused-macros>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-unused-parameter>
+    $<$<COMPILE_LANG_AND_ID:C,Clang,GNU>:-Wno-unused-macros>
+    $<$<COMPILE_LANG_AND_ID:C,Clang,GNU>:-Wno-unused-parameter>
     $<$<COMPILE_LANG_AND_ID:C,Clang,GNU>:-Wno-unused-variable>
 )
 

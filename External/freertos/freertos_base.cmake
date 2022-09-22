@@ -60,6 +60,9 @@ target_include_directories(freertos_ap_socket_wrapper
 target_link_libraries(freertos_ap_socket_wrapper
   PUBLIC
     FreeRTOS::PlusTCP
+    FreeRTOS::Logging
+  PRIVATE
+    FreeRTOS::Kernel
 )
 
 # -------------------------------------------------------------------
