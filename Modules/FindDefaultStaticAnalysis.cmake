@@ -152,6 +152,7 @@ function(target_clang_tidy_definitions)
         message( FATAL_ERROR "No valid checks provided")
     endif()
 
+
     if(CMAKE_CXX_CLANG_TIDY)
         string( REPLACE ";" "," checks "${_arg_CHECKS}" )
         get_property( _curCLANG_TIDY TARGET ${_arg_TARGET} PROPERTY CXX_CLANG_TIDY)
@@ -173,7 +174,7 @@ function(target_clang_tidy_definitions)
         endif()
 
         set_property( TARGET ${_arg_TARGET} PROPERTY CXX_CLANG_TIDY ${_curCLANG_TIDY} )
-        #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY C_CLANG_TIDY   -checks=${checks} )
+        set_property( TARGET ${_arg_TARGET} PROPERTY C_CLANG_TIDY   ${_curCLANG_TIDY} )
         #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY OBJCXX_CLANG_TIDY -checks=${checks} )
         #set_property( TARGET ${_arg_TARGET} APPEND PROPERTY OBJC_CLANG_TIDY   -checks=${checks} )
     endif()
