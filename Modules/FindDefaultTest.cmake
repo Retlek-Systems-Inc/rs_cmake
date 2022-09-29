@@ -22,34 +22,34 @@
 # Adds the necessary information for testing environment with googletest.
 # Note googletest/googlemock are down-loaded into the build dir and compiled as part
 # of the test environment from there.
-
-include(CodeCoverage)
-
-macro(setup_code_coverage_target)
-    # Create a code coverage target.
-    set(_coverageTarget code-coverage)
-    # Exclude standard and test framework environment builds.
-    list(APPEND COVERAGE_LCOV_EXCLUDES
-        '/usr/include/*'
-        '${googletest_SOURCE_DIR}/*'
-    )
-    message(STATUS "Coverage Excludes: ${COVERAGE_LCOV_EXCLUDES}")
-
-    SETUP_TARGET_FOR_COVERAGE_LCOV_HTML(
-        NAME ${_coverageTarget}
-        EXECUTABLE ctest
-        EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
-        LCOV_ARGS
-            --strip 1
-            --rc lcov_branch_coverage=1
-        GENHTML_ARGS
-            --rc genhtml_branch_coverage=1
-            --demangle-cpp
-            --prefix ${CMAKE_SOURCE_DIR}
-    )
-endmacro()
-
 if(BUILD_TEST)
+
+    include(CodeCoverage)
+
+    macro(setup_code_coverage_target)
+        # Create a code coverage target.
+        set(_coverageTarget code-coverage)
+        # Exclude standard and test framework environment builds.
+        list(APPEND COVERAGE_LCOV_EXCLUDES
+            '/usr/include/*'
+            '${googletest_SOURCE_DIR}/*'
+        )
+        message(STATUS "Coverage Excludes: ${COVERAGE_LCOV_EXCLUDES}")
+
+        SETUP_TARGET_FOR_COVERAGE_LCOV_HTML(
+            NAME ${_coverageTarget}
+            EXECUTABLE ctest
+            EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
+            LCOV_ARGS
+                --strip 1
+                --rc lcov_branch_coverage=1
+            GENHTML_ARGS
+                --rc genhtml_branch_coverage=1
+                --demangle-cpp
+                --prefix ${CMAKE_SOURCE_DIR}
+        )
+    endmacro()
+
 	#set(INSTALL_GTEST OFF)
     include(FetchContent)
     FetchContent_Declare( googletest
@@ -328,5 +328,21 @@ if(BUILD_TEST)
         set(CTEST_BUILD_FLAGS -j${_numProcessors} -V)
         set(ctest_test_args ${ctest_test_args} PARALLEL_LEVEL ${_numProcessors})
     endif()
+else()
+
+    # Dummy coverage target
+    macro(setup_code_coverage_target)
+        # Create a code coverage target.
+        set(_coverageTarget code-coverage)
+
+        add_custom_target(
+            ${_coverageTarget}
+            COMMAND echo "No coverage when BUILD_TEST=OFF"
+            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+            DEPENDS ${Coverage_DEPENDENCIES}
+            COMMENT
+              "No coverage performed when BUILD_TEST=OFF"
+        )
+    endmacro()
 
 endif(BUILD_TEST)
