@@ -33,8 +33,10 @@ FetchContent_Declare( freertos_base
 )
 
 FetchContent_Declare( freertos_kernel
-  GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
-  GIT_TAG        V10.5.0 # One from Vitis is 10.3.0
+  GIT_REPOSITORY git@github.com:phelter/FreeRTOS-Kernel.git
+  GIT_TAG        feature/cmake-updates
+#   GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+#   GIT_TAG        master #V10.5.0
 )
 
 FetchContent_Declare( freertos_plus_tcp
@@ -105,51 +107,12 @@ list(APPEND COVERAGE_LCOV_EXCLUDES "${freertos_base_SOURCE_DIR}/*")
 # -----------------------------------------------------------------------------
 
 # Note using modified cmake files off of 10.5.0 to allow FREERTOS_PORT = A_CUSTOM_PORT
-FetchContent_GetProperties(freertos_kernel)
-if(NOT freertos_kernel_POPULATED)
-  # Fetch the content using previously declared details
-  FetchContent_Populate(freertos_kernel)
-
-  configure_file(${_freertos_cmake_dir}/freertos_kernel.cmake          "${freertos_kernel_SOURCE_DIR}/CMakeLists.txt" COPYONLY)
-  configure_file(${_freertos_cmake_dir}/freertos_kernel_portable.cmake "${freertos_kernel_SOURCE_DIR}/portable/CMakeLists.txt" COPYONLY)
-
-  # Bring the populated content into the build
-  add_subdirectory(${freertos_kernel_SOURCE_DIR} ${freertos_kernel_BINARY_DIR})
-endif()
-
+FetchContent_MakeAvailable(freertos_kernel)
 # Further modifications for RS CMake.
 list(APPEND COVERAGE_LCOV_EXCLUDES "${freertos_kernel_SOURCE_DIR}/*")
 target_ignore_static_analysis(TARGET freertos_kernel CLANG_TIDY)
 target_ignore_static_analysis(TARGET freertos_kernel_port CLANG_TIDY)
 
-target_compile_options( freertos_kernel
-  PRIVATE
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-cast-align>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-covered-switch-default>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-documentation>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-extra-semi-stmt>
-    $<$<COMPILE_LANG_AND_ID:C,GNU>:-Wno-int-to-pointer-cast>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-missing-noreturn>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-missing-variable-declarations>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-padded>
-    $<$<COMPILE_LANG_AND_ID:C,GNU>:-Wno-pointer-to-int-cast>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-shorten-64-to-32>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-sign-conversion>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-unused-macros>
-)
-target_compile_options( freertos_kernel_port
-  PRIVATE
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-disabled-macro-expansion>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-documentation>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-missing-noreturn>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-missing-variable-declarations>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-padded>
-    $<$<COMPILE_LANG_AND_ID:C,GNU>:-Wno-pointer-to-int-cast>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-reserved-macro-identifier>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-sign-conversion>
-    $<$<COMPILE_LANG_AND_ID:C,GNU>:-Wno-type-limits>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-unused-macros>
-)
 add_library( FreeRTOS::Kernel       ALIAS freertos_kernel )
 add_library( FreeRTOS::Kernel::Port ALIAS freertos_kernel_port)
 
