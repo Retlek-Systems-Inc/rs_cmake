@@ -114,8 +114,8 @@ if(STATIC_ANALYSIS)
         if( NOT INCLUDE_WHAT_YOU_USE)
             message(WARNING "Could not find include-what-you-use iwyu, must be installed to perform static checks.")
         else()
-             set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE include-what-you-use -Xiwyu --verbose=3)
-             set(CMAKE_C_INCLUDE_WHAT_YOU_USE include-what-you-use -Xiwyu --verbose=3)
+             set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${INCLUDE_WHAT_YOU_USE} -Xiwyu --verbose=3)
+             set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${INCLUDE_WHAT_YOU_USE} -Xiwyu --verbose=3)
         endif()
     endif(USE_IWYU)
 endif(STATIC_ANALYSIS)
@@ -223,10 +223,11 @@ endfunction()
 # for all cases.
 # target_clang_tidy_definitions
 #   TARGET the cmake target to add the compilation clang tidy checks to.
-#   CLANG_TIDY when included will set all include directories to system.
+#   CLANG_TIDY when added, will set all include directories to system to ignore any issues in headers from this target.
+#   IWYU    when added, will not perform any checks on these files.
 #
 function(target_ignore_static_analysis)
-    set( _options CLANG_TIDY)
+    set( _options CLANG_TIDY IWYU)
     set( _oneValueArgs TARGET )
     set( _multiValueArgs )
     cmake_parse_arguments( "_arg" "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN} )
@@ -267,4 +268,13 @@ function(target_ignore_static_analysis)
 
         message( STATUS "Converting ${_arg_TARGET} interface directories to system")
     endif()
+
+    if( _arg_IWYU )
+        set_target_properties( ${_arg_TARGET}
+        PROPERTIES
+            CXX_INCLUDE_WHAT_YOU_USE ""
+            C_INCLUDE_WHAT_YOU_USE ""
+        )
+    endif()
+
 endfunction()
