@@ -44,7 +44,6 @@ target_compile_options(freertos_coremqtt
     $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-documentation-unknown-command>
     $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-documentation>
     $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-gnu-zero-variadic-macro-arguments>
-    $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-gnu-statement-expression>
     $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-gnu-zero-variadic-macro-arguments>
     $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-string-compare>
     $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-unused-value>
