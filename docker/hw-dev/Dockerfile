@@ -82,10 +82,12 @@ RUN git clone "${REPO}" verilator && \
     cd .. && \
     rm -r verilator
 
-# COPY verilator-wrap.sh /usr/local/bin/verilator-wrap.sh
-
-# WORKDIR /work
-
-# ENTRYPOINT [ "/usr/local/bin/verilator-wrap.sh" ]
-
 WORKDIR /tmp
+
+# Now create DEPS directory with pre-downloaded git repos
+RUN mkdir -p ./cmake_env_deps
+ENV CMAKE_ENV_DEPS_DIR=${cwd}/cmake_env_deps
+ENV CMAKE_ENV_DEPS_PATH=${cwd}/cmake_env_deps
+COPY ./hw-base.cmake ./hw-base/CMakeLists.txt
+
+RUN  cmake -G "Ninja Multi-Config" -B./hw-base/build -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${CMAKE_ENV_DEPS_DIR} ./hw-base

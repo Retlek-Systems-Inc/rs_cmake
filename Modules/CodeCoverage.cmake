@@ -119,7 +119,8 @@ find_program(GCOVR_PATH gcovr PATHS ${CMAKE_SOURCE_DIR}/scripts/test)
 find_program(SIMPLE_PYTHON_EXECUTABLE python)
 
 if(NOT GCOV_PATH)
-  message(FATAL_ERROR "gcov not found! Aborting...")
+    message(WARNING "gcov not found! No Coverage targets generated...")
+    return()
 endif() # NOT GCOV_PATH
 
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
@@ -162,11 +163,13 @@ function(SETUP_TARGET_FOR_COVERAGE_LCOV_HTML)
                         ${ARGN})
 
   if(NOT LCOV_PATH)
-    message(FATAL_ERROR "lcov not found! Aborting...")
+    message(WARNING "lcov not found! No Coverage targets generated...")
+    return()
   endif() # NOT LCOV_PATH
 
   if(NOT GENHTML_PATH)
-    message(FATAL_ERROR "genhtml not found! Aborting...")
+    message(WARNING "genhtml not found! No Coverage targets generated...")
+    return()
   endif() # NOT GENHTML_PATH
 
   # Setup target
@@ -250,7 +253,8 @@ function(SETUP_TARGET_FOR_COVERAGE_LCOV_TXT)
                         ${ARGN})
 
   if(NOT LCOV_PATH)
-    message(FATAL_ERROR "lcov not found! Aborting...")
+    message(WARNING "lcov not found! No Coverage targets generated...")
+    return()
   endif() # NOT LCOV_PATH
 
   # Setup target
@@ -302,11 +306,13 @@ function(SETUP_TARGET_FOR_COVERAGE_GCOVR_XML)
                         ${ARGN})
 
   if(NOT SIMPLE_PYTHON_EXECUTABLE)
-    message(FATAL_ERROR "python not found! Aborting...")
+    message(WARNING "python not found! No Coverage targets generated...")
+    return()
   endif() # NOT SIMPLE_PYTHON_EXECUTABLE
 
   if(NOT GCOVR_PATH)
-    message(FATAL_ERROR "gcovr not found! Aborting...")
+    message(WARNING "gcovr not found! No Coverage targets generated...")
+    return()
   endif() # NOT GCOVR_PATH
 
   # Combine excludes to several -e arguments
@@ -357,11 +363,13 @@ function(SETUP_TARGET_FOR_COVERAGE_GCOVR_HTML)
                         ${ARGN})
 
   if(NOT SIMPLE_PYTHON_EXECUTABLE)
-    message(FATAL_ERROR "python not found! Aborting...")
+    message(WARNING "python not found! No Coverage targets generated...")
+    return()
   endif() # NOT SIMPLE_PYTHON_EXECUTABLE
 
   if(NOT GCOVR_PATH)
-    message(FATAL_ERROR "gcovr not found! Aborting...")
+    message(WARNING "gcovr not found! No Coverage targets generated...")
+    return()
   endif() # NOT GCOVR_PATH
 
   # Combine excludes to several -e arguments
@@ -397,4 +405,3 @@ function(SETUP_TARGET_FOR_COVERAGE_GCOVR_HTML)
     )
 
 endfunction() # SETUP_TARGET_FOR_COVERAGE_GCOVR_HTML
-

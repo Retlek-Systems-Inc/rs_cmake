@@ -1,0 +1,193 @@
+#######################################################################
+# @copyright 2022 Retlek Systems Inc.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+# Note Assumes a private docker registry.
+# The following seecrets needs to be configured inside github:
+# rs_docker_registry_username
+# rs_docker_registry_password
+# See: https://docs.github.com/en/actions/security-guides/encrypted-secrets for adding:
+
+name: Software Testing using CMake and C/C++ Compilers
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - "releases/*"
+    tags:
+      - "*"
+
+env:
+  BASE_BUILD_DIR: ci_build
+  DEPS_DIR: ${{ env.CMAKE_ENV_DEPS_DIR }}
+  CLANG_DIR: ci_build/clang
+  GCC_DIR: ci_build/gcc
+  CLANG_VER: 14
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    container:
+      image: registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.1.9
+      credentials:
+        username: ${{ secrets.rs_docker_registry_username }}
+        password: ${{ secrets.rs_docker_registry_password }}
+    env:
+      CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Cache CMake Build directories
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.BASE_BUILD_DIR }}
+          key: ${{ runner.os }}-CMakeFiles-
+          restore-keys: |
+            ${{ runner.os }}-CMakeFiles-
+      - name: Preparing build directories
+        run: |
+          mkdir -p ${DEPS_DIR}
+          mkdir -p ${CLANG_DIR}
+          mkdir -p ${GCC_DIR}
+      - name: Preparing CMake clang-${{ env.CLANG_VER }}
+        run: cmake -G "Ninja Multi-Config" -B${CLANG_DIR} -DCMAKE_C_COMPILER=clang-${CLANG_VER} -DCMAKE_CXX_COMPILER=clang++-${CLANG_VER} -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+      - name: Preparing CMake gcc
+        run: cmake -G "Ninja Multi-Config" -B${GCC_DIR} -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+
+  build-and-test:
+    name: ${{ matrix.name }} Build and Test
+    runs-on: ubuntu-latest
+    container:
+      image: registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.1.9
+      credentials:
+        username: ${{ secrets.rs_docker_registry_username }}
+        password: ${{ secrets.rs_docker_registry_password }}
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "Clang Debug"
+            build_dir: ci_build/clang #{{ env.CLANG_DIR}}
+            build_type: Debug
+          - name: "Clang RelWithDebInfo"
+            build_dir: ci_build/clang #{{ env.CLANG_DIR}}
+            build_type: RelWithDebInfo
+          - name: "Clang Address Sanitizer"
+            build_dir: ci_build/clang #{{ env.CLANG_DIR}}
+            build_type: Asan
+          - name: "Clang Thread Sanitizer"
+            build_dir: ci_build/clang #{{ env.CLANG_DIR}}
+            build_type: Tsan
+          - name: "Clang Undefined Behavior Sanitizer"
+            build_dir: ci_build/clang #{{ env.CLANG_DIR}}
+            build_type: Ubsan
+          - name: "GCC Debug"
+            build_dir: ci_build/gcc #{{ env.GCC_DIR}}
+            build_type: Debug
+          - name: "GCC RelWithDebInfo"
+            build_dir: ci_build/gcc #{{ env.GCC_DIR}}
+            build_type: RelWithDebInfo
+          - name: "GCC Coverage"
+            build_dir: ci_build/gcc #{{ env.GCC_DIR}}
+            build_type: Coverage
+    env:
+      BUILD_DIR: ${{ matrix.build_dir }}
+      BUILD_TYPE: ${{ matrix.build_type }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Cached CMake Build directories
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.BASE_BUILD_DIR }}
+          key: ${{ runner.os }}-CMakeFiles-
+          restore-keys: |
+            ${{ runner.os }}-CMakeFiles-
+      - name: Build ${{ matrix.build_type }} in ${{ matrix.build_dir }}
+        run: cmake --build ${BUILD_DIR} --config ${BUILD_TYPE} -- -k 10000
+      - name: Test ${{ matrix.build_type }} in ${{ matrix.build_dir }}
+        run: ctest --test-dir ${BUILD_DIR} -C ${BUILD_TYPE} --output-on-failure --output-junit ${BUILD_TYPE}_report.xml
+      - name: Coverage Report ${{ matrix.build_type }} in ${{ matrix.build_dir }}
+        if: ${{ matrix.build_type == 'Coverage' }} # Only perform for Coverage.
+        run: cmake --build ${BUILD_DIR} --config ${BUILD_TYPE} --target code-coverage
+      - name: Code Coverage Artifacts
+        if: ${{ matrix.build_type == 'Coverage' }} # Only perform for Coverage.
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-results
+          path: ${{ matrix.build_dir }}/code-coverage/
+      - name: Publish Test Report
+        if: ${{ always() }}
+        uses: mikepenz/action-junit-report@v2
+        with:
+          report_paths: "${{ matrix.build_dir }}/${{ matrix.build_type }}_report.xml"
+
+  analyze:
+    name: ${{ matrix.name }} Analysis
+    runs-on: ubuntu-latest
+    container:
+      image: registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.1.9
+      credentials:
+        username: ${{ secrets.rs_docker_registry_username }}
+        password: ${{ secrets.rs_docker_registry_password }}
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # - name: "ClangTidy"
+          #   build_dir: ci_build/clang #{{ env.CLANG_DIR}}
+          #   build_type: Debug
+          #   build_args: -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON
+          - name: "CppCheck"
+            build_dir: ci_build/gcc #{{ env.GCC_DIR}}
+            build_type: Debug
+            build_args: -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=OFF -DUSE_CPPCHECK=ON
+          - name: "CppLint"
+            build_dir: ci_build/gcc #{{ env.GCC_DIR}}
+            build_type: Debug
+            build_args: -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=OFF -DUSE_CPPLINT=ON
+    env:
+      BUILD_DIR: ${{ matrix.build_dir }}
+      BUILD_TYPE: ${{ matrix.build_type }}
+      CMAKE_BUILD_ARGS: ${{ matrix.build_args }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Cached CMake Build directories
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.BASE_BUILD_DIR }}
+          key: ${{ runner.os }}-CMakeFiles-
+          restore-keys: |
+            ${{ runner.os }}-CMakeFiles-
+      - name: Preparing clang-${{ env.CLANG_VER }}
+        run: cmake -G "Ninja Multi-Config" -B${CLANG_DIR} -DCMAKE_C_COMPILER=clang-${CLANG_VER} -DCMAKE_CXX_COMPILER=clang++-${CLANG_VER} -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+      # - name: Build ${{ matrix.build_type }} in ${{ matrix.build_dir }}
+      #   run: cmake --build ${BUILD_DIR} --config ${BUILD_TYPE} -- -k 10000
+      - name: Scan Build ${{ matrix.build_type }} in ${{ matrix.build_dir }}
+        run: scan-build-14 -o scan-build -k --status-bugs -internal-stats --keep-empty cmake --build ${BUILD_DIR} --config ${BUILD_TYPE}
+      - name: Scan Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.build_type }}-scan-results
+          path: ${{ matrix.build_dir }}/scan-build/

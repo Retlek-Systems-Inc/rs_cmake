@@ -34,6 +34,7 @@ MockTarget(
   TARGET  <target name to mock>
   SOURCES   <filename> [<filename> ...]
   [ DEPENDS_ON_TARGET ] - optional to allow mock to link to the target
+  [ USE_GMOCK_C ]       - optional when C Language is enabled to use GMOCK_C <cmock/cmock.h>
 )
 
 For INTERFACE targets DEPENDS_ON_TARGET is by default selected.
@@ -57,6 +58,10 @@ The following targets are defined by this module:
 
 function( MockTarget )
     set( _options DEPENDS_ON_TARGET )
+    get_property(_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
+    if ("C" IN_LIST _languages)
+        list(APPEND _options USE_GMOCK_C )
+    endif()
     set( _oneValueArgs TARGET )
     set( _multiValueArgs SOURCES )
     include( CMakeParseArguments )
@@ -94,13 +99,21 @@ function( MockTarget )
     # Include the local directory.
     target_include_directories( ${_target} PUBLIC . )
     
-    target_link_libraries( ${_target} PRIVATE GMock::GMock)
+    target_link_libraries( ${_target}
+        PRIVATE
+            GMock::GMock
+            $<$<BOOL:${_arg_USE_GMOCK_C}>:gmock_c>
+    )
 
     get_target_property( _target_type ${_arg_TARGET}  TYPE )
     if ((_target_type STREQUAL "INTERFACE_LIBRARY") OR _arg_DEPENDS_ON_TARGET)
         # For interface libraries can just link against the library.
         # Or if a mock of a DEPENDS_ON_TARGET - eg a mock of a CPP class which is inherited.
         message( STATUS "Mock ${_arg_TARGET} is dependent on target.")
+        target_link_libraries( ${_target}  PUBLIC ${_arg_TARGET} )
+    elseif ((_target_type MATCHES "SHARED_LIBRARY|OBJECT_LIBRARY") AND _arg_USE_GMOCK_C )
+        # For linked Dynamic libraries and using GMOCK_C - allows to use native library as well.
+        message( STATUS "Mock ${_arg_TARGET} is dynamic and using GMOCK_C, dependent on target.")
         target_link_libraries( ${_target}  PUBLIC ${_arg_TARGET} )
     else()
         # Note - Private options of mocked object should not be propagated since

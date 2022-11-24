@@ -22,39 +22,38 @@
 # Adds the necessary information for testing environment with googletest.
 # Note googletest/googlemock are down-loaded into the build dir and compiled as part
 # of the test environment from there.
-
-include(CodeCoverage)
-
-macro(setup_code_coverage_target)
-    # Create a code coverage target.
-    set(_coverageTarget code-coverage)
-    # Exclude standard and test framework environment builds.
-    list(APPEND COVERAGE_LCOV_EXCLUDES
-        '/usr/include/*'
-        '${googletest_SOURCE_DIR}/*'
-    )
-    message(STATUS "Coverage Excludes: ${COVERAGE_LCOV_EXCLUDES}")
-
-    SETUP_TARGET_FOR_COVERAGE_LCOV_HTML(
-        NAME ${_coverageTarget}
-        EXECUTABLE ctest
-        EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
-        LCOV_ARGS
-            --strip 1
-            --rc lcov_branch_coverage=1
-        GENHTML_ARGS
-            --rc genhtml_branch_coverage=1
-            --demangle-cpp
-            --prefix ${CMAKE_SOURCE_DIR}
-    )
-endmacro()
-
 if(BUILD_TEST)
-	#set(INSTALL_GTEST OFF)
+
+    include(CodeCoverage)
+
+    macro(setup_code_coverage_target)
+        # Create a code coverage target.
+        set(_coverageTarget code-coverage)
+        # Exclude standard and test framework environment builds.
+        list(APPEND COVERAGE_LCOV_EXCLUDES
+            '/usr/include/*'
+            '${googletest_SOURCE_DIR}/*'
+        )
+        message(STATUS "Coverage Excludes: ${COVERAGE_LCOV_EXCLUDES}")
+
+        SETUP_TARGET_FOR_COVERAGE_LCOV_HTML(
+            NAME ${_coverageTarget}
+            EXECUTABLE ctest
+            EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
+            LCOV_ARGS
+                --strip 1
+                --rc lcov_branch_coverage=1
+            GENHTML_ARGS
+                --rc genhtml_branch_coverage=1
+                --demangle-cpp
+                --prefix ${CMAKE_SOURCE_DIR}
+        )
+    endmacro()
+
     include(FetchContent)
     FetchContent_Declare( googletest
       GIT_REPOSITORY    https://github.com/google/googletest.git
-      GIT_TAG           release-1.11.0 #master - need latest
+      GIT_TAG           release-1.12.1
     )
 
     # Prevent overriding the parent project's compiler/linker
@@ -63,6 +62,7 @@ if(BUILD_TEST)
 
 
     FetchContent_MakeAvailable(googletest)
+
     # Add clang-tidy definition to include warnings/errors for googletest.
     # Clang-Tidy all file for gtest/gmock related code
     configure_file( "${CMAKE_CURRENT_LIST_DIR}/StaticAnalysis/.clang-tidy.all.in"
@@ -319,6 +319,22 @@ if(BUILD_TEST)
         -modernize-use-trailing-return-type
     )
 
+    #--------------------------------------------------------------------
+    # Simpler way of writing GMock instances for C headers.
+    get_property(_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
+    if ("C" IN_LIST _languages)
+        FetchContent_Declare( gmock_c
+            GIT_REPOSITORY    https://github.com/hjagodzinski/C-Mock.git
+            GIT_TAG           v0.4.0
+        )
+        FetchContent_GetProperties(gmock_c)
+        if(NOT gmock_c_POPULATED)
+            FetchContent_Populate(gmock_c)
+            configure_file(${CMAKE_CURRENT_LIST_DIR}/DefaultTest/gmock_c.cmake "${gmock_c_SOURCE_DIR}/CMakeLists.txt" COPYONLY)
+            add_subdirectory(${gmock_c_SOURCE_DIR} ${gmock_c_BINARY_DIR} EXCLUDE_FROM_ALL)
+        endif()
+    endif()
+
     enable_testing()
     add_definitions(-DBUILD_TEST)
     
@@ -328,5 +344,21 @@ if(BUILD_TEST)
         set(CTEST_BUILD_FLAGS -j${_numProcessors} -V)
         set(ctest_test_args ${ctest_test_args} PARALLEL_LEVEL ${_numProcessors})
     endif()
+else()
+
+    # Dummy coverage target
+    macro(setup_code_coverage_target)
+        # Create a code coverage target.
+        set(_coverageTarget code-coverage)
+
+        add_custom_target(
+            ${_coverageTarget}
+            COMMAND echo "No coverage when BUILD_TEST=OFF"
+            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+            DEPENDS ${Coverage_DEPENDENCIES}
+            COMMENT
+              "No coverage performed when BUILD_TEST=OFF"
+        )
+    endmacro()
 
 endif(BUILD_TEST)
