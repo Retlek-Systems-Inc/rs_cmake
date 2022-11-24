@@ -37,7 +37,7 @@ variables:
 
 #default image - TODO(phelter): Move to pre-generated docker image.
 default:
-  image: registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.1.3
+  image: registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.1.8
   before_script:
     # Subproject tools
     #    - apt -y install protobuf-compiler python-protobuf libprotobuf-dev
