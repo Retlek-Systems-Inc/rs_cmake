@@ -37,7 +37,7 @@ on:
 
 env:
   BASE_BUILD_DIR: ci_build
-  DEPS_DIR: ci_build/deps
+  DEPS_DIR: ${{ env.CMAKE_ENV_DEPS_DIR }}
   CLANG_DIR: ci_build/clang
   GCC_DIR: ci_build/gcc
   CLANG_VER: 14
@@ -46,7 +46,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/retleksystems/env/cmake/hw-dev:v0.1.8
+      image: registry.gitlab.com/retleksystems/env/cmake/hw-dev:v0.1.9
       credentials:
         username: ${{ secrets.rs_docker_registry_username }}
         password: ${{ secrets.rs_docker_registry_password }}
@@ -76,7 +76,7 @@ jobs:
     name: ${{ matrix.name }} Build and Test
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/retleksystems/env/cmake/hw-dev:v0.1.8
+      image: registry.gitlab.com/retleksystems/env/cmake/hw-dev:v0.1.9
       credentials:
         username: ${{ secrets.rs_docker_registry_username }}
         password: ${{ secrets.rs_docker_registry_password }}
@@ -128,7 +128,7 @@ jobs:
     name: ${{ matrix.name }} Analysis
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/retleksystems/env/cmake/hw-dev:v0.1.8
+      image: registry.gitlab.com/retleksystems/env/cmake/hw-dev:v0.1.9
       credentials:
         username: ${{ secrets.rs_docker_registry_username }}
         password: ${{ secrets.rs_docker_registry_password }}

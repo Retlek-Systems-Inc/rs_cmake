@@ -26,7 +26,7 @@
     "name": "Retlek Systems Inc. CMake Build Env",
     // Sets the run context to one level up instead of the .devcontainer folder.
     "context": "..",
-    // "image": "registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.1.8",
+    // "image": "registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.1.9",
     // Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
     "dockerFile": "../Dockerfile",
     "build": {
