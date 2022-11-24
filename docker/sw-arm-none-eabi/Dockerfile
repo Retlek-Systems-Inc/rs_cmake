@@ -44,6 +44,19 @@ RUN wget --progress=dot:giga https://developer.arm.com/-/media/Files/downloads/g
     && wget --progress=dot:giga https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz.asc \
     && md5sum --check gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz.asc \
     && mkdir -p /usr/local \
-    && tar -xJf gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz -C /usr/local
+    && tar -xJf gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz -C /usr/local \
+    && rm -f gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz
 
-WORKDIR /tmp
+ENV WORK_PATH=/tmp
+ENV CMAKE_ENV_DEPS_PATH=${WORK_PATH}/cmake_env_deps
+ENV CMAKE_ENV_BASE_PATH=${WORK_PATH}/base
+
+WORKDIR ${WORK_PATH}
+
+# Now create DEPS directory with pre-downloaded git repos
+RUN mkdir -p ${CMAKE_ENV_DEPS_PATH} \
+    && mkdir -p ${CMAKE_ENV_BASE_PATH}
+
+COPY base.cmake ${CMAKE_ENV_BASE_PATH}/CMakeLists.txt
+
+RUN  cmake -G "Ninja Multi-Config" -B./sw-base/build -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${CMAKE_ENV_DEPS_PATH} ${CMAKE_ENV_BASE_PATH}

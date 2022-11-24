@@ -67,27 +67,30 @@ RUN apt-get update -y \
 ARG REPO=https://github.com/verilator/verilator
 ARG SOURCE_COMMIT=v4.222
 
-WORKDIR /tmp
+ENV WORK_PATH=/tmp
+ENV CMAKE_ENV_DEPS_PATH=${WORK_PATH}/cmake_env_deps
+ENV CMAKE_ENV_BASE_PATH=${WORK_PATH}/base
+ARG CMAKE_ENV_VERILATOR_PATH=${WORK_PATH}/verilator
+
+WORKDIR ${WORK_PATH}
 
 # Add an exception for the linter, we want to cd here in one layer
 # to reduce the number of layers (and thereby size).
 # hadolint ignore=DL3003
-RUN git clone "${REPO}" verilator && \
-    cd verilator && \
-    git checkout "${SOURCE_COMMIT}" && \
-    autoconf && \
-    ./configure && \
-    make -j "$(nproc)" && \
-    make install && \
-    cd .. && \
-    rm -r verilator
-
-WORKDIR /tmp
+RUN git clone "${REPO}" ${CMAKE_ENV_VERILATOR_PATH} \
+    && cd ${CMAKE_ENV_VERILATOR_PATH} \
+    && git checkout "${SOURCE_COMMIT}" \
+    && autoconf \
+    && ./configure \
+    && make -j "$(nproc)" \
+    && make install \
+    && cd ${WORK_PATH} \
+    && rm -r ${CMAKE_ENV_VERILATOR_PATH}
 
 # Now create DEPS directory with pre-downloaded git repos
-RUN mkdir -p ./cmake_env_deps
-ENV CMAKE_ENV_DEPS_DIR=${cwd}/cmake_env_deps
-ENV CMAKE_ENV_DEPS_PATH=${cwd}/cmake_env_deps
-COPY ./hw-base.cmake ./hw-base/CMakeLists.txt
+RUN mkdir -p ${CMAKE_ENV_DEPS_PATH} \
+    && mkdir -p ${CMAKE_ENV_BASE_PATH}
 
-RUN  cmake -G "Ninja Multi-Config" -B./hw-base/build -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${CMAKE_ENV_DEPS_DIR} ./hw-base
+COPY base.cmake ${CMAKE_ENV_BASE_PATH}/CMakeLists.txt
+
+RUN  cmake -G "Ninja Multi-Config" -B./sw-base/build -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${CMAKE_ENV_DEPS_PATH} ${CMAKE_ENV_BASE_PATH}
