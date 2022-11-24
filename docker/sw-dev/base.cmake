@@ -13,7 +13,7 @@ include(FetchContent)
 # Native Environment
 
 option(BUILD_TEST      "Builds the tests"           ON)
-option(BUILD_DOC       "Builds the documentation"   ON)
+option(BUILD_DOC       "Builds the documentation"   OFF)
 option(STATIC_ANALYSIS "Use Static Analysis tools." ON)
 option(BUILD_BENCHMARK "Benchmark libs"             ON)
 

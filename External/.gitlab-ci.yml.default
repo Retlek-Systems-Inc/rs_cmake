@@ -31,7 +31,7 @@ stages:
 
 variables:
   BASE_BUILD_DIR: ci_build
-  DEPS_DIR: ${CMAKE_ENV_DEPS_DIR}
+  DEPS_DIR: ${CMAKE_ENV_DEPS_PATH}
   GCC_DIR: ${BASE_BUILD_DIR}/gcc
   CLANG_DIR: ${BASE_BUILD_DIR}/clang
 
