@@ -50,11 +50,10 @@ if(BUILD_TEST)
         )
     endmacro()
 
-	#set(INSTALL_GTEST OFF)
     include(FetchContent)
     FetchContent_Declare( googletest
       GIT_REPOSITORY    https://github.com/google/googletest.git
-      GIT_TAG           release-1.11.0 #master - need latest
+      GIT_TAG           release-1.12.1
     )
 
     # Prevent overriding the parent project's compiler/linker
@@ -63,6 +62,7 @@ if(BUILD_TEST)
 
 
     FetchContent_MakeAvailable(googletest)
+
     # Add clang-tidy definition to include warnings/errors for googletest.
     # Clang-Tidy all file for gtest/gmock related code
     configure_file( "${CMAKE_CURRENT_LIST_DIR}/StaticAnalysis/.clang-tidy.all.in"
@@ -318,6 +318,22 @@ if(BUILD_TEST)
         -llvmlibc-restrict-system-libc-headers
         -modernize-use-trailing-return-type
     )
+
+    #--------------------------------------------------------------------
+    # Simpler way of writing GMock instances for C headers.
+    get_property(_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
+    if ("C" IN_LIST _languages)
+        FetchContent_Declare( gmock_c
+            GIT_REPOSITORY    https://github.com/hjagodzinski/C-Mock.git
+            GIT_TAG           v0.4.0
+        )
+        FetchContent_GetProperties(gmock_c)
+        if(NOT gmock_c_POPULATED)
+            FetchContent_Populate(gmock_c)
+            configure_file(${CMAKE_CURRENT_LIST_DIR}/DefaultTest/gmock_c.cmake "${gmock_c_SOURCE_DIR}/CMakeLists.txt" COPYONLY)
+            add_subdirectory(${gmock_c_SOURCE_DIR} ${gmock_c_BINARY_DIR} EXCLUDE_FROM_ALL)
+        endif()
+    endif()
 
     enable_testing()
     add_definitions(-DBUILD_TEST)
