@@ -33,7 +33,7 @@ default:
   - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
   - >-
     /kaniko/executor
-    --context "${CI_PROJECT_DIR}"
+    --context "${CI_PROJECT_DIR}/docker/${DOCKER_IMAGE}"
     --dockerfile "${CI_PROJECT_DIR}/docker/${DOCKER_IMAGE}/Dockerfile"
     --destination "${CI_REGISTRY_IMAGE}/${DOCKER_IMAGE}:${CI_COMMIT_TAG}"
     --destination "${CI_REGISTRY_IMAGE}/${DOCKER_IMAGE}:latest"
@@ -66,7 +66,7 @@ sw-dev:build:
     refs:
       - tags
     changes:
-      - docker/sw-dev/Dockerfile
+      - docker/sw-dev/*
 
 hw-dev:build:
   stage: build
@@ -81,8 +81,8 @@ hw-dev:build:
     refs:
       - tags
     changes:
-      - docker/sw-dev/Dockerfile
-      - docker/hw-dev/Dockerfile
+      - docker/sw-dev/*
+      - docker/hw-dev/*
 
 sw-arm-none-eabi:build:
   stage: build
@@ -96,7 +96,7 @@ sw-arm-none-eabi:build:
     refs:
       - tags
     changes:
-      - docker/sw-arm-none-eabi/Dockerfile
+      - docker/sw-arm-none-eabi/*
 # docs:build:
 #   stage: build
 #   needs: ["sw-dev:build"]
