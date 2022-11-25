@@ -37,7 +37,7 @@ on:
 
 env:
   BASE_BUILD_DIR: ci_build
-  DEPS_DIR: ${{ env.CMAKE_ENV_DEPS_DIR }}
+  DEPS_DIR: ${{ env.CMAKE_ENV_DEPS_PATH }}
   CLANG_DIR: ci_build/clang
   GCC_DIR: ci_build/gcc
   CLANG_VER: 14
