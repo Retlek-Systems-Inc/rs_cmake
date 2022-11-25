@@ -58,5 +58,6 @@ RUN mkdir -p ${CMAKE_ENV_DEPS_PATH} \
     && mkdir -p ${CMAKE_ENV_BASE_PATH}
 
 COPY base.cmake ${CMAKE_ENV_BASE_PATH}/CMakeLists.txt
+COPY arm-none-eabi-gcc.toolchain.cmake ${CMAKE_ENV_BASE_PATH}/arm-none-eabi-gcc.toolchain.cmake
 
-RUN  cmake -G "Ninja Multi-Config" -B${CMAKE_ENV_BASE_PATH}/build --toolchain ${CMAKE_ENV_DEPS_PATH}/cmake-src/toolchain/arm-none-eabi-gcc.toolchain.cmake  -DFETCHCONTENT_BASE_DIR=${CMAKE_ENV_DEPS_PATH} ${CMAKE_ENV_BASE_PATH}
+RUN  cmake -G "Ninja Multi-Config" -B${CMAKE_ENV_BASE_PATH}/build --toolchain ${CMAKE_ENV_BASE_PATH}/arm-none-eabi-gcc.toolchain.cmake  -DFETCHCONTENT_BASE_DIR=${CMAKE_ENV_DEPS_PATH} ${CMAKE_ENV_BASE_PATH}
