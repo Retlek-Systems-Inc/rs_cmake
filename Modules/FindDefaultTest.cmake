@@ -324,7 +324,7 @@ if(BUILD_TEST)
     get_property(_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
     if ("C" IN_LIST _languages)
         FetchContent_Declare( gmock_c
-            GIT_REPOSITORY    git@github.com:Retlek-Systems-Inc/C-Mock.git
+            GIT_REPOSITORY    https://github.com/Retlek-Systems-Inc/C-Mock.git
             GIT_TAG           feature/cmake-and-interface-lib-support
         )
         FetchContent_MakeAvailable(gmock_c)
