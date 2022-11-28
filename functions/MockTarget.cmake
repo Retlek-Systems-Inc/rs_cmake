@@ -100,7 +100,7 @@ function( MockTarget )
     target_include_directories( ${_target} PUBLIC . )
     
     target_link_libraries( ${_target}
-        PRIVATE
+        PUBLIC
             GMock::GMock
             $<$<BOOL:${_arg_USE_GMOCK_C}>:gmock_c>
     )
