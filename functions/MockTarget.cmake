@@ -105,6 +105,13 @@ function( MockTarget )
             $<$<BOOL:${_arg_USE_GMOCK_C}>:gmock_c>
     )
 
+    if (_arg_USE_GMOCK_C)
+        target_clang_tidy_definitions( TARGET ${_target}
+            CHECKS
+                -readability-inconsistent-declaration-parameter-name
+        )
+    endif()
+
     get_target_property( _target_type ${_arg_TARGET}  TYPE )
     if ((_target_type STREQUAL "INTERFACE_LIBRARY") OR _arg_DEPENDS_ON_TARGET)
         # For interface libraries can just link against the library.
