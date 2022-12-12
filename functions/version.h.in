@@ -45,6 +45,6 @@ constexpr VersionInfo @_arg_VARIABLE@ =
     (@PROJECT_VERSION_MINOR@ + 0),   // Minor
     (@PROJECT_VERSION_PATCH@ + 0),   // Patch
     (@PROJECT_VERSION_TWEAK@ + 0),   // Tweak
-    (0x@GIT_HASH_ONLY@ + 0), // Git Hash
+    (0x0@GIT_HASH_ONLY@ + 0), // Git Hash
     (@BUILD_TIMESTAMP@),     // Build Timestamp.
 };

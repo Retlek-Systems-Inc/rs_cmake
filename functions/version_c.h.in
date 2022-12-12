@@ -46,6 +46,6 @@ static const VersionInfo_t @_arg_VARIABLE@ = {
     .minor          = (@PROJECT_VERSION_MINOR@+0),
     .patch          = (@PROJECT_VERSION_PATCH@+0),
     .tweak          = (@PROJECT_VERSION_TWEAK@+0),
-    .gitHash        = (0x@GIT_HASH_ONLY@+0),
+    .gitHash        = (0x0@GIT_HASH_ONLY@+0),
     .buildTimestamp = (@BUILD_TIMESTAMP@),
 };
