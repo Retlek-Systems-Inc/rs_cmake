@@ -328,6 +328,7 @@ if(BUILD_TEST)
             GIT_TAG           feature/cmake-and-interface-lib-support
         )
         FetchContent_MakeAvailable(gmock_c)
+        list(APPEND COVERAGE_LCOV_EXCLUDES '${gmock_c_SOURCE_DIR}/*' )
     endif()
 
     enable_testing()
