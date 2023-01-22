@@ -325,7 +325,7 @@ if(BUILD_TEST)
     if ("C" IN_LIST _languages)
         FetchContent_Declare( gmock_c
             GIT_REPOSITORY    https://github.com/Retlek-Systems-Inc/C-Mock.git
-            GIT_TAG           feature/cmake-and-interface-lib-support
+            GIT_TAG           v0.1.0
         )
         FetchContent_MakeAvailable(gmock_c)
         list(APPEND COVERAGE_LCOV_EXCLUDES '${gmock_c_SOURCE_DIR}/*' )
