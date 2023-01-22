@@ -21,8 +21,6 @@
 # SOFTWARE.
 
 # hadolint ignore=DL3007
-#FROM phelter/sw-dev:latest
-# hadolint ignore=DL3007
 FROM registry.gitlab.com/retleksystems/env/cmake/sw-dev:latest
 
 # Default gtkwave and verilator
