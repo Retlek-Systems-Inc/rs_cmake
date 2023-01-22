@@ -27,6 +27,7 @@
 #   FILENAME the filename(s) to generate - if not specified uses <PROJECT>_version.* as file name(s)
 #   VARIABLE the constant variable name to generate - if not specified uses <PROJECT>Version as variable
 #   OUTDIR output directory for resulting version information.
+#   LANGUAGE either CXX(C++17) or C.  If not specified pics the lowest denominiator of the project languages.
 #
 # Creates a structure containing all of the project version information for consumption.
 # The newly created files are <PROJECT>Version.h and <PROJECT>Version.cpp in the OUTDIR.
@@ -37,7 +38,7 @@ set(_CreateVersion_DIR ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
 function(CreateVersion)
     
     set( _options )
-    set( _oneValueArgs PROJECT TARGET FILENAME VARIABLE OUTDIR )
+    set( _oneValueArgs PROJECT TARGET FILENAME VARIABLE OUTDIR LANGUAGE )
     set( _multiValueArgs )
     include( CMakeParseArguments )
     cmake_parse_arguments( "_arg" "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN} )
@@ -73,7 +74,21 @@ function(CreateVersion)
 
     GitHash()    
     string(TIMESTAMP BUILD_TIMESTAMP "%s")
-    configure_file("${_CreateVersion_DIR}/version.h.in"   "${_hdr}" @ONLY )
+
+    if( NOT _arg_LANGUAGE )
+        get_property(_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
+        if ("C" IN_LIST _languages)
+            set(_arg_LANGUAGE "C")
+        else()
+            set(arg_LANGUAGE "CXX")
+        endif()
+    endif()
+
+    if (_arg_LANGUAGE STREQUAL "C")
+        configure_file("${_CreateVersion_DIR}/version_c.h.in"   "${_hdr}" @ONLY )
+    else()
+        configure_file("${_CreateVersion_DIR}/version.h.in"   "${_hdr}" @ONLY )
+    endif()
 
     add_library(${_arg_TARGET} INTERFACE ${_hdr})
     target_include_directories(${_arg_TARGET}

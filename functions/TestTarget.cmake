@@ -177,8 +177,9 @@ function( TestTarget )
 	    target_link_libraries( ${_target}
 	        PRIVATE
 	          ${_framework_libs}
-	          ${_mock_libs}
 	          ${_arg_TARGET}
+              # Note: Care must be taken here - these have to be last.
+	          ${_mock_libs}
 	          ${_arg_LINK_LIBRARY}
 	    )
 	else()
@@ -209,8 +210,9 @@ function( TestTarget )
 	    target_link_libraries( ${_target}
 	        PRIVATE
 	          ${_framework_libs}
-	          ${_mock_libs}
 	          $<TARGET_LINKER_FILE:${_arg_TARGET}>
+              # Note: Care must be taken here - these have to be last.
+	          ${_mock_libs}
 	          ${_arg_LINK_LIBRARY}
 	    )
 	endif()

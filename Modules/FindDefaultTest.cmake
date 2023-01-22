@@ -324,15 +324,11 @@ if(BUILD_TEST)
     get_property(_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
     if ("C" IN_LIST _languages)
         FetchContent_Declare( gmock_c
-            GIT_REPOSITORY    https://github.com/hjagodzinski/C-Mock.git
-            GIT_TAG           v0.4.0
+            GIT_REPOSITORY    https://github.com/Retlek-Systems-Inc/C-Mock.git
+            GIT_TAG           feature/cmake-and-interface-lib-support
         )
-        FetchContent_GetProperties(gmock_c)
-        if(NOT gmock_c_POPULATED)
-            FetchContent_Populate(gmock_c)
-            configure_file(${CMAKE_CURRENT_LIST_DIR}/DefaultTest/gmock_c.cmake "${gmock_c_SOURCE_DIR}/CMakeLists.txt" COPYONLY)
-            add_subdirectory(${gmock_c_SOURCE_DIR} ${gmock_c_BINARY_DIR} EXCLUDE_FROM_ALL)
-        endif()
+        FetchContent_MakeAvailable(gmock_c)
+        list(APPEND COVERAGE_LCOV_EXCLUDES '${gmock_c_SOURCE_DIR}/*' )
     endif()
 
     enable_testing()

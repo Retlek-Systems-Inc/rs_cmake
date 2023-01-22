@@ -22,29 +22,32 @@
 
 #pragma once
 
-#include <string_view>
+#include <stdint.h>
+
+#define VERSION_SIZE (32) ///< System Firmware Settings
 
 /// Version Information
 /// All of the relevant version information associated with this project @_project@
-struct VersionInfo
+// NOLINTNEXTLINE(altera-struct-pack-align)
+typedef struct VersionInfo_s
 {
-    std::string_view version; ///< A string representation of the version <Major>.<Minor>.<Patch>.<Tweak>
-    uint32_t major;          ///< Major version number
-    uint32_t minor;          ///< Minor version number
-    uint32_t patch;          ///< Patch version number
-    uint32_t tweak;          ///< Tweak version number
-    uint32_t gitHash;        ///< Git hash value - the short version of the git hash (if available).
-    uint64_t buildTimestamp; ///< The build timestamp date of creation. Unix Time (Seconds since midnight (UTC) 1-Jan-1970 )
-};
+    uint64_t buildTimestamp; ///< The build timestamp date of creation.
+    //  Unix Time (Seconds since midnight (UTC) 1-Jan-1970 )
+    uint32_t major;                 ///< Major version number
+    uint32_t minor;                 ///< Minor version number
+    uint32_t patch;                 ///< Patch version number
+    uint32_t tweak;                 ///< Tweak version number
+    uint32_t gitHash;               ///< Git hash value - the short version of the git hash (if available).
+    char     version[VERSION_SIZE]; ///< A string representation of the version <Major>.<Minor>.<Patch>.<Tweak>
+} VersionInfo_t;
 
 /// The Project `@_arg_PROJECT@` definition of Version Information.
-constexpr VersionInfo @_arg_VARIABLE@ = 
-{
-    "@PROJECT_VERSION@",             // Version
-    (@PROJECT_VERSION_MAJOR@ + 0),   // Major
-    (@PROJECT_VERSION_MINOR@ + 0),   // Minor
-    (@PROJECT_VERSION_PATCH@ + 0),   // Patch
-    (@PROJECT_VERSION_TWEAK@ + 0),   // Tweak
-    (0x0@GIT_HASH_ONLY@ + 0), // Git Hash
-    (@BUILD_TIMESTAMP@),     // Build Timestamp.
+static const VersionInfo_t @_arg_VARIABLE@ = {
+    .buildTimestamp = (@BUILD_TIMESTAMP@),
+    .major          = (@PROJECT_VERSION_MAJOR@ +0),
+    .minor          = (@PROJECT_VERSION_MINOR@ +0),
+    .patch          = (@PROJECT_VERSION_PATCH@ +0),
+    .tweak          = (@PROJECT_VERSION_TWEAK@ +0),
+    .gitHash        = (0x0@GIT_HASH_ONLY@ +0),
+    .version        = "@PROJECT_VERSION@",
 };
