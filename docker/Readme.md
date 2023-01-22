@@ -11,3 +11,8 @@ common dependent projects.
 ## Rebuilding
 
 Taken care of by gitlab-ci - when a new tag is generated.
+
+## ESP-IDF environment(s)
+
+The esp-idf environment is an install of the esp-idf (version) tools and code on top of the base sw-dev docker image.
+There are slight modifications to the [ESP-IDF docker files](https://github.com/espressif/esp-idf/blob/v4.4.3/tools/docker).

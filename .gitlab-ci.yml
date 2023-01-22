@@ -46,6 +46,7 @@ lint_dockerfiles:lint:
     - hadolint docker/sw-dev/Dockerfile
     - hadolint docker/hw-dev/Dockerfile
     - hadolint docker/sw-arm-none-eabi/Dockerfile
+    - hadolint docker/sw-esp-idf-v4.4.3/Dockerfile
     - hadolint docker/docs/Dockerfile
   only:
     refs:
@@ -112,3 +113,19 @@ sw-arm-none-eabi:build:
 #     changes:
 #       - docker/sw-dev/Dockerfile
 #       - docker/docs/DockerFile
+
+sw-esp-idf-v4.4.3:build:
+  stage: build
+  needs: ["sw-dev:build"]
+  inherit:
+    default: [image]
+  variables:
+    DOCKER_IMAGE: sw-esp-idf-v4.4.3
+  script:
+    - *common_build_docker
+  only:
+    refs:
+      - tags
+    changes:
+      - docker/sw-dev/*
+      - docker/sw-esp-idf-v4.4.3/*
