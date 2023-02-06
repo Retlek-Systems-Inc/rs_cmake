@@ -105,6 +105,7 @@ if( BUILD_BENCHMARK )
         -modernize-use-using
         -readability-container-size-empty
         -readability-function-cognitive-complexity
+        -readability-identifier-length
         -readability-implicit-bool-conversion
         -readability-inconsistent-declaration-parameter-name
         -readability-qualified-auto
