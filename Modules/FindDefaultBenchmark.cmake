@@ -70,12 +70,14 @@ if( BUILD_BENCHMARK )
         -*-use-emplace
         -*-use-equals-default
         -*-vararg
+        -abseil-string-find-startswith
         -altera-id-dependent-backward-branch
         -altera-struct-pack-align
         -altera-unroll-loops
         -bugprone-easily-swappable-parameters
         -bugprone-implicit-widening-of-multiplication-result
         -cert-dcl50-cpp
+        -cert-err33-c
         -cert-err58-cpp
         -concurrency-mt-unsafe
         -cppcoreguidelines-avoid-non-const-global-variables
@@ -87,6 +89,7 @@ if( BUILD_BENCHMARK )
         -fuchsia-default-arguments-declarations
         -fuchsia-statically-constructed-objects
         -google-build-using-namespace
+        -google-readability-casting
         -google-readability-todo
         -google-runtime-int
         -hicpp
@@ -94,6 +97,7 @@ if( BUILD_BENCHMARK )
         -hicpp-no-array-decay
         -hicpp-signed-bitwise
         -llvm-namespace-comment
+        -llvm-qualified-auto
         -llvmlibc-callee-namespace
         -llvmlibc-implementation-in-namespace
         -llvmlibc-restrict-system-libc-headers
@@ -104,7 +108,9 @@ if( BUILD_BENCHMARK )
         -modernize-use-trailing-return-type
         -modernize-use-using
         -readability-container-size-empty
+        -readability-duplicate-include
         -readability-function-cognitive-complexity
+        -readability-identifier-length
         -readability-implicit-bool-conversion
         -readability-inconsistent-declaration-parameter-name
         -readability-qualified-auto
@@ -117,6 +123,11 @@ if( BUILD_BENCHMARK )
 
   target_clang_tidy_definitions( TARGET benchmark_main
     CHECKS
+      -*-array-to-pointer-decay
+      -*-avoid-c-arrays
+      -*-named-parameter
+      -fuchsia-default-arguments-calls
+      -hicpp-no-array-decay
       -llvmlibc-callee-namespace
       -llvmlibc-implementation-in-namespace
       -modernize-use-trailing-return-type
