@@ -297,63 +297,50 @@ function(RSVerilate TARGET)
   target_compile_features( ${TARGET} PRIVATE cxx_std_11)
 
   target_compile_options( ${TARGET}
+    PUBLIC
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-inconsistent-missing-destructor-override>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-suggest-destructor-override>
     PRIVATE
-      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-gnu-anonymous-struct>
-      $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-bool-operation>
-      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-parentheses-equality>
-      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-const-variable>
-      $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-unused-but-set-variable>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-prototypes>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unreachable-code>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-used-but-marked-unused>
   )
 
   target_clang_tidy_definitions( TARGET ${TARGET}
     CHECKS
       -*-braces-around-statements
-      -*-else-after-return
-      -*-function-size
-      -*-named-parameter
       -*-magic-numbers
-      -*-member-init
       -*-narrowing-conversions
+      -*-static-assert
       -*-use-auto
       -*-use-equals-default
       -*-use-override
-      -altera-id-dependent-backward-branch
-      -altera-struct-pack-align
       -altera-unroll-loops
-      -bugprone-branch-clone
-      -bugprone-easily-swappable-parameters
+      -bugprone-exception-escape
       -bugprone-reserved-identifier
       -cert-dcl37-c
       -cert-dcl51-cpp
-      -clang-analyzer-core.uninitialized.Assign
+      -cert-dcl03-c
       -clang-analyzer-deadcode.DeadStores
-      -cppcoreguidelines-avoid-non-const-global-variables
-      -cppcoreguidelines-c-copy-assignment-signature
       -cppcoreguidelines-explicit-virtual-functions
       -cppcoreguidelines-init-variables
-      -cppcoreguidelines-pro-bounds-constant-array-index
-      -cppcoreguidelines-pro-type-const-cast
-      -cppcoreguidelines-pro-type-union-access
+      -cppcoreguidelines-prefer-member-initializer
+      -cppcoreguidelines-pro-type-member-init,hicpp-member-init
+      -cppcoreguidelines-virtual-class-destructor
       -google-explicit-constructor
       -google-readability-casting
       -hicpp-explicit-conversions
-      -hicpp-no-assembler
-      -hicpp-noexcept-move
+      -hicpp-member-init
       -llvm-include-order
-      -misc-redundant-expression
-      -misc-unconventional-assign-operator
-      -modernize-use-bool-literals
+      -modernize-concat-nested-namespaces
+      -modernize-make-unique
       -modernize-use-nodiscard
-      -performance-noexcept-move-constructor
-      -readability-avoid-const-params-in-decls
+      -readability-convert-member-functions-to-static
       -readability-function-cognitive-complexity
+      -readability-identifier-length
       -readability-implicit-bool-conversion
       -readability-inconsistent-declaration-parameter-name
-      -readability-make-member-function-const
-      -readability-redundant-access-specifiers
-      -readability-redundant-declaration
       -readability-simplify-boolean-expr
-      -readability-static-accessed-through-instance
   )
 
   # Add target to GenerateVerilatedCode custom target.
@@ -363,3 +350,33 @@ function(RSVerilate TARGET)
   add_dependencies(GenerateVerilatedCode ${TARGET})
 
 endfunction()
+
+function(RSVerilateUsedBy TARGET)
+  cmake_parse_arguments(VERILATE ""
+                                 ""
+                                 ""
+                                 ${ARGN})
+  if (NOT TARGET ${TARGET})
+    message(FATAL_ERROR "rs_verilate target '${TARGET}' not found")
+  endif()
+
+  # Issues in header files generated.
+  target_clang_tidy_definitions( TARGET ${TARGET}
+    CHECKS
+      -*-use-override
+      -*-move-const-arg
+      -bugprone-exception-escape
+      -bugprone-reserved-identifier
+      -cert-dcl37-c
+      -cert-dcl51-cpp
+      -cppcoreguidelines-explicit-virtual-functions
+      -cppcoreguidelines-prefer-member-initializer
+      -cppcoreguidelines-virtual-class-destructor
+      -google-explicit-constructor
+      -hicpp-explicit-conversions
+      -llvm-include-order
+      -modernize-concat-nested-namespaces
+      -modernize-use-nodiscard
+  )
+endfunction()
+
