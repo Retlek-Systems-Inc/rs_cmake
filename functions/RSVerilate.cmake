@@ -24,7 +24,7 @@ RSVerilate
 ----------------
 
 Creates a verilated target from verilog and c code.
-Based off of: https://github.com/verilator/verilator/blob/v4.222/verilator-config.cmake.in
+Based off of: https://github.com/verilator/verilator/blob/v5.006/verilator-config.cmake.in
 And fixes following issues:
 * Ability to run verilator at the build stage and not the generate stage of cmake
   * Remove need to consume a local cmake file in the generated directory
@@ -66,7 +66,6 @@ External Variables :
   In FindVerilogTest which uses these for Verilator::base
    VERILATOR_COVERAGE - enable Coverage
    VERILATOR_SYSTEMC - enable SystemC
-   VERILATOR_THREADED - enable threads
    VERILATOR_TRACE_VCD - enable for trace via VCD
    VERILATOR_TRACE_FST - enable for trace via FST
 #]=======================================================================]
@@ -110,17 +109,6 @@ function(RSVerilate TARGET)
 
   if (VERILATE_TOP_MODULE)
     list(APPEND VERILATOR_ARGS --top ${VERILATE_TOP_MODULE})
-  endif()
-
-  if (VERILATOR_THREADED)
-    if (VERILATE_THREADS LESS 2)
-      message(WARNING "Number of Threads < 2 when enabled, using 2")
-      list(APPEND VERILATOR_ARGS --threads 2)
-    else()
-      list(APPEND VERILATOR_ARGS --threads ${VERILATE_THREADS})
-    endif()
-  elseif (NOT VERILATOR_THREADED AND (VERILATE_THREADS GREATER 1))
-    message(WARNING "Threads not enabled but threads > 1, ingoring THREADS")
   endif()
 
   if (VERILATE_TRACE_THREADS)
@@ -196,9 +184,6 @@ function(RSVerilate TARGET)
   endif()
   if (NOT VERILATOR_SYSTEMC AND ("--sc" IN_LIST VERILATOR_COMMAND_ARGS))
     message(FATAL_ERROR "SystemC added in verilate args when not enabled")
-  endif()
-  if (NOT VERILATOR_THREADED AND ("--threads" IN_LIST VERILATOR_COMMAND_ARGS))
-    message(FATAL_ERROR "Threads added in verilate args when not enabled")
   endif()
   if (NOT VERILATOR_TRACE_VCD AND ("--trace" IN_LIST VERILATOR_COMMAND_ARGS))
     message(FATAL_ERROR "trace (VCD) added in verilate args when not enabled")

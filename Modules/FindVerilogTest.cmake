@@ -22,7 +22,7 @@
 
 # Currently using verilator for testing.
 if (VERILOG_TEST)
-    find_package(verilator 4.222 REQUIRED
+    find_package(verilator 5.006 REQUIRED
         HINTS
         /usr/local
         $ENV{VERILATOR_ROOT}
@@ -36,7 +36,6 @@ if (VERILOG_TEST)
 
     option(VERILATOR_COVERAGE  "Enable Coverage" ON)
     option(VERILATOR_SYSTEMC   "Enable System C" OFF)
-    option(VERILATOR_THREADED  "Enable Threads"  OFF)
     option(VERILATOR_TRACE_VCD "Enable Trace VCD" ON)
     option(VERILATOR_TRACE_FST "Enable Trace FST" OFF)
 
@@ -68,18 +67,22 @@ if (VERILOG_TEST)
             ${_inc_dir}/verilated_heavy.h
             ${_inc_dir}/verilated_imp.h
             ${_inc_dir}/verilated_intrinsics.h
-            #${_inc_dir}/verilated_profiler.cpp
-            #${_inc_dir}/verilated_profiler.h
+            ${_inc_dir}/verilated_probdist.cpp
+            ${_inc_dir}/verilated_profiler.cpp
+            ${_inc_dir}/verilated_profiler.h
             ${_inc_dir}/verilated_save.cpp
             ${_inc_dir}/verilated_save.h
             $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_sc.h>
+            #${_inc_dir}/verilated_std.sv
             ${_inc_dir}/verilated_sym_props.h
             ${_inc_dir}/verilated_syms.h
-            $<$<BOOL:${VERILATOR_THREADED}>:${_inc_dir}/verilated_threads.cpp>
-            $<$<BOOL:${VERILATOR_THREADED}>:${_inc_dir}/verilated_threads.h>
+            ${_inc_dir}/verilated_threads.cpp
+            ${_inc_dir}/verilated_threads.h
+            ${_inc_dir}/verilated_timing.cpp
+            ${_inc_dir}/verilated_timing.h
             ${_inc_dir}/verilated_trace.h
             ${_inc_dir}/verilated_trace_defs.h
-            #${_inc_dir}/verilated_trace_imp.cpp
+            ${_inc_dir}/verilated_trace_imp.cpp
             ${_inc_dir}/verilated_types.h
             ${_inc_dir}/verilated_vcd_c.cpp
             ${_inc_dir}/verilated_vcd_c.h
@@ -88,6 +91,19 @@ if (VERILOG_TEST)
             ${_inc_dir}/verilated_vpi.cpp
             ${_inc_dir}/verilated_vpi.h
             ${_inc_dir}/verilatedos.h
+
+            ${_inc_dir}/gtkwave/fastlz.c
+            ${_inc_dir}/gtkwave/fastlz.h
+            ${_inc_dir}/gtkwave/fst_config.h
+            ${_inc_dir}/gtkwave/fst_win_unistd.h
+            ${_inc_dir}/gtkwave/fstapi.c
+            ${_inc_dir}/gtkwave/fstapi.h
+            ${_inc_dir}/gtkwave/lz4.c
+            ${_inc_dir}/gtkwave/lz4.h
+            ${_inc_dir}/gtkwave/wavealloca.h
+
+            ${_inc_dir}/vltstd/svdpi.h
+            ${_inc_dir}/vltstd/vpi_user.h
         )
 
         # Verilator Base defines the COVERAGE, SC, TRACE and VCD/FST values
@@ -96,7 +112,6 @@ if (VERILOG_TEST)
           PUBLIC
             VM_COVERAGE=$<BOOL:${VERILATOR_COVERAGE}> # TODO: use if ifdef with this in code - bad.
             VM_SC=$<BOOL:${VERILATOR_SYSTEMC}>
-            $<$<BOOL: ${VERILATOR_THREADED}>:VL_THREADED>
             VM_TRACE=$<OR:$<BOOL: ${VERILATOR_TRACE_VCD}>, $<BOOL:${VERILATOR_TRACE_FST}>>
             VM_TRACE_VCD=$<BOOL: ${VERILATOR_TRACE_VCD}>
             VM_TRACE_FST=$<BOOL: ${VERILATOR_TRACE_FST}>
@@ -150,7 +165,7 @@ if (VERILOG_TEST)
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-macros>
         )
 
-        target_include_directories( verilator_base
+        target_include_directories( verilator_base SYSTEM
           PUBLIC
             ${_inc_dir}
             ${_inc_dir}/gtkwave
@@ -207,15 +222,13 @@ if (VERILOG_TEST)
               -readability-redundant-access-specifiers
         )
 
-        if (VERILATOR_THREADED)
-          set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-          find_package(Threads REQUIRED)
-        endif()
+        set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+        find_package(Threads REQUIRED)
 
         target_link_libraries( verilator_base
-            PUBLIC
-            $<$<BOOL:${VERILATOR_THREADED}>:-mt>
-            $<$<BOOL:${VERILATOR_THREADED}>:Threads::Threads>
+          PUBLIC
+            -mt
+            Threads::Threads
             atomic # For some reason missing __atomic_is_lock_free definition.
         )
 
