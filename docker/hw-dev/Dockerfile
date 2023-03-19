@@ -52,6 +52,7 @@ RUN apt-get update -y \
         bc \
         bison \
         flex \
+        help2man \
         libfl2 \
         libfl-dev \
         zlib1g \
@@ -61,29 +62,47 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-# Using version 4.222
-ARG REPO=https://github.com/verilator/verilator
-ARG SOURCE_COMMIT=v4.222
+# Using version v5.006
+ARG VERILATOR_REPO=https://github.com/verilator/verilator
+ARG VERILATOR_COMMIT=v5.006
+
+ARG SLANG_REPO=https://github.com/MikePopoloski/slang.git
+ARG SLANG_COMMIT=v2.0
 
 ENV WORK_PATH=/tmp
 ENV CMAKE_ENV_DEPS_PATH=${WORK_PATH}/cmake_env_deps
 ENV CMAKE_ENV_BASE_PATH=${WORK_PATH}/base
 ARG CMAKE_ENV_VERILATOR_PATH=${WORK_PATH}/verilator
 
+ARG CMAKE_ENV_SLANG_PATH=${WORK_PATH}/slang
+
+
 WORKDIR ${WORK_PATH}
 
 # Add an exception for the linter, we want to cd here in one layer
 # to reduce the number of layers (and thereby size).
 # hadolint ignore=DL3003
-RUN git clone "${REPO}" ${CMAKE_ENV_VERILATOR_PATH} \
+RUN git clone "${VERILATOR_REPO}" ${CMAKE_ENV_VERILATOR_PATH} \
     && cd ${CMAKE_ENV_VERILATOR_PATH} \
-    && git checkout "${SOURCE_COMMIT}" \
+    && git checkout "${VERILATOR_COMMIT}" \
     && autoconf \
     && ./configure \
     && make -j "$(nproc)" \
     && make install \
     && cd ${WORK_PATH} \
     && rm -r ${CMAKE_ENV_VERILATOR_PATH}
+
+
+# Add an exception for the linter, we want to cd here in one layer
+# to reduce the number of layers (and thereby size).
+# hadolint ignore=DL3003
+RUN git clone "${SLANG_REPO}" ${CMAKE_ENV_SLANG_PATH} \
+    && cd ${CMAKE_ENV_SLANG_PATH} \
+    && git checkout "${SLANG_COMMIT}" \
+    && cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release . \
+    && cmake --build build \
+    && cmake --install build --strip \
+    && rm -r ${CMAKE_ENV_SLANG_PATH}
 
 # Now create DEPS directory with pre-downloaded git repos
 RUN mkdir -p ${CMAKE_ENV_DEPS_PATH} \

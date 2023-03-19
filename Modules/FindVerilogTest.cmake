@@ -22,7 +22,7 @@
 
 # Currently using verilator for testing.
 if (VERILOG_TEST)
-    find_package(verilator 4.222 REQUIRED
+    find_package(verilator 5.006 REQUIRED
         HINTS
         /usr/local
         $ENV{VERILATOR_ROOT}
@@ -36,194 +36,8 @@ if (VERILOG_TEST)
 
     option(VERILATOR_COVERAGE  "Enable Coverage" ON)
     option(VERILATOR_SYSTEMC   "Enable System C" OFF)
-    option(VERILATOR_THREADED  "Enable Threads"  OFF)
     option(VERILATOR_TRACE_VCD "Enable Trace VCD" ON)
     option(VERILATOR_TRACE_FST "Enable Trace FST" OFF)
-
-    # Note: RSVerilate.cmake in functions used for change of verilate function.
-
-    if (NOT TARGET Verilator::base)
-        # -----------------------------------------------------------------------------
-        add_library(verilator_base STATIC)
-        add_library(Verilator::base ALIAS verilator_base)
-
-        set (_inc_dir ${verilator_DIR}/include)
-        target_sources( verilator_base
-          PRIVATE
-            $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated.cpp>
-            $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated.h>
-            #${_inc_dir}/verilated.v
-            ${_inc_dir}/verilated_config.h
-            #${_inc_dir}/verilated_config.h.in
-            ${_inc_dir}/verilated_cov.cpp
-            ${_inc_dir}/verilated_cov.h
-            ${_inc_dir}/verilated_cov_key.h
-            ${_inc_dir}/verilated_dpi.cpp
-            ${_inc_dir}/verilated_dpi.h
-            $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated_fst_c.cpp>
-            $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated_fst_c.h>
-            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_fst_sc.cpp>
-            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_fst_sc.h>
-            ${_inc_dir}/verilated_funcs.h
-            ${_inc_dir}/verilated_heavy.h
-            ${_inc_dir}/verilated_imp.h
-            ${_inc_dir}/verilated_intrinsics.h
-            #${_inc_dir}/verilated_profiler.cpp
-            #${_inc_dir}/verilated_profiler.h
-            ${_inc_dir}/verilated_save.cpp
-            ${_inc_dir}/verilated_save.h
-            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_sc.h>
-            ${_inc_dir}/verilated_sym_props.h
-            ${_inc_dir}/verilated_syms.h
-            $<$<BOOL:${VERILATOR_THREADED}>:${_inc_dir}/verilated_threads.cpp>
-            $<$<BOOL:${VERILATOR_THREADED}>:${_inc_dir}/verilated_threads.h>
-            ${_inc_dir}/verilated_trace.h
-            ${_inc_dir}/verilated_trace_defs.h
-            #${_inc_dir}/verilated_trace_imp.cpp
-            ${_inc_dir}/verilated_types.h
-            ${_inc_dir}/verilated_vcd_c.cpp
-            ${_inc_dir}/verilated_vcd_c.h
-            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_vcd_sc.cpp>
-            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_vcd_sc.h>
-            ${_inc_dir}/verilated_vpi.cpp
-            ${_inc_dir}/verilated_vpi.h
-            ${_inc_dir}/verilatedos.h
-        )
-
-        # Verilator Base defines the COVERAGE, SC, TRACE and VCD/FST values
-        # for everything that includes it.
-        target_compile_definitions( verilator_base
-          PUBLIC
-            VM_COVERAGE=$<BOOL:${VERILATOR_COVERAGE}> # TODO: use if ifdef with this in code - bad.
-            VM_SC=$<BOOL:${VERILATOR_SYSTEMC}>
-            $<$<BOOL: ${VERILATOR_THREADED}>:VL_THREADED>
-            VM_TRACE=$<OR:$<BOOL: ${VERILATOR_TRACE_VCD}>, $<BOOL:${VERILATOR_TRACE_FST}>>
-            VM_TRACE_VCD=$<BOOL: ${VERILATOR_TRACE_VCD}>
-            VM_TRACE_FST=$<BOOL: ${VERILATOR_TRACE_FST}>
-        )
-
-        target_compile_options( verilator_base
-          PUBLIC
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-padded>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-sign-conversion>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-reserved-identifier>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-old-style-cast>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-cast-qual>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shorten-64-to-32>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-implicit-int-conversion>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-implicit-fallthrough>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-thread-safety-negative>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-zero-as-null-pointer-constant>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shift-sign-overflow>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-deprecated-copy-with-dtor>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-undefined-reinterpret-cast>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-float-equal>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-non-virtual-dtor>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-weak-vtables>
-            # Note following are in both private and generated code - putting here to include.
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-exit-time-destructors>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-suggest-destructor-override>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-thread-safety-attributes>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-thread-safety-analysis>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-used-but-marked-unused>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unreachable-code>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-prototypes>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-noreturn>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-format-nonliteral>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-double-promotion>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-format-pedantic>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-switch-enum>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-implicit-int-float-conversion>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-global-constructors>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-conditional-uninitialized>
-
-            $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-aligned-new>
-            # Note following are in generated code - putting here to include.
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-over-aligned>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-undefined-func-template>
-          PRIVATE
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-covered-switch-default>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-cast-align>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-extra-semi-stmt>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shadow>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-const-variable>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-macros>
-        )
-
-        target_include_directories( verilator_base
-          PUBLIC
-            ${_inc_dir}
-            ${_inc_dir}/gtkwave
-            ${_inc_dir}/vltstd
-        )
-        unset(_inc_dir)
-
-        target_clang_tidy_definitions(TARGET verilator_base
-            CHECKS
-              -*-braces-around-statements
-              -*-else-after-return
-              -*-magic-numbers
-              -*-named-parameter
-              -*-narrowing-conversions
-              -*-use-auto
-              -*-use-equals-default
-              -*-use-override
-              -altera-id-dependent-backward-branch
-              -altera-struct-pack-align
-              -altera-unroll-loops
-              -bugprone-easily-swappable-parameters
-              -bugprone-reserved-identifier
-              -cert-dcl37-c
-              -cert-dcl51-cpp
-              -clang-analyzer-core.CallAndMessage
-              -clang-analyzer-core.NonNullParamChecker
-              -clang-analyzer-core.NullDereference
-              -clang-analyzer-core.UndefinedBinaryOperatorResult
-              -clang-analyzer-optin.cplusplus.UninitializedObject
-              -clang-analyzer-optin.portability.UnixAPI
-              -clang-analyzer-security.insecureAPI.strcpy
-              -cppcoreguidelines-avoid-non-const-global-variables
-              -cppcoreguidelines-c-copy-assignment-signature
-              -cppcoreguidelines-explicit-virtual-functions
-              -cppcoreguidelines-init-variables
-              -cppcoreguidelines-pro-bounds-constant-array-index
-              -cppcoreguidelines-pro-type-const-cast
-              -cppcoreguidelines-pro-type-member-init
-              -cppcoreguidelines-pro-type-union-access
-              -cppcoreguidelines-virtual-class-destructor
-              -google-explicit-constructor
-              -google-readability-casting
-              -hicpp-explicit-conversions
-              -hicpp-member-init
-              -hicpp-noexcept-move
-              -llvm-include-order
-              -misc-unconventional-assign-operator
-              -modernize-use-nodiscard
-              -performance-noexcept-move-constructor
-              -readability-avoid-const-params-in-decls
-              -readability-identifier-length
-              -readability-implicit-bool-conversion
-              -readability-make-member-function-const
-              -readability-redundant-access-specifiers
-        )
-
-        if (VERILATOR_THREADED)
-          set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-          find_package(Threads REQUIRED)
-        endif()
-
-        target_link_libraries( verilator_base
-            PUBLIC
-            $<$<BOOL:${VERILATOR_THREADED}>:-mt>
-            $<$<BOOL:${VERILATOR_THREADED}>:Threads::Threads>
-            atomic # For some reason missing __atomic_is_lock_free definition.
-        )
-
-        if( VERILATOR_SYSTEMC )
-            verilator_link_systemc(verilator_base)
-        endif()
-    endif()
-
 
 #------------------------------------------------------------------------------
     include(CMakeParseArguments)
@@ -255,6 +69,160 @@ if (VERILOG_TEST)
 #    )
 #    FetchContent_MakeAvailable(verilatorSource)
 endif()
+
+
+macro(add_verilator_base_target)
+    # Note: RSVerilate.cmake in functions used for change of verilate function.
+    if (VERILOG_TEST AND NOT TARGET Verilator::base)
+        # -----------------------------------------------------------------------------
+        add_library(verilator_base STATIC)
+        add_library(Verilator::base ALIAS verilator_base)
+
+        set (_inc_dir ${verilator_DIR}/include)
+        target_sources( verilator_base
+          PRIVATE
+            $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated.cpp>
+            $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated.h>
+            #${_inc_dir}/verilated.v
+            ${_inc_dir}/verilated_config.h
+            #${_inc_dir}/verilated_config.h.in
+            ${_inc_dir}/verilated_cov.cpp
+            ${_inc_dir}/verilated_cov.h
+            ${_inc_dir}/verilated_cov_key.h
+            ${_inc_dir}/verilated_dpi.cpp
+            ${_inc_dir}/verilated_dpi.h
+            $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated_fst_c.cpp>
+            $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated_fst_c.h>
+            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_fst_sc.cpp>
+            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_fst_sc.h>
+            ${_inc_dir}/verilated_funcs.h
+            ${_inc_dir}/verilated_heavy.h
+            ${_inc_dir}/verilated_imp.h
+            ${_inc_dir}/verilated_intrinsics.h
+            ${_inc_dir}/verilated_probdist.cpp
+            ${_inc_dir}/verilated_profiler.cpp
+            ${_inc_dir}/verilated_profiler.h
+            ${_inc_dir}/verilated_save.cpp
+            ${_inc_dir}/verilated_save.h
+            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_sc.h>
+            #${_inc_dir}/verilated_std.sv
+            ${_inc_dir}/verilated_sym_props.h
+            ${_inc_dir}/verilated_syms.h
+            ${_inc_dir}/verilated_threads.cpp
+            ${_inc_dir}/verilated_threads.h
+            ${_inc_dir}/verilated_timing.cpp
+            ${_inc_dir}/verilated_timing.h
+            ${_inc_dir}/verilated_trace.h
+            ${_inc_dir}/verilated_trace_defs.h
+            ${_inc_dir}/verilated_trace_imp.h
+            ${_inc_dir}/verilated_types.h
+            ${_inc_dir}/verilated_vcd_c.cpp
+            ${_inc_dir}/verilated_vcd_c.h
+            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_vcd_sc.cpp>
+            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_vcd_sc.h>
+            ${_inc_dir}/verilated_vpi.cpp
+            ${_inc_dir}/verilated_vpi.h
+            ${_inc_dir}/verilatedos.h
+
+            # ${_inc_dir}/gtkwave/fastlz.c
+            # ${_inc_dir}/gtkwave/fastlz.h
+            # ${_inc_dir}/gtkwave/fst_config.h
+            # ${_inc_dir}/gtkwave/fst_win_unistd.h
+            # ${_inc_dir}/gtkwave/fstapi.c
+            # ${_inc_dir}/gtkwave/fstapi.h
+            # ${_inc_dir}/gtkwave/lz4.c
+            # ${_inc_dir}/gtkwave/lz4.h
+            # ${_inc_dir}/gtkwave/wavealloca.h
+
+            # ${_inc_dir}/vltstd/svdpi.h
+            # ${_inc_dir}/vltstd/vpi_user.h
+        )
+
+        # Verilator Base defines the COVERAGE, SC, TRACE and VCD/FST values
+        # for everything that includes it.
+        target_compile_definitions( verilator_base
+          PUBLIC
+            VM_COVERAGE=$<BOOL:${VERILATOR_COVERAGE}> # TODO: use if ifdef with this in code - bad.
+            VM_SC=$<BOOL:${VERILATOR_SYSTEMC}>
+            VM_TRACE=$<OR:$<BOOL: ${VERILATOR_TRACE_VCD}>, $<BOOL:${VERILATOR_TRACE_FST}>>
+            VM_TRACE_VCD=$<BOOL: ${VERILATOR_TRACE_VCD}>
+            VM_TRACE_FST=$<BOOL: ${VERILATOR_TRACE_FST}>
+        )
+
+        target_compile_options( verilator_base
+          PUBLIC
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-cast-qual>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-deprecated-copy-with-dtor>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-exit-time-destructors>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-extra-semi-stmt>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-extra-semi>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-float-equal>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-implicit-fallthrough>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-implicit-int-conversion>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-macro-redefined>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-noreturn>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-non-virtual-dtor>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-old-style-cast>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-padded>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-reserved-identifier>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-reserved-macro-identifier>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shift-sign-overflow>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shorten-64-to-32>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-sign-conversion>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-thread-safety-negative>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-undefined-reinterpret-cast>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-unused-parameter>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-weak-vtables>
+          PRIVATE
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-cast-align>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-covered-switch-default>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-double-promotion>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-format-nonliteral>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-format-pedantic>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-global-constructors>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-implicit-int-float-conversion>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-prototypes>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shadow>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-switch-enum>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unreachable-code>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-macros>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-unused-variable>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-zero-as-null-pointer-constant>
+        )
+
+        target_include_directories( verilator_base SYSTEM
+          PUBLIC
+            ${_inc_dir}
+            ${_inc_dir}/gtkwave
+            ${_inc_dir}/vltstd
+        )
+        unset(_inc_dir)
+
+        target_clang_tidy_definitions(TARGET verilator_base
+          CHECKS
+            -clang-analyzer-core.CallAndMessage
+            -clang-analyzer-core.NonNullParamChecker
+            -clang-analyzer-core.NullDereference
+            -clang-analyzer-core.UndefinedBinaryOperatorResult
+            -clang-analyzer-deadcode.DeadStores
+            -clang-analyzer-optin.portability.UnixAPI
+            -clang-analyzer-security.insecureAPI.strcpy
+        )
+
+        set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+        find_package(Threads REQUIRED)
+
+        target_link_libraries( verilator_base
+          PUBLIC
+            Threads::Threads
+            atomic # For some reason missing __atomic_is_lock_free definition.
+        )
+
+        if( VERILATOR_SYSTEMC )
+            verilator_link_systemc(verilator_base)
+        endif()
+    endif()
+endmacro()
 
 # Defines a target for running and collection code coverage information Builds
 # dependencies, runs the given executable and outputs reports. NOTE! The

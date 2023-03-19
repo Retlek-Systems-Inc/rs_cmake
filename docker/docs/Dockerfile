@@ -23,24 +23,28 @@
 # hadolint ignore=DL3007
 FROM registry.gitlab.com/retleksystems/env/cmake/sw-dev:latest
 
-ENV PLANTUML_DIR="~/java"
+ENV PLANTUML_DIR="/java"
 
 # Documentation dev tools
 #hadolint ignore=DL3008
-RUN DEBIAN_FRONTEND=noninteractive \
+RUN apt-get update -y \
+    && DEBIAN_FRONTEND=noninteractive \
     apt-get install --no-install-recommends -y \
         doxygen \
+        openjdk-18-jre-headless \
         graphviz \
         default-jdk \
+        python3-virtualenv \
         python3-sphinx \
         python3-pip \
-        graphviz \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
+    && nmp install -g less clean-css \
     && mkdir -p ${PLANTUML_DIR} \
-    && wget -O ${PLANTUML_DIR}/plantuml.jar -progress=dot:giga http://sourceforge.net/projects/plantuml/files/plantuml.jar/download \
+    && wget -O ${PLANTUML_DIR}/plantuml.jar -progress=dot:giga https://github.com/plantuml/plantuml/releases/download/v1.2023.1/plantuml-1.2023.1.jar \
     && export PLANTUML_DIR=${PLANTUML_DIR} \
-    && python3 -m pip install --no-cache-dir sphinx_rdt_theme==v1.0.0 \
+    && python3 -m pip install --no-cache-dir sphinx_rdt_theme==v1.2.0 \
     && python3 -m pip install --no-cache-dir breathe==4.34.0
+
 
 WORKDIR /tmp
