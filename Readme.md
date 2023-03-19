@@ -227,6 +227,15 @@ Build Options:
 
 ## Continuous Integration/Deployment Setup
 
+### Building Docker
+
+See gitlab.ci.yml but for building and debugging locally:
+
+```bash
+cd docker/sw-dev
+docker build .
+```
+
 ### DockerHub & Bitbucket pipelines setup
 
 DockerHub configuration:
