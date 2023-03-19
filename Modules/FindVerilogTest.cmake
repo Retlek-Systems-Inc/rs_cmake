@@ -171,7 +171,7 @@ macro(add_verilator_base_target)
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-sign-conversion>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-thread-safety-negative>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-undefined-reinterpret-cast>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-parameter>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-unused-parameter>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-weak-vtables>
           PRIVATE
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-cast-align>
@@ -186,7 +186,7 @@ macro(add_verilator_base_target)
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-switch-enum>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unreachable-code>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-macros>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-variable>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-unused-variable>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-zero-as-null-pointer-constant>
         )
 
