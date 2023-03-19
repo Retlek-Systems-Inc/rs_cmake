@@ -50,7 +50,7 @@ RSVerilate(
     [TRACE_STRUCTS]
     [PREFIX <prefix string>] - default is "V"
     [TOP_MODULE <top module>]
-    [THREADS <number of threads>]
+    [TRACE_THREADS <number of threads>]
 
     [VERILATOR_ARGS <args>]
     [INCLUDE_DIRS <dir> [<dir> ...]]
@@ -300,7 +300,9 @@ function(RSVerilate TARGET)
     PUBLIC
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-inconsistent-missing-destructor-override>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-suggest-destructor-override>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-gnu-anonymous-struct>
     PRIVATE
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-bool-operation>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-prototypes>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unreachable-code>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-used-but-marked-unused>
