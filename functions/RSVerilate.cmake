@@ -102,9 +102,13 @@ function(RSVerilate TARGET)
   endif()
 
   if (NOT VERILATE_PREFIX)
-    list(GET VERILATE_SOURCES 0 TOPSRC)
-    get_filename_component(_SRC_NAME ${TOPSRC} NAME_WE)
-    set(VERILATE_PREFIX V${_SRC_NAME})
+    if (VERILATE_TOP_MODULE)
+      set(VERILATE_PREFIX V${VERILATE_TOP_MODULE})
+    else()
+      list(GET VERILATE_SOURCES 0 TOPSRC)
+      get_filename_component(_SRC_NAME ${TOPSRC} NAME_WE)
+      set(VERILATE_PREFIX V${_SRC_NAME})
+    endif()
   endif()
 
   if (VERILATE_TOP_MODULE)
@@ -142,7 +146,32 @@ function(RSVerilate TARGET)
       list(APPEND VERILATOR_ARGS --trace-structs)
   endif()
 
-  foreach(INC ${VERILATE_INCLUDE_DIRS})
+
+  # Separate out the USER C/CPP classes
+  set (VERILATOR_C_SOURCES "")
+  set (VERILATOR_VERILOG_SOURCES "")
+  set (VERILATOR_VERILOG_INCLUDES "")
+  foreach( _SRC ${VERILATE_SOURCES})
+    get_filename_component(_SRC_ABSOLUTE ${_SRC} ABSOLUTE)
+    if (_SRC MATCHES ".*\.(cpp|c)")
+      list(APPEND VERILATOR_C_SOURCES ${_SRC_ABSOLUTE})
+    else()
+      list(APPEND VERILATOR_VERILOG_SOURCES ${_SRC_ABSOLUTE})
+    endif()
+  endforeach()
+
+  foreach( _INC ${VERILATE_INCLUDE_DIRS})
+    get_filename_component(_INC_ABSOLUTE ${_INC} ABSOLUTE)
+    list(APPEND VERILATOR_VERILOG_INCLUDES ${_INC_ABSOLUTE})
+  endforeach()
+
+  set_target_properties( ${TARGET}
+    PROPERTIES
+      VERILATOR_VERILOG_SOURCES "${VERILATOR_VERILOG_SOURCES}"
+      VERILATOR_C_SOURCES "${VERILATOR_C_SOURCES}"
+      VERILATOR_VERILOG_INCLUDES "${VERILATOR_VERILOG_INCLUDES}")
+
+  foreach(INC ${VERILATOR_VERILOG_INCLUDES})
     list(APPEND VERILATOR_ARGS -y "${INC}")
   endforeach()
 
@@ -232,23 +261,6 @@ function(RSVerilate TARGET)
        CONFIGURE_DEPENDS
        ${VDIR}/${VERILATE_PREFIX}_*.cpp
        ${VDIR}/${VERILATE_PREFIX}_*.h)
-
-  # Separate out the USER C/CPP classes
-  set (VERILATOR_C_SOURCES "")
-  set (VERILATOR_VERILOG_SOURCES "")
-  foreach( _SRC ${VERILATE_SOURCES})
-    if (_SRC MATCHES ".*\.(cpp|c)")
-      list(APPEND VERILATOR_C_SOURCES ${_SRC})
-    else()
-      list(APPEND VERILATOR_VERILOG_SOURCES ${_SRC})
-    endif()
-  endforeach()
-
-  set_target_properties( ${TARGET}
-    PROPERTIES
-      VERILATOR_VERILOG_SOURCES "${VERILATOR_VERILOG_SOURCES}"
-      VERILATOR_C_SOURCES "${VERILATOR_C_SOURCES}"
-      VERILATOR_VERILOG_INCLUDES "${VERILATE_INCLUDE_DIRS}")
 
   # Add the compile flags only on Verilated sources
   target_include_directories(${TARGET}
