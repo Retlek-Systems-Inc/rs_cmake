@@ -43,6 +43,7 @@ RSVerilate has the same function args as verilate() in the verilator-config.cmak
 RSVerilate(
     TARGET <target name to verilate>
     SOURCES <source file> [<source file> ...]
+    [DEPS  <dependencies> [<dependencies> ...]]
     [COVERAGE]  - deprecated - moved to External variable to be same as Verilator::base
     [TRACE]     - deprecated - moved to External variable to be same as Verilator::base
     [TRACE_FST] - deprecated - moved to External variable to be same as Verilator::base
@@ -91,7 +92,7 @@ define_property(TARGET
 function(RSVerilate TARGET)
   cmake_parse_arguments(VERILATE "TRACE_STRUCTS"
                                  "PREFIX;TOP_MODULE;TRACE_THREADS;DIRECTORY"
-                                 "SOURCES;VERILATOR_ARGS;INCLUDE_DIRS;OPT_SLOW;OPT_FAST;OPT_GLOBAL"
+                                 "SOURCES;VERILATOR_ARGS;INCLUDE_DIRS;DEPS;OPT_SLOW;OPT_FAST;OPT_GLOBAL"
                                  ${ARGN})
   if (NOT TARGET ${TARGET})
     message(FATAL_ERROR "rs_verilate target '${TARGET}' not found")
@@ -153,7 +154,8 @@ function(RSVerilate TARGET)
   set (VERILATOR_VERILOG_INCLUDES "")
   foreach( _SRC ${VERILATE_SOURCES})
     get_filename_component(_SRC_ABSOLUTE ${_SRC} ABSOLUTE)
-    if (_SRC MATCHES ".*\.(cpp|c)")
+    get_filename_component(_SRC_EXT ${_SRC} EXT)
+    if (_SRC_EXT MATCHES "(cpp|c)")
       list(APPEND VERILATOR_C_SOURCES ${_SRC_ABSOLUTE})
     else()
       list(APPEND VERILATOR_VERILOG_SOURCES ${_SRC_ABSOLUTE})
@@ -165,11 +167,34 @@ function(RSVerilate TARGET)
     list(APPEND VERILATOR_VERILOG_INCLUDES ${_INC_ABSOLUTE})
   endforeach()
 
+  # Now add all of the dependencies' verilator verilog sources, verilog includes, and c sources.
+  foreach( _DEP ${VERILATE_DEPS})
+    if (NOT TARGET ${_DEP})
+      message(FATAL_ERROR "Unknown dependency for ${TARGET} : ${_DEP}")
+    endif()
+
+    get_target_property(_DEP_C_SOURCES ${_DEP} VERILATOR_C_SOURCES)
+    if (_DEP_C_SOURCES)
+      list(APPEND VERILATOR_C_SOURCES ${_DEP_C_SOURCES})
+    endif()
+
+    get_target_property(_DEP_VERILOG_SOURCES ${_DEP} VERILATOR_VERILOG_SOURCES)
+    if (_DEP_VERILOG_SOURCES)
+      list(APPEND VERILATOR_VERILOG_SOURCES ${_DEP_VERILOG_SOURCES})
+    endif()
+
+    get_target_property(_DEP_VERILOG_INCLUDES ${_DEP} VERILATOR_VERILOG_INCLUDES)
+    if (_DEP_VERILOG_INCLUDES)
+      list(APPEND VERILATOR_VERILOG_INCLUDES ${_DEP_VERILOG_INCLUDES})
+    endif()
+  endforeach()
+
   set_target_properties( ${TARGET}
     PROPERTIES
       VERILATOR_VERILOG_SOURCES "${VERILATOR_VERILOG_SOURCES}"
       VERILATOR_C_SOURCES "${VERILATOR_C_SOURCES}"
       VERILATOR_VERILOG_INCLUDES "${VERILATOR_VERILOG_INCLUDES}")
+
 
   foreach(INC ${VERILATOR_VERILOG_INCLUDES})
     list(APPEND VERILATOR_ARGS -y "${INC}")
@@ -202,7 +227,8 @@ function(RSVerilate TARGET)
     --make cmake
     ${VERILATOR_ARGS}
     ${VERILATE_VERILATOR_ARGS}
-    ${VERILATE_SOURCES})
+    ${VERILATOR_VERILOG_SOURCES}
+    ${VERILATOR_C_SOURCES})
 
   # Now that all the args are combined - check validity of VERILATOR_COMMAND_ARGS relative to Verilator::base
   # Note most of these could be removed if the Verilator::base code removed the #defines and used templated params
