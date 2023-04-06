@@ -320,12 +320,9 @@ function(SETUP_VERILOG_TARGET_FOR_COVERAGE_LCOV_HTML)
 endfunction() # SETUP_VERILOG_TARGET_FOR_COVERAGE_LCOV_HTML
 
 
-macro(setup_verilog_code_coverage_target)
+macro(setup_verilog_code_coverage_target _coverageDataFiles)
     # Create a code coverage target.
     set(_coverageTarget verilog-code-coverage)
-
-    # Hard code the data files to test directories within the repo for now.
-    set(_coverageDataFiles ${CMAKE_BINARY_DIR}/*/test/*.data)
 
 #    string(TOLOWER ${CMAKE_BUILD_TYPE} _buildType)
 #    if ( ${_buildType} STREQUAL coverage AND NOT TARGET ${_coverageTarget} )
