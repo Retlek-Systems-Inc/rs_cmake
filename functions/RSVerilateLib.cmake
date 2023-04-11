@@ -20,10 +20,12 @@
 # SOFTWARE.
 #
 #[=======================================================================[.rst:
-RSVerilate
+RSVerilateLib
 ----------------
 
 Creates a verilated target from verilog and c code.
+Uses standard CMake definitions to define the list of files and directories
+
 Based off of: https://github.com/verilator/verilator/blob/v5.006/verilator-config.cmake.in
 And fixes following issues:
 * Ability to run verilator at the build stage and not the generate stage of cmake
@@ -40,67 +42,47 @@ And fixes following issues:
 
 RSVerilate has the same function args as verilate() in the verilator-config.cmake.in for v4.222
 
-RSVerilate(
-    TARGET <target name to verilate>
-    SOURCES <source file> [<source file> ...]
-    [DEPS  <dependencies> [<dependencies> ...]]
-    [COVERAGE]  - deprecated - moved to External variable to be same as Verilator::base
-    [TRACE]     - deprecated - moved to External variable to be same as Verilator::base
-    [TRACE_FST] - deprecated - moved to External variable to be same as Verilator::base
-    [SYSTEMC]   - deprecated - moved to External variable to be same as Verilator::base
+RSVerilateLib(
+    TARGET_DEST <target destination to add all verilated code>
+    HDL_TARGET <target containing hdl(verilog) to verilate>
+    [TOP_MODULE <top module>]
     [TRACE_STRUCTS]
     [PREFIX <prefix string>] - default is "V"
-    [TOP_MODULE <top module>]
     [TRACE_THREADS <number of threads>]
 
     [VERILATOR_ARGS <args>]
-    [INCLUDE_DIRS <dir> [<dir> ...]]
     [OPT_SLOW <slow arg> [<arg> ...]]
     [OPT_FAST <fast arg> [<arg> ...]]
-    [OPT_GLOBAL ...] - deprecated - using Verilator::base
-
-Note the first source file identifies the top level module to verilate.
-
+)
 External Variables :
-   VERILATOR_BIN - binary for executing verilate_bin exe.
+  VERILATOR_BIN - binary for executing verilate_bin exe.
 
   In FindVerilogTest which uses these for Verilator::base
-   VERILATOR_COVERAGE - enable Coverage
-   VERILATOR_SYSTEMC - enable SystemC
-   VERILATOR_TRACE_VCD - enable for trace via VCD
-   VERILATOR_TRACE_FST - enable for trace via FST
+    VERILATOR_COVERAGE - enable Coverage
+    VERILATOR_SYSTEMC - enable SystemC
+    VERILATOR_TRACE_VCD - enable for trace via VCD
+    VERILATOR_TRACE_FST - enable for trace via FST
+
+
+RSVerilateUsedBy( TARGET <target name verilator code is consumed in> 
+)
+This adds the necessary static analysis bypasses for anything consuming verilated c++ code.
+
 #]=======================================================================]
 
-define_property(TARGET
-  PROPERTY VERILATOR_VERILOG_SOURCES
-  BRIEF_DOCS "Verilator verilog sources"
-  FULL_DOCS "Verilator verilog sources"
-)
-
-define_property(TARGET
-  PROPERTY VERILATOR_C_SOURCES
-  BRIEF_DOCS "Verilator c sources"
-  FULL_DOCS "Verilator c sources"
-)
-
-define_property(TARGET
-  PROPERTY VERILATOR_VERILOG_INCLUDES
-  BRIEF_DOCS "Verilator verilog includes"
-  FULL_DOCS "Verilator verilog includes"
-)
-
-function(RSVerilate TARGET)
+function(RSVerilateLib TARGET_DEST)
   cmake_parse_arguments(VERILATE "TRACE_STRUCTS"
-                                 "PREFIX;TOP_MODULE;TRACE_THREADS;DIRECTORY"
-                                 "SOURCES;VERILATOR_ARGS;INCLUDE_DIRS;DEPS;OPT_SLOW;OPT_FAST;OPT_GLOBAL"
+                                 "HDL_TARGET;PREFIX;TOP_MODULE;TRACE_THREADS"
+                                 "VERILATOR_ARGS;OPT_SLOW;OPT_FAST"
                                  ${ARGN})
-  if (NOT TARGET ${TARGET})
-    message(FATAL_ERROR "rs_verilate target '${TARGET}' not found")
+
+  if (NOT TARGET ${TARGET_DEST})
+    message(FATAL_ERROR "rs_verilate target '${TARGET_DEST}' not found")
   endif()
 
-  if (NOT VERILATE_SOURCES)
-    message(FATAL_ERROR "Need at least one source")
-  endif()
+  if (NOT TARGET ${VERILATE_HDL_TARGET})
+  message(FATAL_ERROR "rs_verilate hdl target '${VERILATE_HDL_TARGET}' not found")
+endif()
 
   if (NOT VERILATE_PREFIX)
     if (VERILATE_TOP_MODULE)
@@ -120,25 +102,8 @@ function(RSVerilate TARGET)
     list(APPEND VERILATOR_ARGS --trace-threads ${VERILATE_TRACE_THREADS})
   endif()
 
-  if (VERILATOR_COVERAGE)
-    list(APPEND VERILATOR_ARGS --coverage)
-  endif()
-
-  # Note TRACE and TRACE_FST also checked in verilate args
-  if (VERILATOR_TRACE_VCD AND VERILATOR_TRACE_FST)
-    message(FATAL_ERROR "Cannot have both TRACE_VCD and TRACE_FST")
-  endif()
-
-  if (VERILATOR_TRACE_VCD)
-    list(APPEND VERILATOR_ARGS --trace)
-  endif()
-
-  if (VERILATOR_TRACE_FST)
-    list(APPEND VERILATOR_ARGS --trace-fst)
-  endif()
-
   if (VERILATE_TRACE_STRUCTS)
-    list(APPEND VERILATOR_ARGS --trace-structs)
+      list(APPEND VERILATOR_ARGS --trace-structs)
   endif()
 
   if (VERILATOR_SYSTEMC)
@@ -147,11 +112,15 @@ function(RSVerilate TARGET)
     list(APPEND VERILATOR_ARGS --cc)
   endif()
 
+
   # Separate out the USER C/CPP classes
   set (VERILATOR_C_SOURCES "")
   set (VERILATOR_VERILOG_SOURCES "")
   set (VERILATOR_VERILOG_INCLUDES "")
-  foreach( _SRC ${VERILATE_SOURCES})
+
+  get_target_property(_INTERFACE_SOURCES ${VERILATE_HDL_TARGET} INTERFACE_SOURCES)
+
+  foreach( _SRC ${_INTERFACE_SOURCES})
     get_filename_component(_SRC_ABSOLUTE ${_SRC} ABSOLUTE)
     get_filename_component(_SRC_EXT ${_SRC} EXT)
     if (_SRC_EXT MATCHES "(cpp|c)")
@@ -161,47 +130,17 @@ function(RSVerilate TARGET)
     endif()
   endforeach()
 
-  foreach( _INC ${VERILATE_INCLUDE_DIRS})
-    get_filename_component(_INC_ABSOLUTE ${_INC} ABSOLUTE)
-    list(APPEND VERILATOR_VERILOG_INCLUDES ${_INC_ABSOLUTE})
-  endforeach()
-
-  # Now add all of the dependencies' verilator verilog sources, verilog includes, and c sources.
-  foreach( _DEP ${VERILATE_DEPS})
-    if (NOT TARGET ${_DEP})
-      message(FATAL_ERROR "Unknown dependency for ${TARGET} : ${_DEP}")
-    endif()
-
-    get_target_property(_DEP_C_SOURCES ${_DEP} VERILATOR_C_SOURCES)
-    if (_DEP_C_SOURCES)
-      list(APPEND VERILATOR_C_SOURCES ${_DEP_C_SOURCES})
-    endif()
-
-    get_target_property(_DEP_VERILOG_SOURCES ${_DEP} VERILATOR_VERILOG_SOURCES)
-    if (_DEP_VERILOG_SOURCES)
-      list(APPEND VERILATOR_VERILOG_SOURCES ${_DEP_VERILOG_SOURCES})
-    endif()
-
-    get_target_property(_DEP_VERILOG_INCLUDES ${_DEP} VERILATOR_VERILOG_INCLUDES)
-    if (_DEP_VERILOG_INCLUDES)
-      list(APPEND VERILATOR_VERILOG_INCLUDES ${_DEP_VERILOG_INCLUDES})
-    endif()
-  endforeach()
+  get_target_property(_INTERFACE_INCLUDE_DIRECTORIES ${VERILATE_HDL_TARGET} INTERFACE_INCLUDE_DIRECTORIES)
+  if (_INTERFACE_INCLUDE_DIRECTORIES)
+    list(APPEND VERILATOR_VERILOG_INCLUDES ${_INTERFACE_INCLUDE_DIRECTORIES})
+  endif()
 
   list(REMOVE_DUPLICATES VERILATOR_VERILOG_SOURCES)
   list(REMOVE_DUPLICATES VERILATOR_C_SOURCES)
   list(REMOVE_DUPLICATES VERILATOR_VERILOG_INCLUDES)
 
-
-  set_target_properties( ${TARGET}
-    PROPERTIES
-      VERILATOR_VERILOG_SOURCES "${VERILATOR_VERILOG_SOURCES}"
-      VERILATOR_C_SOURCES "${VERILATOR_C_SOURCES}"
-      VERILATOR_VERILOG_INCLUDES "${VERILATOR_VERILOG_INCLUDES}")
-
-
-  foreach(INC ${VERILATOR_VERILOG_INCLUDES})
-    list(APPEND VERILATOR_ARGS -y "${INC}")
+  foreach(_INC ${VERILATOR_VERILOG_INCLUDES})
+    list(APPEND VERILATOR_ARGS -y "${_INC}")
   endforeach()
 
   # TODO(phelter): Investigate why this is needed.
@@ -214,16 +153,11 @@ function(RSVerilate TARGET)
     set(COMPILER gcc)
   endif()
 
-  get_target_property(BINARY_DIR "${TARGET}" BINARY_DIR)
-  get_target_property(TARGET_NAME "${TARGET}" NAME)
+  get_target_property(BINARY_DIR "${VERILATE_HDL_TARGET}" BINARY_DIR)
+  get_target_property(TARGET_NAME "${VERILATE_HDL_TARGET}" NAME)
   set(VDIR "${BINARY_DIR}/CMakeFiles/${TARGET_NAME}.dir/${VERILATE_PREFIX}.dir")
 
-  if (VERILATE_DIRECTORY)
-    set(VDIR "${VERILATE_DIRECTORY}")
-  endif()
-
   file(MAKE_DIRECTORY ${VDIR})
-
   set(VERILATOR_COMMAND_ARGS
     --compiler ${COMPILER}
     --prefix ${VERILATE_PREFIX}
@@ -293,11 +227,11 @@ function(RSVerilate TARGET)
        ${VDIR}/${VERILATE_PREFIX}_*.h)
 
   # Add the compile flags only on Verilated sources
-  target_include_directories(${TARGET}
+  target_include_directories(${TARGET_DEST}
     PUBLIC
       ${VDIR})
 
-  target_sources(${TARGET}
+  target_sources(${TARGET_DEST}
     PRIVATE
       ${VDIR}/${VERILATE_PREFIX}.h # This links the generation of the add_custom_command above.
       ${VDIR}/${VERILATE_PREFIX}.cpp
@@ -305,7 +239,7 @@ function(RSVerilate TARGET)
       ${VERILATOR_C_SOURCES})
 
   set_property(
-    TARGET ${TARGET}
+    TARGET ${TARGET_HDL}
     APPEND
     PROPERTY ADDITIONAL_CLEAN_FILES ${VDIR})
 
@@ -331,14 +265,14 @@ function(RSVerilate TARGET)
 
   # Note the target_link_libraries for Verilator::base are also public so they will migrate to the
   # verilated module as well.
-  target_link_libraries( ${TARGET}
+  target_link_libraries( ${TARGET_DEST}
     PRIVATE
       Verilator::base
   )
 
-  target_compile_features( ${TARGET} PRIVATE cxx_std_11)
+  target_compile_features( ${TARGET_DEST} PRIVATE cxx_std_11)
 
-  target_compile_options( ${TARGET}
+  target_compile_options( ${TARGET_DEST}
     PUBLIC
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-inconsistent-missing-destructor-override>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-suggest-destructor-override>
@@ -352,7 +286,7 @@ function(RSVerilate TARGET)
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-used-but-marked-unused>
   )
 
-  target_clang_tidy_definitions( TARGET ${TARGET}
+  target_clang_tidy_definitions( TARGET ${TARGET_DEST}
     CHECKS
       -*-braces-around-statements
       -*-magic-numbers
@@ -393,6 +327,35 @@ function(RSVerilate TARGET)
   if (NOT TARGET GenerateVerilatedCode)
     add_custom_target(GenerateVerilatedCode)
   endif()
-  add_dependencies(GenerateVerilatedCode ${TARGET})
+  add_dependencies(GenerateVerilatedCode ${TARGET_DEST})
 
+endfunction()
+
+function(RSVerilateUsedBy TARGET)
+  cmake_parse_arguments(VERILATE ""
+                                 ""
+                                 ""
+                                 ${ARGN})
+  if (NOT TARGET ${TARGET})
+    message(FATAL_ERROR "rs_verilate target '${TARGET}' not found")
+  endif()
+
+  # Issues in header files generated.
+  target_clang_tidy_definitions( TARGET ${TARGET}
+    CHECKS
+      -*-use-override
+      -*-move-const-arg
+      -bugprone-exception-escape
+      -bugprone-reserved-identifier
+      -cert-dcl37-c
+      -cert-dcl51-cpp
+      -cppcoreguidelines-explicit-virtual-functions
+      -cppcoreguidelines-prefer-member-initializer
+      -cppcoreguidelines-virtual-class-destructor
+      -google-explicit-constructor
+      -hicpp-explicit-conversions
+      -llvm-include-order
+      -modernize-concat-nested-namespaces
+      -modernize-use-nodiscard
+  )
 endfunction()
