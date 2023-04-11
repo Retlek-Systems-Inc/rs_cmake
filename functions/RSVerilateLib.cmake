@@ -112,36 +112,7 @@ endif()
     list(APPEND VERILATOR_ARGS --cc)
   endif()
 
-
-  # Separate out the USER C/CPP classes
-  set (VERILATOR_C_SOURCES "")
-  set (VERILATOR_VERILOG_SOURCES "")
-  set (VERILATOR_VERILOG_INCLUDES "")
-
-  get_target_property(_INTERFACE_SOURCES ${VERILATE_HDL_TARGET} INTERFACE_SOURCES)
-
-  foreach( _SRC ${_INTERFACE_SOURCES})
-    get_filename_component(_SRC_ABSOLUTE ${_SRC} ABSOLUTE)
-    get_filename_component(_SRC_EXT ${_SRC} EXT)
-    if (_SRC_EXT MATCHES "(cpp|c)")
-      list(APPEND VERILATOR_C_SOURCES ${_SRC_ABSOLUTE})
-    else()
-      list(APPEND VERILATOR_VERILOG_SOURCES ${_SRC_ABSOLUTE})
-    endif()
-  endforeach()
-
-  get_target_property(_INTERFACE_INCLUDE_DIRECTORIES ${VERILATE_HDL_TARGET} INTERFACE_INCLUDE_DIRECTORIES)
-  if (_INTERFACE_INCLUDE_DIRECTORIES)
-    list(APPEND VERILATOR_VERILOG_INCLUDES ${_INTERFACE_INCLUDE_DIRECTORIES})
-  endif()
-
-  list(REMOVE_DUPLICATES VERILATOR_VERILOG_SOURCES)
-  list(REMOVE_DUPLICATES VERILATOR_C_SOURCES)
-  list(REMOVE_DUPLICATES VERILATOR_VERILOG_INCLUDES)
-
-  foreach(_INC ${VERILATOR_VERILOG_INCLUDES})
-    list(APPEND VERILATOR_ARGS -y "${_INC}")
-  endforeach()
+  set(VERILATOR_VERILOG_INCLUDES "$<TARGET_PROPERTY:${VERILATE_HDL_TARGET},INTERFACE_INCLUDE_DIRECTORIES>")
 
   # TODO(phelter): Investigate why this is needed.
   # Don't think it is necessary if we have this generate the type and the compiler is just
@@ -158,15 +129,14 @@ endif()
   set(VDIR "${BINARY_DIR}/CMakeFiles/${TARGET_NAME}.dir/${VERILATE_PREFIX}.dir")
 
   file(MAKE_DIRECTORY ${VDIR})
-  set(VERILATOR_COMMAND_ARGS
+  set( VERILATOR_COMMAND_ARGS
     --compiler ${COMPILER}
     --prefix ${VERILATE_PREFIX}
     --Mdir ${VDIR}
     --make cmake
-    ${VERILATOR_ARGS}
     ${VERILATE_VERILATOR_ARGS}
-    ${VERILATOR_VERILOG_SOURCES}
-    ${VERILATOR_C_SOURCES})
+    ${VERILATOR_ARGS}
+  )
 
   # Now that all the args are combined - check validity of VERILATOR_COMMAND_ARGS relative to Verilator::base
   # Note most of these could be removed if the Verilator::base code removed the #defines and used templated params
@@ -200,16 +170,15 @@ endif()
       ${VDIR}/${VERILATE_PREFIX}.cmake
     COMMAND ${VERILATOR_BIN}
     ARGS    ${VERILATOR_COMMAND_ARGS}
+            "$<$<BOOL:${VERILATOR_VERILOG_INCLUDES}>:-I$<JOIN:${VERILATOR_VERILOG_INCLUDES},-I>>"
+            "$<TARGET_PROPERTY:${VERILATE_HDL_TARGET},INTERFACE_SOURCES>"
+    COMMAND_EXPAND_LISTS
+    VERBATIM
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     DEPENDS
-      # TODO(phelter): Expand this to all sources used - included files as well - this will allow
-      # the proper update of a verilog file to regenerate the associated output.
-      ${VERILATE_SOURCES}
+      $<TARGET_PROPERTY:${VERILATE_HDL_TARGET},INTERFACE_SOURCES>
     COMMENT "Executing Verilator... ${VERILATE_PREFIX}"
   )
-  # Not used - except for debug
-  set(VARGS_FILE "${VDIR}/verilator_args.txt")
-  file(WRITE "${VARGS_FILE}" "${VERILATOR_BIN} ${VERILATOR_COMMAND_ARGS}")
 
 
   # Re-creating cmake based on settings - no need to use the one in that directory.
