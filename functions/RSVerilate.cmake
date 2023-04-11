@@ -43,6 +43,7 @@ RSVerilate has the same function args as verilate() in the verilator-config.cmak
 RSVerilate(
     TARGET <target name to verilate>
     SOURCES <source file> [<source file> ...]
+    [DEPS  <dependencies> [<dependencies> ...]]
     [COVERAGE]  - deprecated - moved to External variable to be same as Verilator::base
     [TRACE]     - deprecated - moved to External variable to be same as Verilator::base
     [TRACE_FST] - deprecated - moved to External variable to be same as Verilator::base
@@ -91,7 +92,7 @@ define_property(TARGET
 function(RSVerilate TARGET)
   cmake_parse_arguments(VERILATE "TRACE_STRUCTS"
                                  "PREFIX;TOP_MODULE;TRACE_THREADS;DIRECTORY"
-                                 "SOURCES;VERILATOR_ARGS;INCLUDE_DIRS;OPT_SLOW;OPT_FAST;OPT_GLOBAL"
+                                 "SOURCES;VERILATOR_ARGS;INCLUDE_DIRS;DEPS;OPT_SLOW;OPT_FAST;OPT_GLOBAL"
                                  ${ARGN})
   if (NOT TARGET ${TARGET})
     message(FATAL_ERROR "rs_verilate target '${TARGET}' not found")
@@ -102,9 +103,13 @@ function(RSVerilate TARGET)
   endif()
 
   if (NOT VERILATE_PREFIX)
-    list(GET VERILATE_SOURCES 0 TOPSRC)
-    get_filename_component(_SRC_NAME ${TOPSRC} NAME_WE)
-    set(VERILATE_PREFIX V${_SRC_NAME})
+    if (VERILATE_TOP_MODULE)
+      set(VERILATE_PREFIX V${VERILATE_TOP_MODULE})
+    else()
+      list(GET VERILATE_SOURCES 0 TOPSRC)
+      get_filename_component(_SRC_NAME ${TOPSRC} NAME_WE)
+      set(VERILATE_PREFIX V${_SRC_NAME})
+    endif()
   endif()
 
   if (VERILATE_TOP_MODULE)
@@ -142,7 +147,61 @@ function(RSVerilate TARGET)
       list(APPEND VERILATOR_ARGS --trace-structs)
   endif()
 
-  foreach(INC ${VERILATE_INCLUDE_DIRS})
+
+  # Separate out the USER C/CPP classes
+  set (VERILATOR_C_SOURCES "")
+  set (VERILATOR_VERILOG_SOURCES "")
+  set (VERILATOR_VERILOG_INCLUDES "")
+  foreach( _SRC ${VERILATE_SOURCES})
+    get_filename_component(_SRC_ABSOLUTE ${_SRC} ABSOLUTE)
+    get_filename_component(_SRC_EXT ${_SRC} EXT)
+    if (_SRC_EXT MATCHES "(cpp|c)")
+      list(APPEND VERILATOR_C_SOURCES ${_SRC_ABSOLUTE})
+    else()
+      list(APPEND VERILATOR_VERILOG_SOURCES ${_SRC_ABSOLUTE})
+    endif()
+  endforeach()
+
+  foreach( _INC ${VERILATE_INCLUDE_DIRS})
+    get_filename_component(_INC_ABSOLUTE ${_INC} ABSOLUTE)
+    list(APPEND VERILATOR_VERILOG_INCLUDES ${_INC_ABSOLUTE})
+  endforeach()
+
+  # Now add all of the dependencies' verilator verilog sources, verilog includes, and c sources.
+  foreach( _DEP ${VERILATE_DEPS})
+    if (NOT TARGET ${_DEP})
+      message(FATAL_ERROR "Unknown dependency for ${TARGET} : ${_DEP}")
+    endif()
+
+    get_target_property(_DEP_C_SOURCES ${_DEP} VERILATOR_C_SOURCES)
+    if (_DEP_C_SOURCES)
+      list(APPEND VERILATOR_C_SOURCES ${_DEP_C_SOURCES})
+    endif()
+
+    get_target_property(_DEP_VERILOG_SOURCES ${_DEP} VERILATOR_VERILOG_SOURCES)
+    if (_DEP_VERILOG_SOURCES)
+      list(APPEND VERILATOR_VERILOG_SOURCES ${_DEP_VERILOG_SOURCES})
+    endif()
+
+    get_target_property(_DEP_VERILOG_INCLUDES ${_DEP} VERILATOR_VERILOG_INCLUDES)
+    if (_DEP_VERILOG_INCLUDES)
+      list(APPEND VERILATOR_VERILOG_INCLUDES ${_DEP_VERILOG_INCLUDES})
+    endif()
+  endforeach()
+
+  list(REMOVE_DUPLICATES VERILATOR_VERILOG_SOURCES)
+  list(REMOVE_DUPLICATES VERILATOR_C_SOURCES)
+  list(REMOVE_DUPLICATES VERILATOR_VERILOG_INCLUDES)
+
+
+  set_target_properties( ${TARGET}
+    PROPERTIES
+      VERILATOR_VERILOG_SOURCES "${VERILATOR_VERILOG_SOURCES}"
+      VERILATOR_C_SOURCES "${VERILATOR_C_SOURCES}"
+      VERILATOR_VERILOG_INCLUDES "${VERILATOR_VERILOG_INCLUDES}")
+
+
+  foreach(INC ${VERILATOR_VERILOG_INCLUDES})
     list(APPEND VERILATOR_ARGS -y "${INC}")
   endforeach()
 
@@ -173,7 +232,8 @@ function(RSVerilate TARGET)
     --make cmake
     ${VERILATOR_ARGS}
     ${VERILATE_VERILATOR_ARGS}
-    ${VERILATE_SOURCES})
+    ${VERILATOR_VERILOG_SOURCES}
+    ${VERILATOR_C_SOURCES})
 
   # Now that all the args are combined - check validity of VERILATOR_COMMAND_ARGS relative to Verilator::base
   # Note most of these could be removed if the Verilator::base code removed the #defines and used templated params
@@ -233,23 +293,6 @@ function(RSVerilate TARGET)
        ${VDIR}/${VERILATE_PREFIX}_*.cpp
        ${VDIR}/${VERILATE_PREFIX}_*.h)
 
-  # Separate out the USER C/CPP classes
-  set (VERILATOR_C_SOURCES "")
-  set (VERILATOR_VERILOG_SOURCES "")
-  foreach( _SRC ${VERILATE_SOURCES})
-    if (_SRC MATCHES ".*\.(cpp|c)")
-      list(APPEND VERILATOR_C_SOURCES ${_SRC})
-    else()
-      list(APPEND VERILATOR_VERILOG_SOURCES ${_SRC})
-    endif()
-  endforeach()
-
-  set_target_properties( ${TARGET}
-    PROPERTIES
-      VERILATOR_VERILOG_SOURCES "${VERILATOR_VERILOG_SOURCES}"
-      VERILATOR_C_SOURCES "${VERILATOR_C_SOURCES}"
-      VERILATOR_VERILOG_INCLUDES "${VERILATE_INCLUDE_DIRS}")
-
   # Add the compile flags only on Verilated sources
   target_include_directories(${TARGET}
     PUBLIC
@@ -304,6 +347,8 @@ function(RSVerilate TARGET)
     PRIVATE
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-bool-operation>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-prototypes>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-variable-declarations>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-nested-anon-types>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unreachable-code>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-used-but-marked-unused>
   )
