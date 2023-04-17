@@ -40,14 +40,15 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 
 # arm-none-eabi from arm/linaro.
-RUN wget --progress=dot:giga https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz \
-    && wget --progress=dot:giga https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz.asc \
-    && md5sum --check gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz.asc \
+RUN wget --progress=dot:giga https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi.tar.xz \
+    && wget --progress=dot:giga https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi.tar.xz.asc \
+    && md5sum --check arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi.tar.xz.asc \
     && mkdir -p /usr/local \
-    && tar -xJf gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz -C /usr/local \
-    && rm -f gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz
+    && tar -xJf arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi.tar.xz -C /usr/local \
+    && rm -f arm-gnu-toolchain-12.2.mpacbti-rel1-aarch64-arm-none-eabi.tar.xz*
 
 ENV WORK_PATH=/tmp
+ENV PATH="$PATH:/usr/local/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi/bin"
 ENV CMAKE_ENV_DEPS_PATH=${WORK_PATH}/cmake_env_deps
 ENV CMAKE_ENV_BASE_PATH=${WORK_PATH}/base
 
