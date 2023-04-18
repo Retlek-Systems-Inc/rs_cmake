@@ -25,8 +25,11 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR ARM)
 set(TOOLCHAIN_TRIPPLE arm-none-eabi)
 
-# Assuming toolchain installed in /usr/local
-set(TOOLCHAIN_LOCATION "/usr/local/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-${TOOLCHAIN_TRIPPLE}")
+# Assuming toolchain installed in /usr/local - search newest first.
+set(TOOLCHAIN_LOCATION
+"/usr/local/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-${TOOLCHAIN_TRIPPLE}"
+"/usr/local/gcc-arm-10.3-2021.07-x86_64-${TOOLCHAIN_TRIPPLE}"
+)
 set(TOOLCHAIN_PATH ${TOOLCHAIN_LOCATION} CACHE INTERNAL "Toolchain Location.")
 
 set(TOOLCHAIN_BIN_DIR ${TOOLCHAIN_PATH}/bin)
