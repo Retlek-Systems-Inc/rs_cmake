@@ -18,7 +18,7 @@ cmake_dependent_option(BUILD_BENCHMARK "No Benchmark tests"         OFF "NOT CMA
 
 FetchContent_Declare( cmake
     GIT_REPOSITORY https://rscmake_clone_access:h1SwGbFex6ScmtSWzzGJ@gitlab.com/retleksystems/env/cmake.git
-    GIT_TAG        v0.2.2
+    GIT_TAG        v0.2.3
 )
 
 FetchContent_GetProperties(cmake)

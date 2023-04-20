@@ -46,7 +46,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.1.9
+      image: registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.2.3
       credentials:
         username: ${{ secrets.rs_docker_registry_username }}
         password: ${{ secrets.rs_docker_registry_password }}
@@ -76,7 +76,7 @@ jobs:
     name: ${{ matrix.name }} Build and Test
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.1.9
+      image: registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.2.3
       credentials:
         username: ${{ secrets.rs_docker_registry_username }}
         password: ${{ secrets.rs_docker_registry_password }}
@@ -147,7 +147,7 @@ jobs:
     name: ${{ matrix.name }} Analysis
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.1.9
+      image: registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.2.3
       credentials:
         username: ${{ secrets.rs_docker_registry_username }}
         password: ${{ secrets.rs_docker_registry_password }}
