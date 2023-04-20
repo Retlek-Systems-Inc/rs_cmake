@@ -22,7 +22,7 @@
 # This is based on: https://stackoverflow.com/questions/38293535/generic-rule-from-makefile-to-cmake
 
 # For now just do nothing in here
-#set(CMAKE_VERILOG_COMPILER_WORKS 1 CACHE INTERNAL "")
+set(CMAKE_Verilog_COMPILER_WORKS 1 CACHE INTERNAL "")
 
 
 # TODO: Add when need another compiler.
