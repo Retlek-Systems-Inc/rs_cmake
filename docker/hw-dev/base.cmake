@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 cmake_policy(SET CMP0048 NEW) # project version
+cmake_policy(SET CMP0057 NEW) # Support if( IN_LIST ) operator
 cmake_policy(SET CMP0065 NEW) # do not add rdynamic unless explicitly stated
 cmake_policy(SET CMP0076 NEW) # full paths
 cmake_policy(SET CMP0077 NEW) # options do nothing when defined as variable.
