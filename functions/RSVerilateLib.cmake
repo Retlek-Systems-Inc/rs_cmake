@@ -208,7 +208,7 @@ endif()
       ${VERILATOR_C_SOURCES})
 
   set_property(
-    TARGET ${TARGET_HDL}
+    TARGET ${TARGET_DEST}
     APPEND
     PROPERTY ADDITIONAL_CLEAN_FILES ${VDIR})
 
@@ -258,13 +258,17 @@ endif()
   target_clang_tidy_definitions( TARGET ${TARGET_DEST}
     CHECKS
       -*-braces-around-statements
+      -*-function-size
       -*-magic-numbers
       -*-narrowing-conversions
       -*-static-assert
       -*-use-auto
       -*-use-equals-default
       -*-use-override
+      -altera-id-dependent-backward-branch
+      -altera-struct-pack-align
       -altera-unroll-loops
+      -bugprone-branch-clone
       -bugprone-exception-escape
       -bugprone-reserved-identifier
       -cert-dcl37-c
@@ -281,8 +285,10 @@ endif()
       -hicpp-explicit-conversions
       -hicpp-member-init
       -llvm-include-order
+      -misc-redundant-expression
       -modernize-concat-nested-namespaces
       -modernize-make-unique
+      -modernize-use-bool-literals
       -modernize-use-nodiscard
       -readability-convert-member-functions-to-static
       -readability-function-cognitive-complexity
