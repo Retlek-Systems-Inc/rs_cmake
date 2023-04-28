@@ -102,6 +102,22 @@ endif()
     list(APPEND VERILATOR_ARGS --trace-threads ${VERILATE_TRACE_THREADS})
   endif()
 
+  if (VERILATOR_COVERAGE)
+    list(APPEND VERILATOR_ARGS --coverage)
+  endif()
+
+  # Note TRACE and TRACE_FST also checked in verilate args
+  if (VERILATOR_TRACE_VCD AND VERILATOR_TRACE_FST)
+    message(FATAL_ERROR "Cannot have both TRACE_VCD and TRACE_FST")
+  endif()
+
+  if (VERILATOR_TRACE_VCD)
+    list(APPEND VERILATOR_ARGS --trace)
+  endif()
+
+  if (VERILATOR_TRACE_FST)
+    list(APPEND VERILATOR_ARGS --trace-fst)
+  endif()
   if (VERILATE_TRACE_STRUCTS)
       list(APPEND VERILATOR_ARGS --trace-structs)
   endif()
@@ -252,6 +268,7 @@ endif()
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-variable-declarations>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-nested-anon-types>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unreachable-code>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-but-set-variable> # Only when trace disabled.
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-used-but-marked-unused>
   )
 
