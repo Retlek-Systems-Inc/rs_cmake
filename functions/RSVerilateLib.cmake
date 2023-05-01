@@ -267,6 +267,7 @@ endif()
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-prototypes>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-variable-declarations>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-nested-anon-types>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-parentheses-equality>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unreachable-code>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-but-set-variable> # Only when trace disabled.
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-used-but-marked-unused>
