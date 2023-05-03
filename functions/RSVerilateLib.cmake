@@ -315,6 +315,7 @@ endif()
       -readability-inconsistent-declaration-parameter-name
       -readability-simplify-boolean-expr
   )
+  target_ignore_static_analysis( TARGET ${TARGET_DEST} CPPLINT )
 
   # Add target to GenerateVerilatedCode custom target.
   if (NOT TARGET GenerateVerilatedCode)
