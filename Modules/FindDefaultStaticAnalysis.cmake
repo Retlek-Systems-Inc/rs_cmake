@@ -227,7 +227,7 @@ endfunction()
 #   IWYU    when added, will not perform any checks on these files.
 #
 function(target_ignore_static_analysis)
-    set( _options CLANG_TIDY IWYU)
+    set( _options CLANG_TIDY CPPCHECK CPPLINT IWYU)
     set( _oneValueArgs TARGET )
     set( _multiValueArgs )
     cmake_parse_arguments( "_arg" "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN} )
@@ -254,8 +254,6 @@ function(target_ignore_static_analysis)
                 C_CLANG_TIDY ""
                 OBJC_CLANG_TIDY ""
                 OBJCXX_CLANG_TIDY ""
-                CXX_CPPCHECK ""
-                C_CPPCHECK ""
             )
         endif()
 
@@ -267,6 +265,30 @@ function(target_ignore_static_analysis)
         set_target_properties(${_arg_TARGET}  PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${interface_directories}" )
 
         message( STATUS "Converting ${_arg_TARGET} interface directories to system")
+    endif()
+
+    if( _arg_CPPCHECK )
+        # don't perform any cppcheck checks on this target
+        get_target_property( _type ${_arg_TARGET} TYPE )
+        if( NOT ${_type} STREQUAL "INTERFACE_LIBRARY" )
+            set_target_properties( ${_arg_TARGET}
+            PROPERTIES
+                CXX_CPPCHECK ""
+                C_CPPCHECK ""
+            )
+        endif()
+    endif()
+
+    if( _arg_CPPCHECK )
+        # don't perform any cppcheck checks on this target
+        get_target_property( _type ${_arg_TARGET} TYPE )
+        if( NOT ${_type} STREQUAL "INTERFACE_LIBRARY" )
+            set_target_properties( ${_arg_TARGET}
+            PROPERTIES
+                CXX_CPPLINT ""
+                C_CPPLINT ""
+            )
+        endif()
     endif()
 
     if( _arg_IWYU )

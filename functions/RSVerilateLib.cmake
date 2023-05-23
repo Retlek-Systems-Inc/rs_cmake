@@ -102,30 +102,8 @@ endif()
     list(APPEND VERILATOR_ARGS --trace-threads ${VERILATE_TRACE_THREADS})
   endif()
 
-  if (VERILATOR_COVERAGE)
-    list(APPEND VERILATOR_ARGS --coverage)
-  endif()
-
-  # Note TRACE and TRACE_FST also checked in verilate args
-  if (VERILATOR_TRACE_VCD AND VERILATOR_TRACE_FST)
-    message(FATAL_ERROR "Cannot have both TRACE_VCD and TRACE_FST")
-  endif()
-
-  if (VERILATOR_TRACE_VCD)
-    list(APPEND VERILATOR_ARGS --trace)
-  endif()
-
-  if (VERILATOR_TRACE_FST)
-    list(APPEND VERILATOR_ARGS --trace-fst)
-  endif()
   if (VERILATE_TRACE_STRUCTS)
       list(APPEND VERILATOR_ARGS --trace-structs)
-  endif()
-
-  if (VERILATOR_SYSTEMC)
-    list(APPEND VERILATOR_ARGS --sc)
-  else()
-    list(APPEND VERILATOR_ARGS --cc)
   endif()
 
   set(VERILATOR_VERILOG_INCLUDES "$<TARGET_PROPERTY:${VERILATE_HDL_TARGET},INTERFACE_INCLUDE_DIRECTORIES>")
@@ -150,6 +128,12 @@ endif()
     --prefix ${VERILATE_PREFIX}
     --Mdir ${VDIR}
     --make cmake
+    # Toplevel options for compiling the verilator::base
+    $<$<BOOL:${VERILATOR_COVERAGE}>:--coverage>
+    $<IF:$<BOOL:${VERILATOR_SYSTEMC}>,--sc,--cc>
+    $<$<BOOL:${VERILATOR_TRACE_VCD}>:--trace>
+    $<$<BOOL:${VERILATOR_TRACE_FST}>:--trace-fst>
+
     ${VERILATE_VERILATOR_ARGS}
     ${VERILATOR_ARGS}
   )
@@ -267,6 +251,7 @@ endif()
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-prototypes>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-variable-declarations>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-nested-anon-types>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-parentheses-equality>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unreachable-code>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-but-set-variable> # Only when trace disabled.
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-used-but-marked-unused>
@@ -314,6 +299,7 @@ endif()
       -readability-inconsistent-declaration-parameter-name
       -readability-simplify-boolean-expr
   )
+  target_ignore_static_analysis( TARGET ${TARGET_DEST} CPPLINT )
 
   # Add target to GenerateVerilatedCode custom target.
   if (NOT TARGET GenerateVerilatedCode)
