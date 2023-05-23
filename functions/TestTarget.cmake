@@ -36,6 +36,7 @@ TestTarget(
   SOURCES   <filename> [<filename> ...]
 
   [ TYPE [UNIT, MANUAL, BENCHMARK] ] - default unit.
+  [ CUSTOM_NAME <executable name> ] - overrides default naming convention of executable
   [ FRAMEWORK [ GTest | GMock | Benchmark ] ] - default GTest
   [ MOCK_LIBRARY <mock target> [<mock target> ...] ]
   [ LINK_LIBRARY <target> [<target> ...] ]
@@ -69,11 +70,11 @@ Examples:
 The following targets are defined by this module:
 
 .. variable:: UnitTest_<target name> OR ManualTest_<target_name> OR
-              Benchark_<target_name>
+              Benchark_<target_name> OR `CUSTOM_NAME name defined`.
 #]=======================================================================]
 function( TestTarget )
     set( _options )
-    set( _oneValueArgs TARGET FRAMEWORK TYPE)
+    set( _oneValueArgs TARGET FRAMEWORK TYPE CUSTOM_NAME)
     set( _multiValueArgs SOURCES MOCK_LIBRARY LINK_LIBRARY)
     include( CMakeParseArguments )
     cmake_parse_arguments( "_arg" "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN} )
@@ -128,7 +129,11 @@ function( TestTarget )
         endif()
     endif()
 
-    set( _target ${_exec_name}_${_arg_TARGET} )
+    if ( NOT _arg_CUSTOM_NAME )
+        set( _target ${_exec_name}_${_arg_TARGET} )
+    else()
+        set( _target ${_arg_CUSTOM_NAME} )
+    endif()
 
     # Currently assumes GoogleTest and GoogleMock.
     if( _arg_TYPE STREQUAL "BENCHMARK" )
