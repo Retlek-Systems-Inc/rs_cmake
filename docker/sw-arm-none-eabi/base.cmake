@@ -5,7 +5,7 @@ cmake_policy(SET CMP0076 NEW) # full paths
 cmake_policy(SET CMP0077 NEW) # options do nothing when defined as variable.
 #cmake_policy(SET CMP0135 NEW) # fetchcontent url timestamp cmake 3.25
 
-project(base-sw-arm-none-eabi-deps VERSION 0.2.3 LANGUAGES C)
+project(base-sw-arm-none-eabi-deps VERSION 0.2.4 LANGUAGES C)
 
 include(FetchContent)
 
@@ -19,7 +19,7 @@ cmake_dependent_option(BUILD_BENCHMARK "No Benchmark tests"         OFF "NOT CMA
 
 FetchContent_Declare( cmake
     GIT_REPOSITORY https://rscmake_clone_access:h1SwGbFex6ScmtSWzzGJ@gitlab.com/retleksystems/env/cmake.git
-    GIT_TAG        v0.2.3
+    GIT_TAG        v0.2.4
 )
 
 FetchContent_GetProperties(cmake)
