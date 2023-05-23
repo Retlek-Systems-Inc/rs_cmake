@@ -21,7 +21,7 @@ option(VERILOG_TEST    "Support Verilog testing."   ON)
 
 FetchContent_Declare( cmake
     GIT_REPOSITORY https://rscmake_clone_access:h1SwGbFex6ScmtSWzzGJ@gitlab.com/retleksystems/env/cmake.git
-    GIT_TAG        v0.2.3
+    GIT_TAG        v0.2.4
 )
 
 FetchContent_GetProperties(cmake)
