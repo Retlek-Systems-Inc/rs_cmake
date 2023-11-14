@@ -260,11 +260,13 @@ function(target_ignore_static_analysis)
         # When a target is marked as ignore static_analsysis CLANG_TIDY need to mark all include directories
         # as system so they are ignored
         get_target_property( interface_directories ${_arg_TARGET} INTERFACE_INCLUDE_DIRECTORIES )
-        # Note cannot use target_include_directories and use this since some targets might use BUILD_INTERFACE and INSTALL_INTERFACe
-        # When this is done even $<TARGET_GENEX_EVAL:${_arg_TARGET}, ${interface_directories}> doesn't resolve the names.
-        set_target_properties(${_arg_TARGET}  PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${interface_directories}" )
+        if (interface_directories)
+            # Note cannot use target_include_directories and use this since some targets might use BUILD_INTERFACE and INSTALL_INTERFACE
+            # When this is done even $<TARGET_GENEX_EVAL:${_arg_TARGET}, ${interface_directories}> doesn't resolve the names.
+            set_target_properties(${_arg_TARGET}  PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${interface_directories}" )
 
-        message( STATUS "Converting ${_arg_TARGET} interface directories to system")
+            message( STATUS "Converting ${_arg_TARGET} interface directories to system")
+        endif()
     endif()
 
     if( _arg_CPPCHECK )
