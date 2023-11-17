@@ -90,31 +90,34 @@ function( AddConfiguration )
 
     get_property(_supportedLanguages GLOBAL PROPERTY ENABLED_LANGUAGES)
     foreach(_LANG IN LISTS _supportedLanguages)
-        include(CheckCompilerFlag OPTIONAL)
-        # Hack to get around checking linking in check_<LANG>_compiler_flag
-        set(CMAKE_REQUIRED_LIBRARIES ${arg_LINKER_FLAGS})
+        # Hack to get aroud ASM not being supported for checking for compiler flags
+        if(NOT _LANG STREQUAL "ASM")
+            include(CheckCompilerFlag OPTIONAL)
+            # Hack to get around checking linking in check_<LANG>_compiler_flag
+            set(CMAKE_REQUIRED_LIBRARIES ${arg_LINKER_FLAGS})
 
-        check_compiler_flag(${_LANG} "${arg_COMPILE_FLAGS}" ${_LANG}_${_configName}_SUPPORTED)
+            check_compiler_flag(${_LANG} "${arg_COMPILE_FLAGS}" ${_LANG}_${_configName}_SUPPORTED)
 
-        if(${_LANG}_${_configName}_SUPPORTED)
-            if (DEFINED _baseConfigName)
-                string(JOIN " " _flags ${CMAKE_${_LANG}_FLAGS_${_baseConfigName}} ${arg_COMPILE_FLAGS})
+            if(${_LANG}_${_configName}_SUPPORTED)
+                if (DEFINED _baseConfigName)
+                    string(JOIN " " _flags ${CMAKE_${_LANG}_FLAGS_${_baseConfigName}} ${arg_COMPILE_FLAGS})
+                else()
+                    string(JOIN " " _flags ${arg_COMPILE_FLAGS})
+                endif()
+                #message(STATUS "Flags to be added to Lang ${_LANG}, ${_configName} = ${_flags}")
+
+                set(CMAKE_${_LANG}_FLAGS_${_configName}
+                    ${_flags}
+                    CACHE STRING "Flags used by the ${_LANG} compiler during ${_configName} builds."
+                    FORCE
+                )
+                mark_as_advanced(CMAKE_${_LANG}_FLAGS_${_configName})
+                set(${_configName}_SUPPORTED TRUE
+                    CACHE INTERNAL "Whether or not ${arg_CONFIG} is supported by at least one compiler."
+                )
             else()
-                string(JOIN " " _flags ${arg_COMPILE_FLAGS})
+                message( WARNING "The ${_LANG} compiler does not support '${arg_COMPILE_FLAGS}' for ${_configName} build")
             endif()
-            #message(STATUS "Flags to be added to Lang ${_LANG}, ${_configName} = ${_flags}")
-
-            set(CMAKE_${_LANG}_FLAGS_${_configName}
-                ${_flags}
-                CACHE STRING "Flags used by the ${_LANG} compiler during ${_configName} builds."
-                FORCE
-            )
-            mark_as_advanced(CMAKE_${_LANG}_FLAGS_${_configName})
-            set(${_configName}_SUPPORTED TRUE
-                CACHE INTERNAL "Whether or not ${arg_CONFIG} is supported by at least one compiler."
-            )
-        else()
-            message( WARNING "The ${_LANG} compiler does not support '${arg_COMPILE_FLAGS}' for ${_configName} build")
         endif()
     endforeach()
 
