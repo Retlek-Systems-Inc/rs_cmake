@@ -38,6 +38,7 @@ RUN sudo apt-get -y update && \
         python3-pip \
         python3-venv \
         ninja-build \
+        gdb \
         gperf \
         git \
         unzip \
