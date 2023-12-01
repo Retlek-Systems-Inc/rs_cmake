@@ -1,4 +1,3 @@
-# FROM ubuntu:20.04 as base
 FROM registry.gitlab.com/retleksystems/env/cmake/sw-dev:v0.2.4 as base
 
 ARG USERNAME=mw_dev
@@ -14,13 +13,12 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 ARG arch=amd64
 ARG crossarch=arm-zephyr-eabi
-ARG ZEPHYR_TOOLCHAIN_VERSION=0.16.1
+ARG ZEPHYR_TOOLCHAIN_VERSION=0.16.4
 ARG ZEPHYR_TOOLCHAIN_ARCHIVE_FORMAT=xz
 ARG WEST_VERSION=1.0.0
 # These are the legacy utils, see https://github.com/NordicPlayground/nrf-docker/issues/68
 ARG NRF_UTIL_VERSION=6.1.7
 ARG NORDIC_COMMAND_LINE_TOOLS_VERSION="10-23-2/nrf-command-line-tools-10.23.2"
-# ARG NORDIC_COMMAND_LINE_TOOLS_VERSION="10-19-0/nrf-command-line-tools-10.19.0"
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV UDEV=on
@@ -34,6 +32,9 @@ RUN sudo apt-get -y update && \
     sudo apt-get -y upgrade && \
     sudo apt-get -y install \
         cmake \
+        libsdl2-dev \
+        g++ \
+        pkg-config \
         wget \
         python3-pip \
         python3-venv \
