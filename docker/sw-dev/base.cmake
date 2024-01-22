@@ -19,7 +19,7 @@ option(STATIC_ANALYSIS "Use Static Analysis tools." ON)
 option(BUILD_BENCHMARK "Benchmark libs"             ON)
 
 FetchContent_Declare( cmake
-    GIT_REPOSITORY https://rscmake_clone_access:h1SwGbFex6ScmtSWzzGJ@gitlab.com/retleksystems/env/cmake.git
+    GIT_REPOSITORY https://github.com/Retlek-Systems-Inc/rs_cmake
     GIT_TAG        v0.2.4
 )
 

@@ -18,7 +18,7 @@ cmake_dependent_option(STATIC_ANALYSIS "Use Static Analysis tools." ON  "NOT CMA
 cmake_dependent_option(BUILD_BENCHMARK "No Benchmark tests"         OFF "NOT CMAKE_CROSSCOMPILING" OFF)
 
 FetchContent_Declare( cmake
-    GIT_REPOSITORY https://rscmake_clone_access:h1SwGbFex6ScmtSWzzGJ@gitlab.com/retleksystems/env/cmake.git
+    GIT_REPOSITORY https://github.com/Retlek-Systems-Inc/rs_cmake
     GIT_TAG        v0.2.4
 )
 

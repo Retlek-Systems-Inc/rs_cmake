@@ -1,0 +1,24 @@
+# @copyright 2024 Retlek Systems Inc.
+
+name: Lint DockerFile(s)
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - docker/**
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    container:
+      image: hadolint/hadolint:latest-debian
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Lint Dockerfile(s)
+        run: |
+          hadolint ./docker/sw-dev/Dockerfile
+          hadolint ./docker/hw-dev/Dockerfile
+          hadolint ./docker/sw-arm-none-eabi/Dockerfile
+          hadolint ./docker/sw-esp-idf-v4.4.3/Dockerfile
+          hadolint ./docker/docs/Dockerfile

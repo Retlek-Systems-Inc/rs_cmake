@@ -1,0 +1,61 @@
+# @copyright 2024 Retlek Systems Inc.
+
+
+name: Publish to Docker
+on:
+  push:
+    branches:
+      - main
+      - "releases/**"
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  packages: write
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    container:
+      image: hadolint/hadolint:latest-debian
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Lint Dockerfile(s)
+        run: |
+          hadolint ./docker/sw-dev/Dockerfile
+          hadolint ./docker/hw-dev/Dockerfile
+          hadolint ./docker/sw-arm-none-eabi/Dockerfile
+          hadolint ./docker/sw-esp-idf-v4.4.3/Dockerfile
+          hadolint ./docker/docs/Dockerfile
+  publish:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Get Tag version
+        id: vars
+        run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/Retlek-Systems-Inc/${{ github.repository }}
+          tags: type=sha
+          labels: ${{ steps.vars.outputs.tag }}
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build container
+        uses: docker/build-push-action@v5
+        with:
+          context: ./docker/sw-dev
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+
