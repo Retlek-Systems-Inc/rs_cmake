@@ -1,6 +1,6 @@
 # Docker file for installation.
 
-# Copyright (c) 2022 Retlek Systems Inc.
+# Copyright (c) 2024 Retlek Systems Inc.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,28 +23,20 @@
 # hadolint ignore=DL3007
 FROM ghcr.io/Retlek-Systems-Inc/rs_cmake/sw-dev:latest
 
-ENV PLANTUML_DIR="/java"
+CMD [ "/bin/bash" ]
 
-# Documentation dev tools
-#hadolint ignore=DL3008
-RUN apt-get update -y \
-    && DEBIAN_FRONTEND=noninteractive \
-    apt-get install --no-install-recommends -y \
-    doxygen \
-    openjdk-18-jre-headless \
-    graphviz \
-    default-jdk \
-    python3-virtualenv \
-    python3-sphinx \
-    python3-pip \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && nmp install -g less clean-css \
-    && mkdir -p ${PLANTUML_DIR} \
-    && wget -O ${PLANTUML_DIR}/plantuml.jar -progress=dot:giga https://github.com/plantuml/plantuml/releases/download/v1.2023.1/plantuml-1.2023.1.jar \
-    && export PLANTUML_DIR=${PLANTUML_DIR} \
-    && python3 -m pip install --no-cache-dir sphinx_rdt_theme==v1.2.0 \
-    && python3 -m pip install --no-cache-dir breathe==4.34.0
+# Build info for local docker usage with vscode
+ARG USERNAME=
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
 
+# Create the user
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && mkdir -p /etc/sudoers.d \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME \
+    && usermod -a -G dialout $USERNAME
 
-WORKDIR /tmp
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8

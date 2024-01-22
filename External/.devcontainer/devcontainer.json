@@ -1,0 +1,52 @@
+// For format details, see https://aka.ms/devcontainer.json.
+// For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.205.1/containers/docker-existing-dockerfile
+{
+    "name": "Retlek Systems CMake Build Env",
+    // Sets the run context to one level up instead of the .devcontainer folder.
+    "context": "..",
+    // Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
+    "dockerFile": "local/Dockerfile",
+    "build": {
+        "args": {
+            "USERNAME": "${localEnv:USER}" // If this doesn't work use your username here
+        }
+    },
+    // Set *default* container specific settings.json values on container create.
+    "customizations": {
+        "vscode": {
+            "settings": {},
+            // Add the IDs of extensions you want installed when the container is created.
+            "extensions": [
+                "marus25.cortex-debug",
+                "cnshenj.vscode-task-manager",
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "ms-vscode.cmake-tools",
+                "twxs.cmake",
+                "xaver.clang-format",
+                "mhutchie.git-graph",
+                "matepek.vscode-catch2-test-adapter",
+                "hbenl.vscode-test-explorer"
+            ]
+        }
+    },
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    // "forwardPorts": [],
+    // Uncomment the next line to run commands after the container is created - for example installing curl.
+    // "postCreateCommand": "apt-get update && apt-get install -y curl",
+    "runArgs": [
+        // For /dev/ttyUSB0
+        // "--privileged"
+    ],
+    "containerEnv": {},
+    // Uncomment to use the Docker CLI from inside the container. See https://aka.ms/vscode-remote/samples/docker-from-docker.
+    "mounts": [
+        "type=bind,consistency=cached,source=${localEnv:HOME}/.ssh,target=${localEnv:HOME}/.ssh" // ,
+        // "type=bind,source=/dev/bus/usb,target=/dev/bus/usb",
+        // "type=bind,source=/dev/ttyUSB0,target=/dev/ttyUSB0"
+    ],
+    // "mounts": [ "source=/dev,target=/dev,type=volume" ],
+    // Connect as a non-root user: See https://aka.ms/vscode-remote/containers/non-root.
+    "remoteUser": "${localEnv:USER}"
+}

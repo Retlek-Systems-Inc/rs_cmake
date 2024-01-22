@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 # hadolint ignore=DL3007
-FROM registry.gitlab.com/retleksystems/env/cmake/sw-dev:latest
+FROM ghcr.io/Retlek-Systems-Inc/rs_cmake/sw-dev:latest
 
 # Default gtkwave and verilator
 RUN apt-get update -y \
@@ -48,23 +48,27 @@ RUN DEBIAN_FRONTEND=noninteractive \
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
     apt-get install --no-install-recommends -y \
-        autoconf \
-        bc \
-        bison \
-        flex \
-        help2man \
-        libfl2 \
-        libfl-dev \
-        zlib1g \
-        zlib1g-dev \
-        libgoogle-perftools-dev \
+    autoconf \
+    bc \
+    bison \
+    flex \
+    help2man \
+    libfl2 \
+    libfl-dev \
+    libgoogle-perftools-dev \
+    numactl \
+    perl \
+    perldoc \
+    python3 \
+    zlib1g \
+    zlib1g-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 
 # Using version v5.006
 ARG VERILATOR_REPO=https://github.com/verilator/verilator
-ARG VERILATOR_COMMIT=v5.006
+ARG VERILATOR_COMMIT=v5.020
 
 ARG SLANG_REPO=https://github.com/MikePopoloski/slang.git
 ARG SLANG_COMMIT=v2.0

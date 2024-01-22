@@ -6,7 +6,7 @@ cmake_policy(SET CMP0076 NEW) # full paths
 cmake_policy(SET CMP0077 NEW) # options do nothing when defined as variable.
 #cmake_policy(SET CMP0135 NEW) # fetchcontent url timestamp cmake 3.25
 
-project(base-hw-deps VERSION 0.2.2 LANGUAGES C CXX)
+project(base-hw-deps VERSION 0.3.0 LANGUAGES C CXX)
 
 include(FetchContent)
 
@@ -20,8 +20,8 @@ option(BUILD_BENCHMARK "Benchmark libs"             ON)
 option(VERILOG_TEST    "Support Verilog testing."   ON)
 
 FetchContent_Declare( cmake
-    GIT_REPOSITORY https://rscmake_clone_access:h1SwGbFex6ScmtSWzzGJ@gitlab.com/retleksystems/env/cmake.git
-    GIT_TAG        v0.2.4
+    GIT_REPOSITORY https://github.com/Retlek-Systems-Inc/rs_cmake
+    GIT_TAG        v0.3.0
 )
 
 FetchContent_GetProperties(cmake)
