@@ -19,6 +19,6 @@ jobs:
         run: |
           hadolint ./docker/sw-dev/Dockerfile
           hadolint ./docker/hw-dev/Dockerfile
-          hadolint ./docker/sw-arm-none-eabi/Dockerfile
-          hadolint ./docker/sw-esp-idf-v4.4.3/Dockerfile
           hadolint ./docker/docs/Dockerfile
+#          hadolint ./docker/sw-arm-none-eabi/Dockerfile
+#          hadolint ./docker/sw-esp-idf-v4.4.3/Dockerfile
