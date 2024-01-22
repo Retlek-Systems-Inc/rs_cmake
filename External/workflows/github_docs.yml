@@ -31,7 +31,7 @@ on:
   pull_request:
   push:
     branches:
-      - master
+      - main
       - "releases/*"
     tags:
       - "*"

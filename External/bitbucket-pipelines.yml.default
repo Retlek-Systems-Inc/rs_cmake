@@ -258,7 +258,7 @@ pipelines:
           - step:
               <<: *clang_cpplint_analysis
   branches:
-    master:
+    main:
       - step:
           <<: *gcc_debug_build_and_test
       - parallel:
