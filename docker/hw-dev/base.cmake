@@ -6,7 +6,7 @@ cmake_policy(SET CMP0076 NEW) # full paths
 cmake_policy(SET CMP0077 NEW) # options do nothing when defined as variable.
 #cmake_policy(SET CMP0135 NEW) # fetchcontent url timestamp cmake 3.25
 
-project(base-hw-deps VERSION 0.2.2 LANGUAGES C CXX)
+project(base-hw-deps VERSION 0.3.0 LANGUAGES C CXX)
 
 include(FetchContent)
 
