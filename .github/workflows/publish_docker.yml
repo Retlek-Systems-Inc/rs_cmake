@@ -1,63 +1,75 @@
 # @copyright 2024 Retlek Systems Inc.
 
-
 name: Publish to Docker
 on:
-  workflow_run:
-    workflows: ["Lint DockerFiles"]
-    types:
-      - completed
-  push:
-    tags:
-      - 'v[0-9]+\.[0-9]+\.[0-9]+'
+  release:
+    types: 
+      - published
 
-permissions:
-  packages: write
-  contents: read
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+ 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_run' &&
-      github.event.workflow_run.conclusion == 'success' &&
-      startsWith(github.event.workflow_run.head_branch, 'refs/tags/v')
+    permissions:
+      contents: read
+      packages: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Get Tag version
-        id: vars
-        run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/Retlek-Systems-Inc/${{ github.repository }}
-          tags: type=sha
-          labels: ${{ steps.vars.outputs.tag }}
-      - name: Login to GHCR
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN  }}
+      - name: Extract version from release tag
+        id: version
+        run: echo "::set-output name=version::${{ github.event.release.tag_name }}"
+      # --------------------
+      # SW Dev Container
       - name: Build sw-dev container
         uses: docker/build-push-action@v5
         with:
           context: ./docker/sw-dev
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/sw-dev:${{ steps.version.outputs.version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/sw-dev:latest
+      - name: Inspect sw-dev docker image
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/sw-dev:${{ steps.version.outputs.version }}
+      # --------------------
+      # HW Dev Container - relies on SW Dev container
       - name: Build hw-dev container
         uses: docker/build-push-action@v5
         with:
           context: ./docker/hw-dev
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-      # - name: Build docs container
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: ./docker/docs
-      #     push: true
-      #     tags: ${{ steps.meta.outputs.tags }}
-      #     labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/hw-dev:${{ steps.version.outputs.version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/hw-dev:latest
+      - name: Inspect hw-dev docker image
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/hw-dev:${{ steps.version.outputs.version }}
+      # --------------------
+      # Doc Container - relies on SW Dev container
+      - name: Build docs container
+        uses: docker/build-push-action@v5
+        with:
+          context: ./docker/docs
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/docs:${{ steps.version.outputs.version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/docs:latest
+      - name: Inspect hw-dev docker image
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/docs:${{ steps.version.outputs.version }}
