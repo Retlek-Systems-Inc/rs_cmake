@@ -1,6 +1,6 @@
 # @copyright 2024 Retlek Systems Inc.
 
-name: Lint DockerFile(s)
+name: Lint DockerFiles
 on:
   push:
     branches:

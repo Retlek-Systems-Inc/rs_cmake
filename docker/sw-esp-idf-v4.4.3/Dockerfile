@@ -21,45 +21,45 @@
 # SOFTWARE.
 
 # hadolint ignore=DL3007
-FROM registry.gitlab.com/retleksystems/env/cmake/sw-dev:latest
+FROM ghcr.io/Retlek-Systems-Inc/rs_cmake/sw-dev:latest
 
 # Based off: https://github.com/espressif/esp-idf/blob/v4.4.3/tools/docker/Dockerfile
 
 # Default tools for building esp-idf
 # hadolint ignore=DL3008,DL3013
 RUN apt-get update -y \
-    && DEBIAN_FRONTEND=noninteractive \
-    apt-get install --no-install-recommends -y \
-        apt-utils \
-        bison \
-        ca-certificates \
-        ccache \
-        check \
-        curl \
-        flex \
-        git \
-        git-lfs \
-        gperf \
-        lcov \
-        libffi-dev \
-        libncurses-dev \
-        libpython2.7 \
-        libusb-1.0-0-dev \
-        make \
-        ninja-build \
-        python3 \
-        python3-pip \
-        unzip \
-        wget \
-        xz-utils \
-        zip \
-    && apt-get autoremove -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
-    && python -m pip install --no-cache-dir --upgrade \
-        pip \
-        virtualenv
+  && DEBIAN_FRONTEND=noninteractive \
+  apt-get install --no-install-recommends -y \
+  apt-utils \
+  bison \
+  ca-certificates \
+  ccache \
+  check \
+  curl \
+  flex \
+  git \
+  git-lfs \
+  gperf \
+  lcov \
+  libffi-dev \
+  libncurses-dev \
+  libpython2.7 \
+  libusb-1.0-0-dev \
+  make \
+  ninja-build \
+  python3 \
+  python3-pip \
+  unzip \
+  wget \
+  xz-utils \
+  zip \
+  && apt-get autoremove -y \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* \
+  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
+  && python -m pip install --no-cache-dir --upgrade \
+  pip \
+  virtualenv
 
 # To build the image for a branch or a tag of IDF, pass --build-arg IDF_CLONE_BRANCH_OR_TAG=name.
 # To build the image with a specific commit ID of IDF, pass --build-arg IDF_CHECKOUT_REF=commit-id.
@@ -82,20 +82,20 @@ ENV IDF_TOOLS_PATH=/opt/esp
 
 # hadolint ignore=DL3003
 RUN echo IDF_CHECKOUT_REF=$IDF_CHECKOUT_REF IDF_CLONE_BRANCH_OR_TAG=$IDF_CLONE_BRANCH_OR_TAG \
-    && git clone --recursive \
-      ${IDF_CLONE_SHALLOW:+--depth=1 --shallow-submodules} \
-      ${IDF_CLONE_BRANCH_OR_TAG:+-b $IDF_CLONE_BRANCH_OR_TAG} \
-      $IDF_CLONE_URL $IDF_PATH \
-    && git config --global --add safe.directory $IDF_PATH \
-    && git config --global --add safe.directory $IDF_PATH/components/openthread/openthread \
-    && if [ -n "$IDF_CHECKOUT_REF" ]; then \
-      cd $IDF_PATH \
-      && if [ -n "$IDF_CLONE_SHALLOW" ]; then \
-        git fetch origin --depth=1 --recurse-submodules ${IDF_CHECKOUT_REF}; \
-      fi \
-    && git checkout $IDF_CHECKOUT_REF && \
-       git submodule update --init --recursive; \
-    fi
+  && git clone --recursive \
+  ${IDF_CLONE_SHALLOW:+--depth=1 --shallow-submodules} \
+  ${IDF_CLONE_BRANCH_OR_TAG:+-b $IDF_CLONE_BRANCH_OR_TAG} \
+  $IDF_CLONE_URL $IDF_PATH \
+  && git config --global --add safe.directory $IDF_PATH \
+  && git config --global --add safe.directory $IDF_PATH/components/openthread/openthread \
+  && if [ -n "$IDF_CHECKOUT_REF" ]; then \
+  cd $IDF_PATH \
+  && if [ -n "$IDF_CLONE_SHALLOW" ]; then \
+  git fetch origin --depth=1 --recurse-submodules ${IDF_CHECKOUT_REF}; \
+  fi \
+  && git checkout $IDF_CHECKOUT_REF && \
+  git submodule update --init --recursive; \
+  fi
 
 # Install all the required tools
 # hadolint ignore=SC2046
@@ -110,10 +110,10 @@ RUN update-ca-certificates --fresh \
 ENV IDF_CCACHE_ENABLE=1
 
 RUN  printf "\
-#!/usr/bin/env bash \n\
-set -e\n\
-. \$IDF_PATH/export.sh\n\
-exec \"\$@\"" > /opt/esp/entrypoint.sh
+  #!/usr/bin/env bash \n\
+  set -e\n\
+  . \$IDF_PATH/export.sh\n\
+  exec \"\$@\"" > /opt/esp/entrypoint.sh
 
 ENTRYPOINT [ "/opt/esp/entrypoint.sh" ]
 CMD [ "/bin/bash" ]

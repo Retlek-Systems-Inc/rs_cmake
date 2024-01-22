@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 # hadolint ignore=DL3007
-FROM registry.gitlab.com/retleksystems/env/cmake/sw-dev:latest
+FROM ghcr.io/Retlek-Systems-Inc/rs_cmake/sw-dev:latest
 
 ENV PLANTUML_DIR="/java"
 
@@ -30,13 +30,13 @@ ENV PLANTUML_DIR="/java"
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
     apt-get install --no-install-recommends -y \
-        doxygen \
-        openjdk-18-jre-headless \
-        graphviz \
-        default-jdk \
-        python3-virtualenv \
-        python3-sphinx \
-        python3-pip \
+    doxygen \
+    openjdk-18-jre-headless \
+    graphviz \
+    default-jdk \
+    python3-virtualenv \
+    python3-sphinx \
+    python3-pip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && nmp install -g less clean-css \

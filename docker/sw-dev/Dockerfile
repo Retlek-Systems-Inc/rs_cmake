@@ -22,7 +22,31 @@
 
 FROM ubuntu:22.04
 
-# Default GCC, latest cmake and ninja-build, clang (14)
+# ---------------------------------------------------------
+# Latest cmake - setup keyring
+# See: https://apt.kitware.com/
+
+# hadolint ignore=DL3008
+RUN apt-get update -y \
+    && DEBIAN_FRONTEND=noninteractive \
+    apt-get install --no-install-recommends -y \
+    ca-certificates \
+    gpg \
+    wget \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN test -f /usr/share/doc/kitware-archive-keyring/copyright \
+    || wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
+    && echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null \
+    && apt-get update -y \
+    && test -f /usr/share/doc/kitware-archive-keyring/copyright \
+    || rm /usr/share/keyrings/kitware-archive-keyring.gpg \
+    && apt-get install kitware-archive-keyring
+
+# ---------------------------------------------------------
+# Default GCC, latest cmake and ninja-build
+
 # hadolint ignore=DL3008
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
@@ -40,47 +64,19 @@ RUN apt-get update -y \
     cpplint \
     iwyu \
     build-essential \
-    clang-14 \
-    clang-format-14 \
-    clang-tidy-14 \
-    clang-tools-14\
-    clangd-14 \
-    libc++-14-dev \
-    libc++abi-14-dev \
-    libc++abi1-14 \
-    libclang-14-dev \
-    libclang-common-14-dev \
-    libclang-cpp14 \
-    libclang-cpp14-dev \
-    libclang1-14 \
-    libclc-14 \
-    libclc-14-dev \
-    libfuzzer-14-dev \
-    liblld-14 \
-    liblld-14-dev \
-    liblldb-14 \
-    liblldb-14-dev \
-    libllvm-14-ocaml-dev \
-    libllvm14 \
-    libmlir-14 \
-    libmlir-14-dev \
-    libomp-14-dev \
-    libomp-14-doc \
-    libomp5-14 \
-    libunwind-14 \
-    libunwind-14-dev \
-    lld-14 \
-    lldb-14 \
-    llvm-14 \
-    llvm-14-dev \
-    llvm-14-linker-tools \
-    llvm-14-runtime \
-    llvm-14-tools \
-    mlir-14-tools \
-    python3-clang-14 \
-    python3-lldb-14 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# ---------------------------------------------------------
+# Latest Clang and LLVM
+# See: https://apt.llvm.org
+
+# hadolint ignore=DL3008
+RUN wget https://apt.llvm.org/llvm.sh \
+    && chmod +x llvm.sh \
+    && ./llvm.sh 17 all
+
+# ---------------------------------------------------------
 
 ENV WORK_PATH=/tmp
 ENV CMAKE_ENV_DEPS_PATH=${WORK_PATH}/cmake_env_deps

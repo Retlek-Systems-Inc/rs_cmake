@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.28)
 cmake_policy(SET CMP0048 NEW) # project version
 cmake_policy(SET CMP0057 NEW) # Support if( IN_LIST ) operator
 cmake_policy(SET CMP0065 NEW) # do not add rdynamic unless explicitly stated
@@ -6,7 +6,7 @@ cmake_policy(SET CMP0076 NEW) # full paths
 cmake_policy(SET CMP0077 NEW) # options do nothing when defined as variable.
 #cmake_policy(SET CMP0135 NEW) # fetchcontent url timestamp cmake 3.25
 
-project(base-hw-deps VERSION 0.2.4 LANGUAGES C CXX)
+project(base-sw-deps VERSION 0.2.4 LANGUAGES C CXX)
 
 include(FetchContent)
 
@@ -20,7 +20,7 @@ option(BUILD_BENCHMARK "Benchmark libs"             ON)
 
 FetchContent_Declare( cmake
     GIT_REPOSITORY https://github.com/Retlek-Systems-Inc/rs_cmake
-    GIT_TAG        v0.2.4
+    GIT_TAG        v0.3.0
 )
 
 FetchContent_GetProperties(cmake)

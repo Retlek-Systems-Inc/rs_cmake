@@ -1,4 +1,5 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// For format details, see https://aka.ms/devcontainer.json.
+// For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.205.1/containers/docker-existing-dockerfile
 {
     "name": "Retlek Systems CMake Build Env",
@@ -8,7 +9,7 @@
     "dockerFile": "local/Dockerfile",
     "build": {
         "args": {
-            "USERNAME": "${localEnv:USER}" // If this doesn't work use your username here eg: fickles
+            "USERNAME": "${localEnv:USER}" // If this doesn't work use your username here
         }
     },
     // Set *default* container specific settings.json values on container create.
@@ -26,7 +27,7 @@
                 "xaver.clang-format",
                 "mhutchie.git-graph",
                 "matepek.vscode-catch2-test-adapter",
-                "hbenl.vscode-test-explorer",
+                "hbenl.vscode-test-explorer"
             ]
         }
     },
@@ -36,7 +37,7 @@
     // "postCreateCommand": "apt-get update && apt-get install -y curl",
     "runArgs": [
         // For /dev/ttyUSB0
-        "--privileged"
+        // "--privileged"
     ],
     "containerEnv": {},
     // Uncomment to use the Docker CLI from inside the container. See https://aka.ms/vscode-remote/samples/docker-from-docker.

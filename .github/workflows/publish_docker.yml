@@ -3,34 +3,24 @@
 
 name: Publish to Docker
 on:
+  workflow_run:
+    workflows: ["Lint DockerFiles"]
+    types:
+      - completed
   push:
-    branches:
-      - main
-      - "releases/**"
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+\.[0-9]+\.[0-9]+'
 
 permissions:
   packages: write
   contents: read
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    container:
-      image: hadolint/hadolint:latest-debian
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Lint Dockerfile(s)
-        run: |
-          hadolint ./docker/sw-dev/Dockerfile
-          hadolint ./docker/hw-dev/Dockerfile
-          hadolint ./docker/sw-arm-none-eabi/Dockerfile
-          hadolint ./docker/sw-esp-idf-v4.4.3/Dockerfile
-          hadolint ./docker/docs/Dockerfile
   publish:
     runs-on: ubuntu-latest
-    needs: lint
+    if: |
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'refs/tags/v')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,12 +40,24 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build container
+      - name: Build sw-dev container
         uses: docker/build-push-action@v5
         with:
           context: ./docker/sw-dev
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-
+      - name: Build hw-dev container
+        uses: docker/build-push-action@v5
+        with:
+          context: ./docker/hw-dev
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      # - name: Build docs container
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: ./docker/docs
+      #     push: true
+      #     tags: ${{ steps.meta.outputs.tags }}
+      #     labels: ${{ steps.meta.outputs.labels }}
