@@ -20,4 +20,3 @@ jobs:
           hadolint ./docker/sw-dev/Dockerfile
           hadolint ./docker/hw-dev/Dockerfile
           hadolint ./docker/docs/Dockerfile
-#          hadolint ./docker/sw-arm-none-eabi/Dockerfile
