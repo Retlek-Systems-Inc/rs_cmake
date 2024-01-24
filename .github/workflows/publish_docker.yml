@@ -8,7 +8,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
  
 jobs:
   publish:
@@ -28,9 +27,12 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
-      - name: Extract version from release tag
-        id: version
-        run: echo "::set-output name=version::${{ github.event.release.tag_name }}"
+      - name: Extract repo name and version from release tag
+        id: info
+        run: |
+          echo "version=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          REPO_NAME_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "image_name=$REPO_NAME_LOWER" >> $GITHUB_OUTPUT
       # --------------------
       # SW Dev Container
       - name: Build sw-dev container
@@ -39,12 +41,12 @@ jobs:
           context: ./docker/sw-dev
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/sw-dev:${{ steps.version.outputs.version }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/sw-dev:latest
+            ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-dev:${{ steps.info.outputs.version }}
+            ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-dev:latest
       - name: Inspect sw-dev docker image
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/sw-dev:${{ steps.version.outputs.version }}
+          images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-dev:${{ steps.info.outputs.version }}
       # --------------------
       # HW Dev Container - relies on SW Dev container
       - name: Build hw-dev container
@@ -53,12 +55,12 @@ jobs:
           context: ./docker/hw-dev
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/hw-dev:${{ steps.version.outputs.version }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/hw-dev:latest
+            ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-dev:${{ steps.info.outputs.version }}
+            ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-dev:latest
       - name: Inspect hw-dev docker image
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/hw-dev:${{ steps.version.outputs.version }}
+          images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-dev:${{ steps.info.outputs.version }}
       # --------------------
       # Doc Container - relies on SW Dev container
       - name: Build docs container
@@ -67,9 +69,9 @@ jobs:
           context: ./docker/docs
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/docs:${{ steps.version.outputs.version }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/docs:latest
+            ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/docs:${{ steps.info.outputs.version }}
+            ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/docs:latest
       - name: Inspect hw-dev docker image
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/docs:${{ steps.version.outputs.version }}
+          images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/docs:${{ steps.info.outputs.version }}
