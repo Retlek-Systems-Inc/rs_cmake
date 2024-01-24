@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 # hadolint ignore=DL3007
-FROM ghcr.io/Retlek-Systems-Inc/rs_cmake/sw-dev:latest
+FROM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
 
 # Default gtkwave and verilator
 RUN apt-get update -y \

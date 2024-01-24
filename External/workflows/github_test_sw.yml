@@ -46,7 +46,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/Retlek-Systems-Inc/rs_cmake/sw-dev:v0.3.0
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.3.0
       credentials:
         username: ${{ secrets.rs_docker_registry_username }}
         password: ${{ secrets.rs_docker_registry_password }}
@@ -76,7 +76,7 @@ jobs:
     name: ${{ matrix.name }} Build and Test
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/Retlek-Systems-Inc/rs_cmake/sw-dev:v0.3.0
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.3.0
       credentials:
         username: ${{ secrets.rs_docker_registry_username }}
         password: ${{ secrets.rs_docker_registry_password }}
@@ -147,7 +147,7 @@ jobs:
     name: ${{ matrix.name }} Analysis
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/Retlek-Systems-Inc/rs_cmake/sw-dev:v0.3.0
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.3.0
       credentials:
         username: ${{ secrets.rs_docker_registry_username }}
         password: ${{ secrets.rs_docker_registry_password }}
