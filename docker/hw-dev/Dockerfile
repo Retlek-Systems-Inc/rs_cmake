@@ -38,11 +38,6 @@ RUN apt-get update -y \
 # modified from: https://github.com/verilator/verilator/blob/master/ci/docker/run/Dockerfile
 # Also used: https://verilator.org/guide/latest/install.html#git-quick-install
 
-# Note libunwind-14 is installed with llvm-14 tools.  This clashes with libunwind-dev used by
-# libgoogle-perftools-dev so removing it for now.  This means cannot use libc++abi* but must use
-# gcc version libstdc++abi.
-RUN DEBIAN_FRONTEND=noninteractive \
-    apt-get -y autoremove --purge libunwind-14
 
 # hadolint ignore=DL3008
 RUN apt-get update -y \
@@ -58,7 +53,7 @@ RUN apt-get update -y \
     libgoogle-perftools-dev \
     numactl \
     perl \
-    perldoc \
+    perl-doc \
     python3 \
     zlib1g \
     zlib1g-dev \
@@ -71,7 +66,7 @@ ARG VERILATOR_REPO=https://github.com/verilator/verilator
 ARG VERILATOR_COMMIT=v5.020
 
 ARG SLANG_REPO=https://github.com/MikePopoloski/slang.git
-ARG SLANG_COMMIT=v2.0
+ARG SLANG_COMMIT=v5.0
 
 ENV WORK_PATH=/tmp
 ENV CMAKE_ENV_DEPS_PATH=${WORK_PATH}/cmake_env_deps
