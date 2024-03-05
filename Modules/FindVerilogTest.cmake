@@ -78,17 +78,28 @@ macro(add_verilator_base_target)
         add_library(verilator_base STATIC)
         add_library(Verilator::base ALIAS verilator_base)
 
-        set (_inc_dir ${verilator_DIR}/include)
+        find_file(verilated_h
+          NAMES verilated.h
+          REQUIRED
+          PATHS
+            $ENV{VERILATOR_ROOT}/include
+            ${VERILATOR_ROOT}/include
+          DOC "Verilated header and include directory"
+        )
+
+        get_filename_component(_inc_dir ${verilated_h} DIRECTORY)
         target_sources( verilator_base
           PRIVATE
             $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated.cpp>
             $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated.h>
+            #${_inc_dir}/verilated_std.sv
             #${_inc_dir}/verilated.v
             ${_inc_dir}/verilated_config.h
             #${_inc_dir}/verilated_config.h.in
             ${_inc_dir}/verilated_cov.cpp
             ${_inc_dir}/verilated_cov.h
             ${_inc_dir}/verilated_cov_key.h
+            ${_inc_dir}/verilated.cpp
             ${_inc_dir}/verilated_dpi.cpp
             ${_inc_dir}/verilated_dpi.h
             $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated_fst_c.cpp>
@@ -96,16 +107,17 @@ macro(add_verilator_base_target)
             $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_fst_sc.cpp>
             $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_fst_sc.h>
             ${_inc_dir}/verilated_funcs.h
-            ${_inc_dir}/verilated_heavy.h
+            $<$<NOT:$<BOOL:${VERILATOR_SYSTEMC}>>:${_inc_dir}/verilated.h>
             ${_inc_dir}/verilated_imp.h
             ${_inc_dir}/verilated_intrinsics.h
+            ${_inc_dir}/verilatedos.h
             ${_inc_dir}/verilated_probdist.cpp
             ${_inc_dir}/verilated_profiler.cpp
             ${_inc_dir}/verilated_profiler.h
             ${_inc_dir}/verilated_save.cpp
             ${_inc_dir}/verilated_save.h
             $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_sc.h>
-            #${_inc_dir}/verilated_std.sv
+            $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_sc_trace.h>
             ${_inc_dir}/verilated_sym_props.h
             ${_inc_dir}/verilated_syms.h
             ${_inc_dir}/verilated_threads.cpp
@@ -113,7 +125,6 @@ macro(add_verilator_base_target)
             ${_inc_dir}/verilated_timing.cpp
             ${_inc_dir}/verilated_timing.h
             ${_inc_dir}/verilated_trace.h
-            ${_inc_dir}/verilated_trace_defs.h
             ${_inc_dir}/verilated_trace_imp.h
             ${_inc_dir}/verilated_types.h
             ${_inc_dir}/verilated_vcd_c.cpp
@@ -122,19 +133,19 @@ macro(add_verilator_base_target)
             $<$<BOOL:${VERILATOR_SYSTEMC}>:${_inc_dir}/verilated_vcd_sc.h>
             ${_inc_dir}/verilated_vpi.cpp
             ${_inc_dir}/verilated_vpi.h
-            ${_inc_dir}/verilatedos.h
 
             # ${_inc_dir}/gtkwave/fastlz.c
             # ${_inc_dir}/gtkwave/fastlz.h
-            # ${_inc_dir}/gtkwave/fst_config.h
-            # ${_inc_dir}/gtkwave/fst_win_unistd.h
             # ${_inc_dir}/gtkwave/fstapi.c
             # ${_inc_dir}/gtkwave/fstapi.h
+            # ${_inc_dir}/gtkwave/fst_config.h
+            # ${_inc_dir}/gtkwave/fst_win_unistd.h
             # ${_inc_dir}/gtkwave/lz4.c
             # ${_inc_dir}/gtkwave/lz4.h
             # ${_inc_dir}/gtkwave/wavealloca.h
 
             # ${_inc_dir}/vltstd/svdpi.h
+            # ${_inc_dir}/vltstd/sv_vpi_user.h
             # ${_inc_dir}/vltstd/vpi_user.h
         )
 
@@ -173,6 +184,9 @@ macro(add_verilator_base_target)
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-undefined-reinterpret-cast>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-unused-parameter>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-weak-vtables>
+
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-header-hygiene>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unsafe-buffer-usage>
           PRIVATE
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-cast-align>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-covered-switch-default>
@@ -188,7 +202,13 @@ macro(add_verilator_base_target)
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-macros>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-unused-variable>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-zero-as-null-pointer-constant>
-        )
+
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-documentation-unknown-command>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-vla-extension>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-but-set-variable>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-deprecated>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-comma>
+            )
 
         target_include_directories( verilator_base SYSTEM
           PUBLIC
@@ -211,11 +231,17 @@ macro(add_verilator_base_target)
 
         set(THREADS_PREFER_PTHREAD_FLAG TRUE)
         find_package(Threads REQUIRED)
+        find_library( Atomic_LIB
+          NAMES
+            atomic
+            libatomic.so.1
+          REQUIRED
+        )
 
         target_link_libraries( verilator_base
           PUBLIC
             Threads::Threads
-            atomic # For some reason missing __atomic_is_lock_free definition.
+            ${Atomic_LIB} # For some reason missing __atomic_is_lock_free definition.
         )
 
         if( VERILATOR_SYSTEMC )
