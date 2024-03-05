@@ -109,10 +109,11 @@ RUN add-apt-repository universe \
 ENV YOSYS_CMD=${YOSYS_INSTALL_DIR}/oss-cad-suite/bin/yosys
 ENV OPENROAD_EXE=/usr/bin/openroad
 
+# TODO(phelter): Debug later - bug in final_report.tcl
 # Install OpenROAD flow scripts
 # hadolint ignore=DL3003
-RUN git clone "${ORFS_REPO}" ${ORFS_PATH} \
-    && yosys -help \
-    && openroad -help \
-    && cd ${ORFS_PATH}/flow \
-    && make
+# RUN git clone "${ORFS_REPO}" ${ORFS_PATH} \
+#     && yosys -help \
+#     && openroad -help \
+#     && cd ${ORFS_PATH}/flow \
+#     && make

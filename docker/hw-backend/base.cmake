@@ -6,7 +6,7 @@ cmake_policy(SET CMP0076 NEW) # full paths
 cmake_policy(SET CMP0077 NEW) # options do nothing when defined as variable.
 #cmake_policy(SET CMP0135 NEW) # fetchcontent url timestamp cmake 3.25
 
-project(base-hw-deps VERSION 0.3.0 LANGUAGES C CXX)
+project(base-hw-deps VERSION 0.3.2 LANGUAGES C CXX)
 
 include(FetchContent)
 
@@ -19,14 +19,14 @@ option(STATIC_ANALYSIS "Use Static Analysis tools." ON)
 option(BUILD_BENCHMARK "Benchmark libs"             ON)
 option(VERILOG_TEST    "Support Verilog testing."   OFF)
 
-FetchContent_Declare( cmake
+FetchContent_Declare( rs_cmake
     GIT_REPOSITORY https://github.com/Retlek-Systems-Inc/rs_cmake
-    GIT_TAG        v0.3.0
+    GIT_TAG        v0.3.2
 )
 
-FetchContent_GetProperties(cmake)
-if(NOT cmake_POPULATED)
-  FetchContent_Populate(cmake)
+FetchContent_GetProperties( rs_cmake )
+if(NOT rs_cmake_POPULATED)
+  FetchContent_Populate( rs_cmake )
   include(${cmake_SOURCE_DIR}/Init.cmake)
 endif()
 
