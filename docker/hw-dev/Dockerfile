@@ -38,12 +38,6 @@ RUN apt-get update -y \
 # modified from: https://github.com/verilator/verilator/blob/master/ci/docker/run/Dockerfile
 # Also used: https://verilator.org/guide/latest/install.html#git-quick-install
 
-# Note libunwind-14 is installed with llvm-14 tools.  This clashes with libunwind-dev used by
-# libgoogle-perftools-dev so removing it for now.  This means cannot use libc++abi* but must use
-# gcc version libstdc++abi.
-RUN DEBIAN_FRONTEND=noninteractive \
-    apt-get -y autoremove --purge libunwind-14
-
 # hadolint ignore=DL3008
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
@@ -58,7 +52,7 @@ RUN apt-get update -y \
     libgoogle-perftools-dev \
     numactl \
     perl \
-    perldoc \
+    perl-doc \
     python3 \
     zlib1g \
     zlib1g-dev \
@@ -68,10 +62,16 @@ RUN apt-get update -y \
 
 # Using version v5.006
 ARG VERILATOR_REPO=https://github.com/verilator/verilator
-ARG VERILATOR_COMMIT=v5.020
+ARG VERILATOR_COMMIT=v5.022
 
 ARG SLANG_REPO=https://github.com/MikePopoloski/slang.git
-ARG SLANG_COMMIT=v2.0
+ARG SLANG_COMMIT=v5.0
+
+ARG VERIBLE_URL=https://github.com/chipsalliance/verible/releases/download
+ARG VERIBLE_VERSION=v0.0-3595-g934ef5c3
+ARG VERIBLE_FILE=verible-${VERIBLE_VERSION}-linux-static-x86_64.tar.gz
+ARG VERIBLE_RELEASE=${VERIBLE_URL}/${VERIBLE_VERSION}/${VERIBLE_FILE}
+
 
 ENV WORK_PATH=/tmp
 ENV CMAKE_ENV_DEPS_PATH=${WORK_PATH}/cmake_env_deps
@@ -107,6 +107,11 @@ RUN git clone "${SLANG_REPO}" ${CMAKE_ENV_SLANG_PATH} \
     && cmake --build build \
     && cmake --install build --strip \
     && rm -r ${CMAKE_ENV_SLANG_PATH}
+
+# Install verible.
+RUN wget --progress=dot:giga ${VERIBLE_URL}/${VERIBLE_VERSION}/${VERIBLE_FILE} \
+    && tar -xzf ${VERIBLE_FILE} -C /usr/local --strip-components=1 \
+    && rm -f ${VERIBLE_FILE}
 
 # Now create DEPS directory with pre-downloaded git repos
 RUN mkdir -p ${CMAKE_ENV_DEPS_PATH} \
