@@ -27,6 +27,7 @@ FROM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
 ENV WORK_PATH=/tmp
 
 # Default update to latest.
+# hadolint ignore=DL3008
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
     apt-get install --no-install-recommends -y \
@@ -71,7 +72,7 @@ RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y  \
     && dpkg --configure -a \
     && apt-get autoremove \
-    && apt --fix-broken install \
+    && apt-get --fix-broken install \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y ./${KLAYOUT_DEB_FILE} \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* ./${KLAYOUT_GPG_PUBKEY_FILE} ./${KLAYOUT_DEB_FILE}
@@ -91,7 +92,7 @@ RUN wget --progress=dot:giga ${OPENROAD_DEB_URL}
 
 #Note: `time` is for the OpenROAD flow scripts - used in make files.
 
-# hadolint ignore=DL3003
+# hadolint ignore=DL3008
 RUN add-apt-repository universe \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive \
@@ -109,6 +110,7 @@ ENV YOSYS_CMD=${YOSYS_INSTALL_DIR}/oss-cad-suite/bin/yosys
 ENV OPENROAD_EXE=/usr/bin/openroad
 
 # Install OpenROAD flow scripts
+# hadolint ignore=DL3003
 RUN git clone "${ORFS_REPO}" ${ORFS_PATH} \
     && yosys -help \
     && openroad -help \
