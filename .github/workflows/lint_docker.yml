@@ -21,4 +21,5 @@ jobs:
         run: |
           hadolint ./docker/sw-dev/Dockerfile
           hadolint ./docker/hw-dev/Dockerfile
+          hadolint ./docker/hw-backend/Dockerfile
           hadolint ./docker/docs/Dockerfile
