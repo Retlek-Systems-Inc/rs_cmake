@@ -36,7 +36,7 @@ variables:
   CLANG_DIR: ${BASE_BUILD_DIR}/clang
 
 default:
-  image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.3.0
+  image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.3.2
   before_script:
     # Subproject tools
     #    - apt -y install protobuf-compiler python-protobuf libprotobuf-dev
@@ -84,7 +84,7 @@ cache: &global_cache
 # Additional build with scan-build to generate reports.
 .analysis_build: &analysis_build
   - echo "** Running Config with scan-build '${BUILD_TYPE}' in '${BUILD_DIR}'"
-  - scan-build-14 -o scan-build -k --status-bugs -internal-stats --keep-empty cmake --build ${BUILD_DIR} --config ${BUILD_TYPE}
+  - scan-build-${CLANG_VER} -o scan-build -k --status-bugs -internal-stats --keep-empty cmake --build ${BUILD_DIR} --config ${BUILD_TYPE}
 
 # Common Run Tests
 .common_test: &common_test

@@ -5,7 +5,7 @@ cmake_policy(SET CMP0076 NEW) # full paths
 cmake_policy(SET CMP0077 NEW) # options do nothing when defined as variable.
 #cmake_policy(SET CMP0135 NEW) # fetchcontent url timestamp cmake 3.25
 
-project(base-sw-arm-none-eabi-deps VERSION 0.3.0 LANGUAGES C)
+project(base-sw-arm-none-eabi-deps VERSION 0.3.2 LANGUAGES C)
 
 include(FetchContent)
 
@@ -17,14 +17,14 @@ cmake_dependent_option(BUILD_DOC       "Builds the documentation"   OFF "NOT CMA
 cmake_dependent_option(STATIC_ANALYSIS "Use Static Analysis tools." ON  "NOT CMAKE_CROSSCOMPILING" OFF)
 cmake_dependent_option(BUILD_BENCHMARK "No Benchmark tests"         OFF "NOT CMAKE_CROSSCOMPILING" OFF)
 
-FetchContent_Declare( cmake
+FetchContent_Declare( rs_cmake
     GIT_REPOSITORY https://github.com/Retlek-Systems-Inc/rs_cmake
-    GIT_TAG        v0.3.0
+    GIT_TAG        v0.3.2
 )
 
-FetchContent_GetProperties(cmake)
-if(NOT cmake_POPULATED)
-  FetchContent_Populate(cmake)
+FetchContent_GetProperties( rs_cmake )
+if(NOT rs_cmake_POPULATED)
+  FetchContent_Populate( rs_cmake )
   include(${cmake_SOURCE_DIR}/Init.cmake)
 endif()
 

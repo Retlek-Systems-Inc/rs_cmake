@@ -40,23 +40,20 @@ env:
   DEPS_DIR: ci_build/deps
   CLANG_DIR: ci_build/clang
   GCC_DIR: ci_build/gcc
-  CLANG_VER: 14
+  CLANG_VER: 17
 
 jobs:
   prepare:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/hw-dev:v0.3.0
-      credentials:
-        username: ${{ secrets.rs_docker_registry_username }}
-        password: ${{ secrets.rs_docker_registry_password }}
+      image: ghcr.io/retlek-systems-inc/rs_cmake/hw-dev:v0.3.2
     env:
       CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Cache CMake Build directories
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.BASE_BUILD_DIR }}
           key: ${{ runner.os }}-CMakeFiles-
@@ -76,10 +73,7 @@ jobs:
     name: ${{ matrix.name }} Build and Test
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/hw-dev:v0.3.0
-      credentials:
-        username: ${{ secrets.rs_docker_registry_username }}
-        password: ${{ secrets.rs_docker_registry_password }}
+      image: ghcr.io/retlek-systems-inc/rs_cmake/hw-dev:v0.3.2
     needs: prepare
     strategy:
       fail-fast: false
@@ -93,9 +87,9 @@ jobs:
       BUILD_TYPE: ${{ matrix.build_type }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Cached CMake Build directories
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.BASE_BUILD_DIR }}
           key: ${{ runner.os }}-CMakeFiles-
@@ -114,13 +108,13 @@ jobs:
         run: cmake --build ${BUILD_DIR} --config ${BUILD_TYPE} --target verilog-code-coverage
       - name: Code Coverage Artifacts
         #if: ${{ matrix.build_type == 'RelWithDebInfo' }} # Only perform for RelWithDebInfo.
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: verilog-coverage-results
           path: ${{ matrix.build_dir }}/verilog-code-coverage/
       - name: Publish Test Report
         if: ${{ always() }}
-        uses: mikepenz/action-junit-report@v3
+        uses: mikepenz/action-junit-report@v4
         with:
           report_paths: "${{ matrix.build_dir }}/${{ matrix.build_type }}_report.xml"
           fail_on_failure: true
@@ -130,10 +124,7 @@ jobs:
     name: ${{ matrix.name }} Analysis
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/hw-dev:v0.3.0
-      credentials:
-        username: ${{ secrets.rs_docker_registry_username }}
-        password: ${{ secrets.rs_docker_registry_password }}
+      image: ghcr.io/retlek-systems-inc/rs_cmake/hw-dev:v0.3.2
     needs: prepare
     strategy:
       fail-fast: false
@@ -157,9 +148,9 @@ jobs:
       CMAKE_BUILD_ARGS: ${{ matrix.build_args }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Cached CMake Build directories
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.BASE_BUILD_DIR }}
           key: ${{ runner.os }}-CMakeFiles-
@@ -168,9 +159,9 @@ jobs:
       - name: Preparing clang-${{ env.CLANG_VER }}
         run: cmake -G "Ninja Multi-Config" -B${CLANG_DIR} -DCMAKE_C_COMPILER=clang-${CLANG_VER} -DCMAKE_CXX_COMPILER=clang++-${CLANG_VER} -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
       - name: Scan Build ${{ matrix.build_type }} in ${{ matrix.build_dir }}
-        run: scan-build-14 -o scan-build -k --status-bugs -internal-stats --keep-empty cmake --build ${BUILD_DIR} --config ${BUILD_TYPE}
+        run: scan-build-${CLANG_VER} -o scan-build -k --status-bugs -internal-stats --keep-empty cmake --build ${BUILD_DIR} --config ${BUILD_TYPE}
       - name: Scan Build Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.build_type }}-scan-results
           path: ${{ matrix.build_dir }}/scan-build/
