@@ -27,7 +27,7 @@ FetchContent_Declare( rs_cmake
 FetchContent_GetProperties( rs_cmake )
 if(NOT rs_cmake_POPULATED)
   FetchContent_Populate( rs_cmake )
-  include(${cmake_SOURCE_DIR}/Init.cmake)
+  include(${rs_cmake_SOURCE_DIR}/Init.cmake)
 endif()
 
 # Now add the definitions of each
