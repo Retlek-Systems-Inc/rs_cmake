@@ -72,8 +72,7 @@ RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y  \
     && dpkg --configure -a \
     && apt-get autoremove \
-    && apt-get --fix-broken install \
-    && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y ./${KLAYOUT_DEB_FILE} \
+    && DEBIAN_FRONTEND=noninteractive apt-get --fix-broken install --no-install-recommends -y ./${KLAYOUT_DEB_FILE} \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* ./${KLAYOUT_GPG_PUBKEY_FILE} ./${KLAYOUT_DEB_FILE}
 
