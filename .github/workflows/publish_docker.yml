@@ -71,7 +71,21 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/docs:${{ steps.info.outputs.version }}
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/docs:latest
-      - name: Inspect hw-dev docker image
+      - name: Inspect docs docker image
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/docs:${{ steps.info.outputs.version }}
+      # --------------------
+      # HW Backend Container - relies on SW Dev container
+      - name: Build hw-backend container
+        uses: docker/build-push-action@v5
+        with:
+          context: ./docker/hw-backend
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-backend:${{ steps.info.outputs.version }}
+            ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-backend:latest
+      - name: Inspect hw-backend docker image
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-backend:${{ steps.info.outputs.version }}
