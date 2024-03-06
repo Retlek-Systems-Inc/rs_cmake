@@ -20,7 +20,7 @@ option(BUILD_BENCHMARK "Benchmark libs"             ON)
 
 FetchContent_Declare( rs_cmake
     GIT_REPOSITORY https://github.com/Retlek-Systems-Inc/rs_cmake
-    GIT_TAG        v0.3.2
+    GIT_TAG        v0.3.3
 )
 
 FetchContent_GetProperties( rs_cmake )
