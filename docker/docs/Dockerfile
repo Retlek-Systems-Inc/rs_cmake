@@ -38,13 +38,21 @@ RUN apt-get update -y \
     python3-sphinx \
     python3-pip \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && nmp install -g less clean-css \
-    && mkdir -p ${PLANTUML_DIR} \
-    && wget -O ${PLANTUML_DIR}/plantuml.jar -progress=dot:giga https://github.com/plantuml/plantuml/releases/download/v1.2023.1/plantuml-1.2023.1.jar \
+    && rm -rf /var/lib/apt/lists/*
+
+# nmp install -g less clean-css
+
+#hadolint ignore=DL3013
+RUN mkdir -p ${PLANTUML_DIR} \
+    && wget -O ${PLANTUML_DIR}/plantuml.jar -progress=dot:giga https://github.com/plantuml/plantuml/releases/download/v1.2024.3/plantuml-1.2024.3.jar \
     && export PLANTUML_DIR=${PLANTUML_DIR} \
-    && python3 -m pip install --no-cache-dir sphinx_rdt_theme==v1.2.0 \
-    && python3 -m pip install --no-cache-dir breathe==4.34.0
+    && python3 -m pip install --no-cache-dir \
+    sphinx \
+    sphinx-rtd-theme \
+    sphinx-fontawesome \
+    sphinx-toolbox \
+    breathe \
+    sphinxcontrib-plantuml
 
 
 WORKDIR /tmp
