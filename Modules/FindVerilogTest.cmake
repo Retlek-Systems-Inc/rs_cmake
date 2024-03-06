@@ -22,12 +22,7 @@
 
 # Currently using verilator for testing.
 if (VERILOG_TEST)
-    find_package(verilator 5.006 REQUIRED
-        HINTS
-        /usr/local
-        $ENV{VERILATOR_ROOT}
-        ${VERILATOR_ROOT}
-    )
+    find_package( verilator 5.006 REQUIRED )
 
     if (NOT verilator_FOUND)
         message(FATAL_ERROR "Verilator was not found. Either install it, or set the VERILATOR_ROOT environment variable")
@@ -208,7 +203,8 @@ macro(add_verilator_base_target)
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-but-set-variable>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-deprecated>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-comma>
-            )
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-conditional-uninitialized>
+        )
 
         target_include_directories( verilator_base SYSTEM
           PUBLIC
