@@ -3,7 +3,7 @@ cmake_policy(SET CMP0057 NEW) # Support if( IN_LIST ) operator
 cmake_policy(SET CMP0065 NEW) # do not add rdynamic unless explicitly stated
 cmake_policy(SET CMP0076 NEW) # full paths
 cmake_policy(SET CMP0077 NEW) # options do nothing when defined as variable.
-#cmake_policy(SET CMP0135 NEW) # fetchcontent url timestamp cmake 3.25
+cmake_policy(SET CMP0144 NEW) # find_package uses <PACKAGENAME>_ROOT for search
 
 project(base-sw-arm-none-eabi-deps VERSION 0.3.2 LANGUAGES C)
 
@@ -19,7 +19,7 @@ cmake_dependent_option(BUILD_BENCHMARK "No Benchmark tests"         OFF "NOT CMA
 
 FetchContent_Declare( rs_cmake
     GIT_REPOSITORY https://github.com/Retlek-Systems-Inc/rs_cmake
-    GIT_TAG        v0.3.2
+    GIT_TAG        v0.3.3
 )
 
 FetchContent_GetProperties( rs_cmake )

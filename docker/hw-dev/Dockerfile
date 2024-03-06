@@ -94,6 +94,7 @@ RUN git clone "${VERILATOR_REPO}" ${CMAKE_ENV_VERILATOR_PATH} \
     && make -j "$(nproc)" \
     && make install \
     && cd ${WORK_PATH} \
+    && chmod a+rx /usr/local/bin \
     && rm -r ${CMAKE_ENV_VERILATOR_PATH}
 
 

@@ -247,7 +247,7 @@ endif()
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-suggest-destructor-override>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-gnu-anonymous-struct>
     PRIVATE
-      $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-bool-operation>
+      $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-bool-operation>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-prototypes>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-variable-declarations>
       $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-nested-anon-types>
