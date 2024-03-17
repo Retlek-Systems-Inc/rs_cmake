@@ -234,8 +234,9 @@ endif()
 
   # Note the target_link_libraries for Verilator::base are also public so they will migrate to the
   # verilated module as well.
+  # The header files include headers of the Verilator::base
   target_link_libraries( ${TARGET_DEST}
-    PRIVATE
+    PUBLIC
       Verilator::base
   )
 

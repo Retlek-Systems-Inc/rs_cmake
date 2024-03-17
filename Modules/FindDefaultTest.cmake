@@ -166,6 +166,7 @@ if(BUILD_TEST)
         -llvmlibc-callee-namespace
         -llvmlibc-implementation-in-namespace
         -llvmlibc-restrict-system-libc-headers
+        -misc-include-cleaner
         -misc-no-recursion
         -misc-redundant-expression
         -misc-unconventional-assign-operator
@@ -282,6 +283,7 @@ if(BUILD_TEST)
         -llvmlibc-callee-namespace
         -llvmlibc-implementation-in-namespace
         -llvmlibc-restrict-system-libc-headers
+        -misc-include-cleaner
         -misc-no-recursion
         -misc-throw-by-value-catch-by-reference
         -misc-unconventional-assign-operator
