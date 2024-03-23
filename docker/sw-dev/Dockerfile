@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# hadolint ignore=DL3029
 FROM --platform=$BUILD_PLATFORM ubuntu:22.04
 
 # ---------------------------------------------------------
