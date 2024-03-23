@@ -20,8 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# hadolint ignore=DL3007
-FROM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
+# hadolint ignore=DL3007,DL3029
+FROM --platform=$BUILDPLATFORM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
 
 # Default gtkwave and verilator
 RUN apt-get update -y \

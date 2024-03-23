@@ -43,7 +43,10 @@ The following variables are defined by this module:
 
 
 function(find_python_module module)
-    find_package(Python3 3.4 REQUIRED)
+
+	if (NOT DEFINED Python3_EXECUTABLE)
+		message(FATAL_ERROR "Python not defined, use `find_package(Python ... REQUIRED)")
+	endif()
 
     set(_options REQUIRED QUIET)
     set(_one_value_args)
