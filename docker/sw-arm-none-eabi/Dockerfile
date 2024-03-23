@@ -23,6 +23,8 @@
 # hadolint ignore=DL3029
 FROM --platform=$BUILDPLATFORM ubuntu:22.04
 
+LABEL org.opencontainers.image.description "RS CMake Software Arm None EABI Dev"
+
 # Default latest cmake and ninja-build
 # hadolint ignore=DL3008
 RUN apt-get update -y \
