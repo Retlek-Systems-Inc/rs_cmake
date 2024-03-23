@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 # hadolint ignore=DL3029
-FROM --platform=$BUILD_PLATFORM ubuntu:22.04
+FROM --platform=$BUILDPLATFORM ubuntu:22.04
 
 # ---------------------------------------------------------
 # Latest cmake - setup keyring
