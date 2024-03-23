@@ -23,6 +23,8 @@
 # hadolint ignore=DL3029
 FROM --platform=$BUILDPLATFORM ubuntu:22.04
 
+LABEL org.opencontainers.image.description "RS CMake Software Dev"
+
 # ---------------------------------------------------------
 # Latest cmake - setup keyring
 # See: https://apt.kitware.com/

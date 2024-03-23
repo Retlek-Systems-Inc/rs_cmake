@@ -23,6 +23,8 @@
 # hadolint ignore=DL3007,DL3029
 FROM --platform=$BUILDPLATFORM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
 
+LABEL org.opencontainers.image.description "RS CMake Hardware Frontend Dev"
+
 # Default gtkwave and verilator
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \

@@ -51,6 +51,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-dev:${{ steps.info.outputs.version }}
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-dev:latest
           platforms: ${{ env.PLATFORMS }}
+          outputs: type=image, name=target,
       - name: Inspect sw-dev docker image
         uses: docker/metadata-action@v5
         with:
@@ -80,7 +81,7 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/docs:${{ steps.info.outputs.version }}
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/docs:latest
-            platforms: ${{ env.PLATFORMS }}
+          platforms: ${{ env.PLATFORMS }}
       - name: Inspect docs docker image
         uses: docker/metadata-action@v5
         with:
@@ -95,7 +96,7 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-backend:${{ steps.info.outputs.version }}
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-backend:latest
-            platforms: ${{ env.PLATFORMS }}
+          platforms: ${{ env.PLATFORMS }}
       - name: Inspect hw-backend docker image
         id: meta_hw_backend
         uses: docker/metadata-action@v5

@@ -23,6 +23,8 @@
 # hadolint ignore=DL3007,DL3029
 FROM --platform=$BUILDPLATFORM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
 
+LABEL org.opencontainers.image.description "RS CMake Software Dev Local"
+
 CMD [ "/bin/bash" ]
 
 # Build info for local docker usage with vscode
