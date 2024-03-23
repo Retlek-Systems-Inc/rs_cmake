@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM ubuntu:22.04
+FROM --platform=$BUILDPLATFORM ubuntu:22.04
 
 # Default latest cmake and ninja-build
 # hadolint ignore=DL3008

@@ -8,7 +8,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
- 
+  PLATFORMS: linux/arm64, linux/amd64
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -19,6 +20,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      # --------------------
+      # General docker configuration and Access
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to Container Registry
@@ -27,6 +32,8 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
+      # --------------------
+      # Repo Information
       - name: Extract repo name and version from release tag
         id: info
         run: |
@@ -43,10 +50,11 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-dev:${{ steps.info.outputs.version }}
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-dev:latest
+          platforms: ${{ env.PLATFORMS }}
       - name: Inspect sw-dev docker image
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-dev:${{ steps.info.outputs.version }}
+          images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-dev
       # --------------------
       # HW Dev Container - relies on SW Dev container
       - name: Build hw-dev container
@@ -57,10 +65,11 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-dev:${{ steps.info.outputs.version }}
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-dev:latest
+          platforms: ${{ env.PLATFORMS }}
       - name: Inspect hw-dev docker image
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-dev:${{ steps.info.outputs.version }}
+          images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-dev
       # --------------------
       # Doc Container - relies on SW Dev container
       - name: Build docs container
@@ -71,10 +80,11 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/docs:${{ steps.info.outputs.version }}
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/docs:latest
+            platforms: ${{ env.PLATFORMS }}
       - name: Inspect docs docker image
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/docs:${{ steps.info.outputs.version }}
+          images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/docs
       # --------------------
       # HW Backend Container - relies on SW Dev container
       - name: Build hw-backend container
@@ -85,7 +95,9 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-backend:${{ steps.info.outputs.version }}
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-backend:latest
+            platforms: ${{ env.PLATFORMS }}
       - name: Inspect hw-backend docker image
+        id: meta_hw_backend
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-backend:${{ steps.info.outputs.version }}
+          images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-backend

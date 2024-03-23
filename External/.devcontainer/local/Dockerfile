@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 # hadolint ignore=DL3007
-FROM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
+FROM --platform=$BUILDPLATFORM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
 
 CMD [ "/bin/bash" ]
 
@@ -29,6 +29,18 @@ CMD [ "/bin/bash" ]
 ARG USERNAME=
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
+
+# Common debugging and support tools
+# hadolint ignore=DL3008
+RUN apt-get update -y \
+    && DEBIAN_FRONTEND=noninteractive \
+    apt-get install --no-install-recommends -y \
+    bash-completion \
+    gdb \
+    vim \
+    xz-utils \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create the user
 RUN groupadd --gid $USER_GID $USERNAME \

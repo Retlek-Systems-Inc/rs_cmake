@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 # hadolint ignore=DL3007
-FROM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
+FROM --platform=$BUILDPLATFORM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
 
 ENV PLANTUML_DIR="/java"
 
