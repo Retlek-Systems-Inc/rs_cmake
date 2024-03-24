@@ -51,7 +51,6 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-dev:${{ steps.info.outputs.version }}
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-dev:latest
           platforms: ${{ env.PLATFORMS }}
-          outputs: type=image, name=target,
       - name: Inspect sw-dev docker image
         uses: docker/metadata-action@v5
         with:
