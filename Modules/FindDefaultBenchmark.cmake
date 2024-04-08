@@ -33,7 +33,7 @@ if( BUILD_BENCHMARK )
     include(FetchContent)
     FetchContent_Declare( benchmark
       GIT_REPOSITORY    https://github.com/google/benchmark.git
-      GIT_TAG           v1.7.1
+      GIT_TAG           v1.8.3
     )
 
     # Prevent downloading gtest - use FindDefaultTest.
@@ -43,18 +43,14 @@ if( BUILD_BENCHMARK )
     set(BENCHMARK_USE_BUNDLED_GTEST ON CACHE BOOL "" FORCE) # Use bundled GTEST within the gtest.
     
     FetchContent_MakeAvailable(benchmark)
-    # Add clang-tidy definition to include warnings/errors for benchmark.
-    # Clang-Tidy all file for benchmark source dir (override).
-    configure_file( "${CMAKE_CURRENT_LIST_DIR}/StaticAnalysis/.clang-tidy.all.in"
-                    "${benchmark_SOURCE_DIR}/.clang-tidy" COPYONLY )
 
     target_compile_options( benchmark
       PUBLIC
-        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-global-constructors>
-        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-padded>
-        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shift-sign-overflow>
-        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-weak-vtables>
-        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-zero-as-null-pointer-constant>
+        # $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-global-constructors>
+        # $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-padded>
+        # $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shift-sign-overflow>
+        # $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-weak-vtables>
+        # $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-zero-as-null-pointer-constant>
     )
 
     target_clang_tidy_definitions( TARGET benchmark
@@ -64,50 +60,53 @@ if( BUILD_BENCHMARK )
         -*-else-after-return
         -*-magic-numbers
         -*-member-init
-        -*-narrowing-conversions
         -*-named-parameter
+        -*-narrowing-conversions
+        -*-qualified-auto
         -*-use-auto
         -*-use-emplace
         -*-use-equals-default
+        -*-use-nullptr
         -*-vararg
         -abseil-string-find-startswith
         -altera-id-dependent-backward-branch
         -altera-struct-pack-align
         -altera-unroll-loops
         -bugprone-easily-swappable-parameters
-        -bugprone-implicit-widening-of-multiplication-result
         -cert-dcl50-cpp
         -cert-err33-c
         -cert-err58-cpp
         -concurrency-mt-unsafe
+        -cppcoreguidelines-avoid-do-while
         -cppcoreguidelines-avoid-non-const-global-variables
         -cppcoreguidelines-init-variables
         -cppcoreguidelines-owning-memory
         -cppcoreguidelines-pro-bounds-array-to-pointer-decay
         -cppcoreguidelines-pro-bounds-pointer-arithmetic
+        -cppcoreguidelines-pro-type-union-access
         -fuchsia-default-arguments-calls
-        -fuchsia-default-arguments-declarations
         -fuchsia-statically-constructed-objects
         -google-build-using-namespace
         -google-readability-casting
         -google-readability-todo
         -google-runtime-int
-        -hicpp
         -hicpp-multiway-paths-covered
         -hicpp-no-array-decay
         -hicpp-signed-bitwise
-        -llvm-namespace-comment
-        -llvm-qualified-auto
         -llvmlibc-callee-namespace
         -llvmlibc-implementation-in-namespace
         -llvmlibc-restrict-system-libc-headers
+        -misc-const-correctness
+        -misc-include-cleaner
+        -misc-use-anonymous-namespace
         -modernize-pass-by-value
         -modernize-raw-string-literal
         -modernize-return-braced-init-list
-        -modernize-use-nullptr
         -modernize-use-trailing-return-type
         -modernize-use-using
+        -performance-avoid-endl
         -readability-container-size-empty
+        -readability-convert-member-functions-to-static
         -readability-duplicate-include
         -readability-function-cognitive-complexity
         -readability-identifier-length
@@ -118,19 +117,19 @@ if( BUILD_BENCHMARK )
         -readability-static-accessed-through-instance
         -readability-static-definition-in-anonymous-namespace
         -readability-use-anyofallof
-        -clang-analyzer-deadcode.DeadStores
     )
 
   target_clang_tidy_definitions( TARGET benchmark_main
     CHECKS
-      -*-array-to-pointer-decay
-      -*-avoid-c-arrays
-      -*-named-parameter
-      -fuchsia-default-arguments-calls
-      -hicpp-no-array-decay
-      -llvmlibc-callee-namespace
-      -llvmlibc-implementation-in-namespace
-      -modernize-use-trailing-return-type
+        -*-avoid-c-arrays
+        -*-named-parameter
+        -cppcoreguidelines-pro-bounds-array-to-pointer-decay
+        -fuchsia-default-arguments-calls
+        -hicpp-no-array-decay
+        -llvmlibc-callee-namespace
+        -llvmlibc-implementation-in-namespace
+        -misc-include-cleaner
+        -modernize-use-trailing-return-type
   )
 
 endif(BUILD_BENCHMARK)
