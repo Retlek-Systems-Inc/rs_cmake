@@ -89,8 +89,12 @@ function( AddConfiguration )
     endif()
 
     get_property(_supportedLanguages GLOBAL PROPERTY ENABLED_LANGUAGES)
+    include(CheckCompilerFlag OPTIONAL)
     foreach(_LANG IN LISTS _supportedLanguages)
-        include(CheckCompilerFlag OPTIONAL)
+        # Ignore ASM for now.
+        if ("${_LANG}" MATCHES "^ASM")
+            continue()
+        endif()
         # Hack to get around checking linking in check_<LANG>_compiler_flag
         set(CMAKE_REQUIRED_LIBRARIES ${arg_LINKER_FLAGS})
 
