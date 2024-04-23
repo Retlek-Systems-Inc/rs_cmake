@@ -6,7 +6,7 @@ cmake_policy(SET CMP0076 NEW) # full paths
 cmake_policy(SET CMP0077 NEW) # options do nothing when defined as variable.
 cmake_policy(SET CMP0144 NEW) # find_package uses <PACKAGENAME>_ROOT for search
 
-project(base-sw-aarch64-linux-gnu-deps VERSION 0.3.4 LANGUAGES C)
+project(base-sw-aarch64-linux-gnu-deps VERSION 0.3.5 LANGUAGES C)
 
 include(FetchContent)
 
@@ -20,7 +20,7 @@ cmake_dependent_option(BUILD_BENCHMARK "No Benchmark tests"         OFF "NOT CMA
 
 FetchContent_Declare( rs_cmake
     GIT_REPOSITORY https://github.com/Retlek-Systems-Inc/rs_cmake
-    GIT_TAG        v0.3.4
+    GIT_TAG        v0.3.5
 )
 
 FetchContent_GetProperties( rs_cmake )
