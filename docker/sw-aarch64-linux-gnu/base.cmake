@@ -6,7 +6,7 @@ cmake_policy(SET CMP0076 NEW) # full paths
 cmake_policy(SET CMP0077 NEW) # options do nothing when defined as variable.
 cmake_policy(SET CMP0144 NEW) # find_package uses <PACKAGENAME>_ROOT for search
 
-project(base-sw-arm-none-eabi-deps VERSION 0.3.4 LANGUAGES C)
+project(base-sw-aarch64-linux-gnu-deps VERSION 0.3.4 LANGUAGES C)
 
 include(FetchContent)
 
@@ -38,7 +38,7 @@ endif()
 ########################################################################
 # Create the Version info
 CreateVersion(
-    PROJECT base-sw-arm-none-eabi-deps
+    PROJECT base-sw-aarch64-linux-gnu-deps
     TARGET TBD_fw_version
     FILENAME TBD_fw_version
     VARIABLE TBDFwVersion
