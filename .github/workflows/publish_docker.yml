@@ -71,6 +71,21 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-dev
       # --------------------
+      # SW aarch64-linux-gnu Container - relies on SW Dev container
+      - name: Build sw-aarch64-linux-gnu container
+        uses: docker/build-push-action@v5
+        with:
+          context: ./docker/sw-aarch64-linux-gnu
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-aarch64-linux-gnu:${{ steps.info.outputs.version }}
+            ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-aarch64-linux-gnu:latest
+          platforms: ${{ env.PLATFORMS }}
+      - name: Inspect sw-aarch64-linux-gnu docker image
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-aarch64-linux-gnu
+      # --------------------
       # Doc Container - relies on SW Dev container
       - name: Build docs container
         uses: docker/build-push-action@v5

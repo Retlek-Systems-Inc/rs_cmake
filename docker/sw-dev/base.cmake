@@ -6,7 +6,7 @@ cmake_policy(SET CMP0076 NEW) # full paths
 cmake_policy(SET CMP0077 NEW) # options do nothing when defined as variable.
 cmake_policy(SET CMP0144 NEW) # find_package uses <PACKAGENAME>_ROOT for search
 
-project(base-sw-deps VERSION 0.3.2 LANGUAGES C CXX)
+project(base-sw-deps VERSION 0.3.4 LANGUAGES C CXX)
 
 include(FetchContent)
 
