@@ -44,7 +44,7 @@ For Clang Compile
 .. code:: bash
 
    cd build
-   cmake -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
+   cmake -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_COMPILER=clang++-17 ..
    cmake --build . --config Debug
 
 For Cross Compile using GCC, note that tests are automatically turned off for any cross-compiled code since
@@ -160,7 +160,7 @@ First Configure the cmake build directory with clang and multi-config:
 .. code:: bash
 
    cd build
-   cmake -G"Ninja Multi-Config" -DSTATIC_ANALYSIS=OFF -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
+   cmake -G"Ninja Multi-Config" -DSTATIC_ANALYSIS=OFF -DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_COMPILER=clang++-17 ..
 
 For Address Sanitizer - run on suite of tests:
 
@@ -218,13 +218,15 @@ Install
 * `Git <https://git-scm.com/>`_
 
 Windows Environment
-^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~
 
 * `WSL2 <https://learn.microsoft.com/en-us/windows/wsl/install>`_
 * `Docker Desktop <https://www.docker.com/products/docker-desktop/>`_
 * `USB for WSL2 (usbipd-win) <https://github.com/dorssel/usbipd-win/releases>`_
   * `How to setup USB with WSL2 <https://devblogs.microsoft.com/commandline/connecting-usb-devices-to-wsl/>`_
+* `Authenticating to ghcr.io with personal access token <https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic>`_
 
+If you would like to use the provided docker images in this repo, you can by copying the ``External/.devcontainer`` files into your project and modify accordingly.
 
 Update VSCode to use clang-format: \* `Clang
 Format <https://marketplace.visualstudio.com/items?itemName=xaver.clang-format>`__
@@ -245,7 +247,7 @@ Continuous Integration/Deployment Setup
 Building Docker
 ~~~~~~~~~~~~~~~
 
-See gitlab.ci.yml but for building and debugging locally:
+See ``.github/publish_docker.yml`` but for building and debugging locally:
 
 .. code:: bash
 
