@@ -29,6 +29,8 @@ PythonLint(
   TARGET  <target name to lint>
   SOURCES   <filename> [<filename> ...]
   [LINE_LENGTH <max line length>] - defaults to 200
+  [FLAKE8_ARGS <args> [<args> ...]]
+  [PYLINT_ARGS <args> [<args> ...]]
 )
 
 Examples:
@@ -61,7 +63,7 @@ function(PythonLint)
     cmake_parse_arguments(_arg
                           ""
                           "TARGET;LINE_LENGTH"
-                          "SOURCES"
+                          "SOURCES;FLAKE8_ARGS;PYLINT_ARGS"
                           ${ARGN})
 
     if( NOT _arg_TARGET )
@@ -76,6 +78,14 @@ function(PythonLint)
         set(_arg_LINE_LENGTH 200)
     endif()
 
+    if(NOT _arg_FLAKE8_ARGS)
+        set(_arg_FLAKE8_ARGS)
+    endif()
+
+    if(NOT _arg_PYLINT_ARGS)
+        set(_arg_PYLINT_ARGS)
+    endif()
+
     set(_rpt_file ${CMAKE_CURRENT_BINARY_DIR}/${_arg_TARGET}_python_lint.rpt)
 
     add_custom_command(
@@ -86,9 +96,9 @@ function(PythonLint)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMAND ${Python3_EXECUTABLE} -m black  --line-length     ${_arg_LINE_LENGTH} ${_arg_SOURCES} >  ${_rpt_file}
         COMMAND ${Python3_EXECUTABLE} -m isort  --line-length     ${_arg_LINE_LENGTH} ${_arg_SOURCES} >> ${_rpt_file}
-        COMMAND ${Python3_EXECUTABLE} -m flake8 --max-line-length ${_arg_LINE_LENGTH} ${_arg_SOURCES} >> ${_rpt_file}
-        COMMAND ${Python3_EXECUTABLE} -m pylint --max-line-length ${_arg_LINE_LENGTH} ${_arg_SOURCES} >> ${_rpt_file}
-    COMMENT "Linting for Validation Python Files"
+        COMMAND ${Python3_EXECUTABLE} -m flake8 --max-line-length ${_arg_LINE_LENGTH} ${_arg_FLAKE8_ARGS} ${_arg_SOURCES} >> ${_rpt_file}
+        COMMAND ${Python3_EXECUTABLE} -m pylint --max-line-length ${_arg_LINE_LENGTH} ${_arg_PYLINT_ARGS} ${_arg_SOURCES} >> ${_rpt_file}
+    COMMENT "Linting for ${arg_TARGET} Python Files"
     )
-    add_custom_target( PythonLint_${arg_TARGET} DEPENDS ${_rpt_file})
+    add_custom_target( PythonLint_${_arg_TARGET} DEPENDS ${_rpt_file})
 endfunction(PythonLint)
