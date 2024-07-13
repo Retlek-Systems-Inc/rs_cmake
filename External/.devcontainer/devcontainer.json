@@ -15,7 +15,13 @@
     // Set *default* container specific settings.json values on container create.
     "customizations": {
         "vscode": {
-            "settings": {},
+            "settings": {
+                "clang-format.executable": "clang-format-18",
+                "clang-format.language.cpp.enable": true,
+                "C_Cpp.clang_format_sortIncludes": true,
+                "C_Cpp.clang_format_path": "clang-format-18",
+                "editor.formatOnSave": true
+            },
             // Add the IDs of extensions you want installed when the container is created.
             "extensions": [
                 "marus25.cortex-debug",
@@ -28,6 +34,7 @@
                 "mhutchie.git-graph",
                 "matepek.vscode-catch2-test-adapter",
                 "hbenl.vscode-test-explorer"
+                // "CHIPSAlliance.verible"
             ]
         }
     },
