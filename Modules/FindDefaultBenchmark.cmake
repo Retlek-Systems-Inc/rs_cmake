@@ -33,7 +33,7 @@ if( BUILD_BENCHMARK )
     include(FetchContent)
     FetchContent_Declare( benchmark
       GIT_REPOSITORY    https://github.com/google/benchmark.git
-      GIT_TAG           v1.8.3
+      GIT_TAG           v1.8.4
     )
 
     # Prevent downloading gtest - use FindDefaultTest.

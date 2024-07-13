@@ -53,7 +53,7 @@ if(BUILD_TEST)
     include(FetchContent)
     FetchContent_Declare( googletest
       GIT_REPOSITORY    https://github.com/google/googletest.git
-      GIT_TAG           release-1.12.1
+      GIT_TAG           release-1.14.1
     )
 
     # Prevent overriding the parent project's compiler/linker
@@ -77,20 +77,16 @@ if(BUILD_TEST)
     
     target_compile_options( gtest
       PUBLIC
-        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-covered-switch-default>
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-global-constructors>
-        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-gnu-zero-variadic-macro-arguments>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-switch-default>
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-used-but-marked-unused>
-        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-weak-vtables>
     )
 
     target_compile_options( gmock
       PUBLIC
-        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-covered-switch-default>
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-global-constructors>
-        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-gnu-zero-variadic-macro-arguments>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-switch-default>
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-used-but-marked-unused>
-        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-weak-vtables>
     )
 
     target_clang_tidy_definitions(TARGET gtest
