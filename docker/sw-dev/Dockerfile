@@ -1,6 +1,6 @@
 # Docker file for installation.
 
-# Copyright (c) 2022 Retlek Systems Inc.
+# Copyright (c) 2022-2024 Retlek Systems Inc.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,9 +21,9 @@
 # SOFTWARE.
 
 # hadolint ignore=DL3029
-FROM --platform=$BUILDPLATFORM ubuntu:22.04
+FROM --platform=$BUILDPLATFORM ubuntu:24.04
 
-LABEL org.opencontainers.image.description "RS CMake Software Dev"
+LABEL org.opencontainers.image.description="RS CMake Software Dev"
 
 # ---------------------------------------------------------
 # Latest cmake - setup keyring
@@ -81,7 +81,7 @@ RUN apt-get update -y \
 # hadolint ignore=DL3008
 RUN wget -q https://apt.llvm.org/llvm.sh \
     && chmod +x llvm.sh \
-    && ./llvm.sh 17 all
+    && ./llvm.sh 18 all
 
 # ---------------------------------------------------------
 

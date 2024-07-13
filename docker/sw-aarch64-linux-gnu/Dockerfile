@@ -23,7 +23,7 @@
 # hadolint ignore=DL3007,DL3029
 FROM --platform=$BUILDPLATFORM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
 
-LABEL org.opencontainers.image.description "RS CMake Software Arm aarch64 linux gnu gcc Dev"
+LABEL org.opencontainers.image.description="RS CMake Software Arm aarch64 linux gnu gcc Dev"
 
 # Default latest cmake and ninja-build
 # hadolint ignore=DL3008

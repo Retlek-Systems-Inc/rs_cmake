@@ -1,6 +1,6 @@
 # Docker file for installation.
 
-# Copyright (c) 2022 Retlek Systems Inc.
+# Copyright (c) 2022-2024 Retlek Systems Inc.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,9 +21,9 @@
 # SOFTWARE.
 
 # hadolint ignore=DL3029
-FROM --platform=$BUILDPLATFORM ubuntu:22.04
+FROM --platform=$BUILDPLATFORM ubuntu:24.04
 
-LABEL org.opencontainers.image.description "RS CMake Software Arm None EABI Dev"
+LABEL org.opencontainers.image.description="RS CMake Software Arm None EABI Dev"
 
 # Default latest cmake and ninja-build
 # hadolint ignore=DL3008
@@ -42,16 +42,19 @@ RUN apt-get update -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# arm-none-eabi from arm/linaro.
-RUN wget --progress=dot:giga https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi.tar.xz \
-    && wget --progress=dot:giga https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi.tar.xz.asc \
-    && md5sum --check arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi.tar.xz.asc \
+# arm-none-eabi from https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
+ARG ARM_VER="13.3.rel1"
+ARG ARM_TRIPLET="arm-none-eabi"
+ARG ARM_NAME="arm-gnu-toolchain-${ARM_VER}-x86_64-${ARM_TRIPLET}"
+ENV PATH="$PATH:/usr/local/${ARM_NAME}/bin"
+RUN wget --progress=dot:giga "https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_VER}/binrel/${ARM_NAME}.tar.xz" \
+    && wget --progress=dot:giga "https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_VER}/binrel/${ARM_NAME}.tar.xz.asc" \
+    && md5sum --check ${ARM_NAME}.tar.xz.asc \
     && mkdir -p /usr/local \
-    && tar -xJf arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi.tar.xz -C /usr/local \
-    && rm -f arm-gnu-toolchain-12.2.mpacbti-rel1-aarch64-arm-none-eabi.tar.xz*
+    && tar -xJf ${ARM_NAME}.tar.xz -C /usr/local \
+    && rm -f ${ARM_NAME}.tar.xz*
 
 ENV WORK_PATH=/tmp
-ENV PATH="$PATH:/usr/local/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi/bin"
 ENV CMAKE_ENV_DEPS_PATH=${WORK_PATH}/cmake_env_deps
 ENV CMAKE_ENV_BASE_PATH=${WORK_PATH}/base
 
