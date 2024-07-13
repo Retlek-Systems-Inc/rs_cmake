@@ -1,4 +1,4 @@
-# @copyright 2022 Retlek Systems Inc.
+# @copyright 2022-2024 Retlek Systems Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
 # The pipelines will scan for report files:
 # See: https://support.atlassian.com/bitbucket-cloud/docs/test-reporting-in-pipelines/
 
-image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.3.5
+image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.0
 
 # Yaml Anchors - cannot have anchors of just lists so lots of duplicate code
 # common_env_setup: &common_env_setup
