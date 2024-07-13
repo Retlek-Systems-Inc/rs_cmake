@@ -23,7 +23,7 @@
 # hadolint ignore=DL3007,DL3029
 FROM --platform=$BUILDPLATFORM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
 
-LABEL org.opencontainers.image.description "RS CMake Software Dev Local"
+LABEL org.opencontainers.image.description="RS CMake Software Dev Local"
 
 CMD [ "/bin/bash" ]
 
@@ -45,12 +45,12 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Create the user
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+RUN groupadd --gid "${USER_GID}" "${USERNAME}" \
+    && useradd --uid "${USER_UID}" --gid "${USER_GID}" -m --no-log-init "${USERNAME}" \
     && mkdir -p /etc/sudoers.d \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME \
-    && usermod -a -G dialout $USERNAME
+    && echo "${USERNAME} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
+    && chmod 0440 /etc/sudoers.d/${USERNAME} \
+    && usermod -a -G dialout "${USERNAME}"
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
