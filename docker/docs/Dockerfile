@@ -23,7 +23,7 @@
 # hadolint ignore=DL3007,DL3029
 FROM --platform=$BUILDPLATFORM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
 
-LABEL org.opencontainers.image.description "RS CMake Documentation Dev"
+LABEL org.opencontainers.image.description="RS CMake Documentation Dev"
 
 ENV PLANTUML_DIR="/java"
 
@@ -43,10 +43,11 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 
 # nmp install -g less clean-css
-
+ARG PLANTUML_VERSION="1.2024.6"
+ARG PLANTUML_FILE="plantuml-${PLANTUML_VERSION}.jar"
 #hadolint ignore=DL3013
 RUN mkdir -p ${PLANTUML_DIR} \
-    && wget -O ${PLANTUML_DIR}/plantuml.jar -progress=dot:giga https://github.com/plantuml/plantuml/releases/download/v1.2024.3/plantuml-1.2024.3.jar \
+    && wget --progress=dot:giga "https://github.com/plantuml/plantuml/releases/download/v${PLANTUML_VERSION}/${PLANTUML_FILE}" -O ${PLANTUML_DIR}/plantuml.jar \
     && export PLANTUML_DIR=${PLANTUML_DIR} \
     && python3 -m pip install --no-cache-dir \
     sphinx \

@@ -23,13 +23,14 @@
 # hadolint ignore=DL3007,DL3029
 FROM --platform=$BUILDPLATFORM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
 
-LABEL org.opencontainers.image.description "RS CMake Hardware Frontend Dev"
+LABEL org.opencontainers.image.description="RS CMake Hardware Frontend Dev"
 
 # Default gtkwave and verilator
+# hadolint ignore=DL3008
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
     apt-get install --no-install-recommends -y \
-    gtkwave=3.3.104-2build1 \
+    gtkwave \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -64,13 +65,13 @@ RUN apt-get update -y \
 
 # Using version v5.006
 ARG VERILATOR_REPO=https://github.com/verilator/verilator
-ARG VERILATOR_COMMIT=v5.022
+ARG VERILATOR_COMMIT=v5.026
 
 ARG SLANG_REPO=https://github.com/MikePopoloski/slang.git
-ARG SLANG_COMMIT=v5.0
+ARG SLANG_COMMIT=v6.0
 
 ARG VERIBLE_URL=https://github.com/chipsalliance/verible/releases/download
-ARG VERIBLE_VERSION=v0.0-3595-g934ef5c3
+ARG VERIBLE_VERSION=v0.0-3724-gdec56671
 ARG VERIBLE_FILE=verible-${VERIBLE_VERSION}-linux-static-x86_64.tar.gz
 ARG VERIBLE_RELEASE=${VERIBLE_URL}/${VERIBLE_VERSION}/${VERIBLE_FILE}
 

@@ -1,0 +1,18 @@
+# ---------------------------------------------------------
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110 \
+    --slave /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-11 \
+    --slave /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-11 \
+    --slave /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-11 \
+    --slave /usr/bin/g++ g++ /usr/bin/g++-11 \
+    --slave /usr/bin/gcov gcov /usr/bin/gcov-11 \
+    --slave /usr/bin/gcov-dump gcov-dump /usr/bin/gcov-dump-11 \
+    --slave /usr/bin/gcov-tool gcov-tool /usr/bin/gcov-tool-11 \
+    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 130 \
+    --slave /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-13 \
+    --slave /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-13 \
+    --slave /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-13 \
+    --slave /usr/bin/g++ g++ /usr/bin/g++-13 \
+    --slave /usr/bin/gcov gcov /usr/bin/gcov-13 \
+    --slave /usr/bin/gcov-dump gcov-dump /usr/bin/gcov-dump-13 \
+    --slave /usr/bin/gcov-tool gcov-tool /usr/bin/gcov-tool-13 \
+    && update-alternatives --set gcc /user/bin/gcc-13
