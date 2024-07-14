@@ -44,9 +44,26 @@ RUN apt-get update -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Create the user
-RUN groupadd --gid "${USER_GID}" "${USERNAME}" \
-    && useradd --uid "${USER_UID}" --gid "${USER_GID}" -m --no-log-init "${USERNAME}" \
+# Create the user - check if user_gid already exists.
+# See: https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user#_creating-a-nonroot-user
+RUN PREV_GNAME=$(getent group "${USER_GID}" | cut -d: -f1) \
+    && if [ -n "${PREV_GNAME}" ]; then \
+    groupmod -n "${USERNAME}" "${PREV_GNAME}" \
+    && echo "Group ${PREV_GNAME} renamed: ${USERNAME}"; \
+    else \
+    groupadd --gid "${USER_GID}" "${USERNAME}" \
+    && echo "Group added and named: ${USERNAME}"; \
+    fi \
+    && PREV_UNAME=$(getent passwd "${USER_UID}" | cut -d: -f1) \
+    && if [ -n "${PREV_UNAME}" ]; then \
+    usermod -l "${USERNAME}" "${PREV_UNAME}" \
+    && usermod -g "${USER_GID}" "${USERNAME}" \
+    && usermod -d "/home/${USERNAME}" -m "${USERNAME}" \
+    && echo "User ${PREV_UNAME} renamed: ${USERNAME}"; \
+    else \
+    useradd --uid "${USER_UID}" --gid "${USER_GID}" -m "${USERNAME}" \
+    && echo "User added and named: ${USERNAME}"; \
+    fi \
     && mkdir -p /etc/sudoers.d \
     && echo "${USERNAME} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
     && chmod 0440 /etc/sudoers.d/${USERNAME} \
