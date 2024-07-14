@@ -32,7 +32,7 @@ buildType:
     debugTidyCheck:
       short: Debug Clang Tidy ON
       long: Debug Build - with Clang Tidy ON
-      buldType: Debug
+      buildType: Debug
       settings:
         STATIC_ANALYSIS: "ON"
         USE_CLANG_TIDY: "ON"
@@ -40,7 +40,7 @@ buildType:
     debugTidyFix:
       short: Debug Clang Tidy FIX
       long: Debug Build - with Clang Tidy on and fixing
-      buldType: Debug
+      buildType: Debug
       settings:
         STATIC_ANALYSIS: "ON"
         USE_CLANG_TIDY: "ON"
@@ -48,7 +48,7 @@ buildType:
     debugCppCheck:
       short: Debug CppCheck
       long: Debug Build - with CppCheck
-      buldType: Debug
+      buildType: Debug
       settings:
         STATIC_ANALYSIS: "ON"
         USE_CLANG_TIDY: "OFF"
@@ -56,7 +56,7 @@ buildType:
     debugCppLint:
       short: Debug CppLint
       long: Debug Build - with CppLint
-      buldType: Debug
+      buildType: Debug
       settings:
         STATIC_ANALYSIS: "ON"
         USE_CLANG_TIDY: "OFF"
