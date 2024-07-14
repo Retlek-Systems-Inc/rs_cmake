@@ -40,21 +40,23 @@ RUN apt-get update -y \
 WORKDIR ${WORK_PATH}
 
 # OpenROAD separate from build if want a newer version
+# Note no OpenROAD install for 24.04 as of yet - will wait for that.
 ARG OPENROAD_DEB_VERSION=2024-07-12
 ARG OPENROAD_DEB_FILE=openroad_2.0_amd64-ubuntu22.04-${OPENROAD_DEB_VERSION}.deb
 ARG OPENROAD_DEB_URL=https://github.com/Precision-Innovations/OpenROAD/releases/download/${OPENROAD_DEB_VERSION}/${OPENROAD_DEB_FILE}
 
-ARG ORFS_REPO=https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts
-ARG ORFS_COMMIT=v3.0
-ARG ORFS_PATH=${WORK_PATH}/OpenROAD-flow-scripts
+# Note no OpenROAD Flow Scripts install for 24.04 as of yet - will wait for that.
+# ARG ORFS_REPO=https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts
+# ARG ORFS_COMMIT=v3.0
+# ARG ORFS_PATH=${WORK_PATH}/OpenROAD-flow-scripts
 
-ARG KLAYOUT_GPG_PUBKEY_FILE=klayout-public.asc
-ARG KLAYOUT_GPG_PUBKEY_URL=https://www.klayout.org/downloads/gpg-public.key
+# ARG KLAYOUT_GPG_PUBKEY_FILE=klayout-public.asc
+# ARG KLAYOUT_GPG_PUBKEY_URL=https://www.klayout.org/downloads/gpg-public.key
 
-ARG KLAYOUT_DEB_VERSION=0.29.4-1
-ARG KLAYOUT_DEB_FILE=klayout_${KLAYOUT_DEB_VERSION}_amd64.deb
-ARG KLAYOUT_DEB_URL=https://www.klayout.org/downloads/Ubuntu-22/${KLAYOUT_DEB_FILE}
-ARG KLAYOUT_DEB_MD5=c20f2561a418c9386243718137b954ab
+# ARG KLAYOUT_DEB_VERSION=0.29.4-1
+# ARG KLAYOUT_DEB_FILE=klayout_${KLAYOUT_DEB_VERSION}_amd64.deb
+# ARG KLAYOUT_DEB_URL=https://www.klayout.org/downloads/Ubuntu-22/${KLAYOUT_DEB_FILE}
+# ARG KLAYOUT_DEB_MD5=c20f2561a418c9386243718137b954ab
 
 ARG YOSYS_TGZ_VERSION=2024-07-12
 ARG YOSYS_TGZ_VERSION_NO_DASH=20240712
@@ -62,20 +64,29 @@ ARG YOSYS_TGZ_FILE=oss-cad-suite-linux-x64-${YOSYS_TGZ_VERSION_NO_DASH}.tgz
 ARG YOSYS_TGZ_URL=https://github.com/YosysHQ/oss-cad-suite-build/releases/download/${YOSYS_TGZ_VERSION}/${YOSYS_TGZ_FILE}
 ARG YOSYS_INSTALL_DIR=/usr/local
 
-# Install klayout
-RUN wget --progress=dot:giga ${KLAYOUT_GPG_PUBKEY_URL} -O ./${KLAYOUT_GPG_PUBKEY_FILE} \
-    && wget --progress=dot:giga ${KLAYOUT_DEB_URL} \
-    && echo "${KLAYOUT_DEB_MD5} ./${KLAYOUT_DEB_FILE}" > ./${KLAYOUT_DEB_FILE}.md5 \
-    && md5sum -c ${KLAYOUT_DEB_FILE}.md5 \
-    && apt-key add ${KLAYOUT_GPG_PUBKEY_FILE}
-
+# Install klayout - 0.28.16 for 24.04
 RUN apt-get update -y \
-    && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y  \
-    && dpkg --configure -a \
-    && apt-get autoremove \
-    && DEBIAN_FRONTEND=noninteractive apt-get --fix-broken install --no-install-recommends -y ./${KLAYOUT_DEB_FILE} \
+    && DEBIAN_FRONTEND=noninteractive \
+    apt-get install --no-install-recommends -y \
+    klayout \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* ./${KLAYOUT_GPG_PUBKEY_FILE} ./${KLAYOUT_DEB_FILE}
+    && rm -rf /var/lib/apt/lists/*
+
+# Add this in for Newer version of klayout instead.
+# No released deb for ubuntu 24.04 yet.
+# RUN wget --progress=dot:giga ${KLAYOUT_GPG_PUBKEY_URL} -O ./${KLAYOUT_GPG_PUBKEY_FILE} \
+#     && wget --progress=dot:giga ${KLAYOUT_DEB_URL} \
+#     && echo "${KLAYOUT_DEB_MD5} ./${KLAYOUT_DEB_FILE}" > ./${KLAYOUT_DEB_FILE}.md5 \
+#     && md5sum -c ${KLAYOUT_DEB_FILE}.md5 \
+#     && apt-key add ${KLAYOUT_GPG_PUBKEY_FILE}
+
+# RUN apt-get update -y \
+#     && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y  \
+#     && dpkg --configure -a \
+#     && apt-get autoremove \
+#     && DEBIAN_FRONTEND=noninteractive apt-get --fix-broken install --no-install-recommends -y ./${KLAYOUT_DEB_FILE} \
+#     && apt-get clean \
+#     && rm -rf /var/lib/apt/lists/* ./${KLAYOUT_GPG_PUBKEY_FILE} ./${KLAYOUT_DEB_FILE}
 
 # If KLayout is built from source
 # ENV LD_LIBRARY_PATH="<klayout_location>/bin:$PATH"
@@ -90,20 +101,22 @@ ENV PATH="${YOSYS_INSTALL_DIR}/oss-cad-suite/bin:${PATH}"
 # Install OpenROAD toolchain
 RUN wget --progress=dot:giga ${OPENROAD_DEB_URL}
 
+# Install OpenROAD Flow Scripts
+# Disabled for now since the there is no build for ubuntu 24.04 and there are issues with python version.
 #Note: `time` is for the OpenROAD flow scripts - used in make files.
 
 # hadolint ignore=DL3008
-RUN add-apt-repository universe \
-    && apt-get update \
-    && DEBIAN_FRONTEND=noninteractive \
-    apt-get install --no-install-recommends -y \
-    tcl-tclreadline \
-    libtcl8.6 \
-    time \
-    && DEBIAN_FRONTEND=noninteractive  \
-    apt-get install --no-install-recommends -y ./${OPENROAD_DEB_FILE} \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* ${OPENROAD_DEB_FILE}
+# RUN add-apt-repository universe \
+#     && apt-get update \
+#     && DEBIAN_FRONTEND=noninteractive \
+#     apt-get install --no-install-recommends -y \
+#     tcl-tclreadline \
+#     libtcl8.6 \
+#     time \
+#     && DEBIAN_FRONTEND=noninteractive  \
+#     apt-get install --no-install-recommends -y ./${OPENROAD_DEB_FILE} \
+#     && apt-get clean \
+#     && rm -rf /var/lib/apt/lists/* ${OPENROAD_DEB_FILE}
 
 # Set environment variables based on above installation
 ENV YOSYS_CMD=${YOSYS_INSTALL_DIR}/oss-cad-suite/bin/yosys
