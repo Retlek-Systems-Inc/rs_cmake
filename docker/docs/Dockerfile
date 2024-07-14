@@ -33,11 +33,15 @@ RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
     apt-get install --no-install-recommends -y \
     doxygen \
-    openjdk-18-jre-headless \
+    openjdk-21-jre-headless \
     graphviz \
     default-jdk \
-    python3-virtualenv \
+    python3 \
+    python3-breathe \
+    python3-venv \
     python3-sphinx \
+    python3-sphinxcontrib.plantuml \
+    python3-sphinx-rtd-theme \
     python3-pip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -47,15 +51,12 @@ ARG PLANTUML_VERSION="1.2024.6"
 ARG PLANTUML_FILE="plantuml-${PLANTUML_VERSION}.jar"
 #hadolint ignore=DL3013
 RUN mkdir -p ${PLANTUML_DIR} \
-    && wget --progress=dot:giga "https://github.com/plantuml/plantuml/releases/download/v${PLANTUML_VERSION}/${PLANTUML_FILE}" -O ${PLANTUML_DIR}/plantuml.jar \
-    && export PLANTUML_DIR=${PLANTUML_DIR} \
-    && python3 -m pip install --no-cache-dir \
-    sphinx \
-    sphinx-rtd-theme \
-    sphinx-fontawesome \
-    sphinx-toolbox \
-    breathe \
-    sphinxcontrib-plantuml
+    && wget --progress=dot:giga "https://github.com/plantuml/plantuml/releases/download/v${PLANTUML_VERSION}/${PLANTUML_FILE}" -O ${PLANTUML_DIR}/plantuml.jar
 
+# TODO add in later if needed.
+# && python3 -m pip install --break-system-packages --upgrade pip setuptools wheel \
+# && python3 -m pip install --break-system-packages --no-cache-dir \
+# sphinx-fontawesome \
+# sphinx-toolbox
 
 WORKDIR /tmp
