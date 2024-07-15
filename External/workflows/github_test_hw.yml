@@ -40,13 +40,13 @@ env:
   DEPS_DIR: ci_build/deps
   CLANG_DIR: ci_build/clang
   GCC_DIR: ci_build/gcc
-  CLANG_VER: 17
+  CLANG_VER: 18
 
 jobs:
   prepare:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/hw-dev:v0.4.0
+      image: ghcr.io/retlek-systems-inc/rs_cmake/hw-dev:v0.4.1
     env:
       CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
     steps:
@@ -73,7 +73,7 @@ jobs:
     name: ${{ matrix.name }} Build and Test
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/hw-dev:v0.4.0
+      image: ghcr.io/retlek-systems-inc/rs_cmake/hw-dev:v0.4.1
     needs: prepare
     strategy:
       fail-fast: false
@@ -124,7 +124,7 @@ jobs:
     name: ${{ matrix.name }} Analysis
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/hw-dev:v0.4.0
+      image: ghcr.io/retlek-systems-inc/rs_cmake/hw-dev:v0.4.1
     needs: prepare
     strategy:
       fail-fast: false

@@ -40,13 +40,13 @@ env:
   DEPS_DIR: ci_build/deps
   CLANG_DIR: ci_build/clang
   GCC_DIR: ci_build/gcc
-  CLANG_VER: 17
+  CLANG_VER: 18
 
 jobs:
   prepare:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.0
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.1
       credentials:
         username: ${{ secrets.rs_docker_registry_username }}
         password: ${{ secrets.rs_docker_registry_password }}
@@ -76,7 +76,7 @@ jobs:
     name: ${{ matrix.name }} Build and Test
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.0
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.1
       credentials:
         username: ${{ secrets.rs_docker_registry_username }}
         password: ${{ secrets.rs_docker_registry_password }}
@@ -147,7 +147,7 @@ jobs:
     name: ${{ matrix.name }} Analysis
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.0
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.1
       credentials:
         username: ${{ secrets.rs_docker_registry_username }}
         password: ${{ secrets.rs_docker_registry_password }}
