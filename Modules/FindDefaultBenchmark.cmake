@@ -46,81 +46,13 @@ if( BUILD_BENCHMARK )
 
     target_clang_tidy_definitions( TARGET benchmark
       CHECKS
-        -*-avoid-c-arrays
-        -*-braces-around-statements
-        -*-else-after-return
-        -*-magic-numbers
-        -*-member-init
-        -*-named-parameter
-        -*-narrowing-conversions
-        -*-qualified-auto
-        -*-use-auto
-        -*-use-emplace
-        -*-use-equals-default
-        -*-use-nullptr
-        -*-vararg
-        -abseil-string-find-startswith
-        -altera-id-dependent-backward-branch
-        -altera-struct-pack-align
-        -altera-unroll-loops
-        -bugprone-easily-swappable-parameters
-        -cert-dcl50-cpp
-        -cert-err33-c
-        -cert-err58-cpp
-        -concurrency-mt-unsafe
-        -cppcoreguidelines-avoid-do-while
-        -cppcoreguidelines-avoid-non-const-global-variables
-        -cppcoreguidelines-init-variables
-        -cppcoreguidelines-owning-memory
-        -cppcoreguidelines-pro-bounds-array-to-pointer-decay
-        -cppcoreguidelines-pro-bounds-pointer-arithmetic
-        -cppcoreguidelines-pro-type-union-access
-        -fuchsia-default-arguments-calls
-        -fuchsia-statically-constructed-objects
-        -google-build-using-namespace
-        -google-readability-casting
-        -google-readability-todo
-        -google-runtime-int
-        -hicpp-multiway-paths-covered
-        -hicpp-no-array-decay
-        -hicpp-signed-bitwise
-        -llvmlibc-callee-namespace
-        -llvmlibc-implementation-in-namespace
-        -llvmlibc-restrict-system-libc-headers
-        -misc-const-correctness
-        -misc-include-cleaner
-        -misc-use-anonymous-namespace
-        -modernize-pass-by-value
-        -modernize-raw-string-literal
-        -modernize-return-braced-init-list
-        -modernize-use-trailing-return-type
-        -modernize-use-using
         -performance-avoid-endl
-        -readability-container-size-empty
-        -readability-convert-member-functions-to-static
-        -readability-duplicate-include
-        -readability-function-cognitive-complexity
-        -readability-identifier-length
-        -readability-implicit-bool-conversion
-        -readability-inconsistent-declaration-parameter-name
-        -readability-qualified-auto
-        -readability-simplify-boolean-expr
-        -readability-static-accessed-through-instance
-        -readability-static-definition-in-anonymous-namespace
-        -readability-use-anyofallof
+        -performance-enum-size
     )
 
-  target_clang_tidy_definitions( TARGET benchmark_main
-    CHECKS
-        -*-avoid-c-arrays
-        -*-named-parameter
-        -cppcoreguidelines-pro-bounds-array-to-pointer-decay
-        -fuchsia-default-arguments-calls
-        -hicpp-no-array-decay
-        -llvmlibc-callee-namespace
-        -llvmlibc-implementation-in-namespace
-        -misc-include-cleaner
-        -modernize-use-trailing-return-type
-  )
+    target_clang_tidy_definitions( TARGET benchmark_main
+      CHECKS
+          -performance-enum-size
+    )
 
 endif(BUILD_BENCHMARK)
