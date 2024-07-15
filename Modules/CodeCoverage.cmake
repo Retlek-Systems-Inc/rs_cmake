@@ -55,8 +55,14 @@ include(CMakeDependentOption)
 AddConfiguration( CONFIG Coverage
     BASE_CONFIG Debug
     COMPILE_FLAGS
+        -fprofile-arcs
+        -ftest-coverage
+        -fprofile-update=atomic
         --coverage
     LINKER_FLAGS
+        -fprofile-arcs
+        -ftest-coverage
+        -fprofile-update=atomic
         --coverage
 )
 

@@ -67,6 +67,7 @@ RUN apt-get update -y \
     ninja-build \
     ccache \
     lcov \
+    libjson-xs-perl \
     cppcheck \
     cpplint \
     iwyu \

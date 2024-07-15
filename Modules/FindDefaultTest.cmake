@@ -42,7 +42,10 @@ if(BUILD_TEST)
             EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
             LCOV_ARGS
                 --strip 1
-                --rc lcov_branch_coverage=1
+                --branch-coverage
+                --function-coverage
+                --ignore-errors mismatch
+                --ignore-errors unused
             GENHTML_ARGS
                 --rc genhtml_branch_coverage=1
                 --demangle-cpp
