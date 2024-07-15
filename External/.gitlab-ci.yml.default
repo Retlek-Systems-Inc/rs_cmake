@@ -34,9 +34,10 @@ variables:
   DEPS_DIR: ${CMAKE_ENV_DEPS_PATH}
   GCC_DIR: ${BASE_BUILD_DIR}/gcc
   CLANG_DIR: ${BASE_BUILD_DIR}/clang
+  CLANG_VER: 18
 
 default:
-  image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.0
+  image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.1
   before_script:
     # Subproject tools
     #    - apt -y install protobuf-compiler python-protobuf libprotobuf-dev
