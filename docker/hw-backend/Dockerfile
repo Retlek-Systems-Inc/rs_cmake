@@ -65,6 +65,7 @@ ARG YOSYS_TGZ_URL=https://github.com/YosysHQ/oss-cad-suite-build/releases/downlo
 ARG YOSYS_INSTALL_DIR=/usr/local
 
 # Install klayout - 0.28.16 for 24.04
+# hadolint ignore=DL3008 
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
     apt-get install --no-install-recommends -y \
