@@ -55,4 +55,6 @@ if( BUILD_BENCHMARK )
           -performance-enum-size
     )
 
+    list(APPEND COVERAGE_LCOV_EXCLUDES '${benchmark_SOURCE_DIR}/*' )
+
 endif(BUILD_BENCHMARK)
