@@ -48,7 +48,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.1
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.2
     env:
       CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
     steps:
@@ -75,7 +75,7 @@ jobs:
     name: ${{ matrix.name }} Build and Test
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.1
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.2
       options: --privileged # For Tsan below can remove once https://github.com/google/sanitizers/issues/1716 no longer an issue
     needs: prepare
     strategy:
@@ -94,6 +94,9 @@ jobs:
           - name: "Clang Thread Sanitizer"
             build_dir: ci_build/clang #{{ env.CLANG_DIR}}
             build_type: Tsan
+          - name: "Clang Memory Sanitizer"
+            build_dir: ci_build/clang #{{ env.CLANG_DIR}}
+            build_type: Ubsan
           - name: "Clang Undefined Behavior Sanitizer"
             build_dir: ci_build/clang #{{ env.CLANG_DIR}}
             build_type: Ubsan
@@ -161,7 +164,7 @@ jobs:
     name: ${{ matrix.name }} Analysis
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.1
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.2
     needs: prepare
     strategy:
       fail-fast: false

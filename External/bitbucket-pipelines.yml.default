@@ -21,7 +21,7 @@
 # The pipelines will scan for report files:
 # See: https://support.atlassian.com/bitbucket-cloud/docs/test-reporting-in-pipelines/
 
-image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.1
+image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.2
 
 # Yaml Anchors - cannot have anchors of just lists so lots of duplicate code
 # common_env_setup: &common_env_setup
