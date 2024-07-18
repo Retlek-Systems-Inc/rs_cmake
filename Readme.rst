@@ -238,6 +238,49 @@ Update VSCode to use clang-format: \* `Clang
 Format <https://marketplace.visualstudio.com/items?itemName=xaver.clang-format>`__
 And configure to where clang-format is installed.
 
+Docker One-time Setup
+~~~~~~~~~~~~~~~~~~~~~
+
+.. warning::
+
+    Only Done once to allow access. May need to perform periodically depending on when keys are set to expire.
+
+
+Open ``Docker Desktop`` and then open ``VSCode``.
+Make Sure you have ``Docker Desktop`` running in the background in Windows before you start running VSCode or any of the following steps.
+
+Inside VSCode:
+* Change to using WSL2 - ``Ctrl-Shift-P`` and type ``WSL: Connect to WSL`` if your default WSL image is one of the ones defined above, or ``WSL: Connect to WSL using Distro...`` and select ``Ubuntu-22.04``
+* install `Dev Containers <https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers>`_  This will allow the .devcontainer directory to automatically setup your docker images.
+* Open up a Terminal - Navigate to Menu ``Terminal -> New Terminal``
+
+.. note::
+
+    The container registry is currently using github ``ghcr.io`` so some additional setup is necessary.
+
+Using your github account perform the following to authenticate to the Container registry.
+`Authenticating to the Container registry <https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry>`_
+and `Authenticating with a personal access token (classic) <https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic>`_
+
+.. note::
+
+    When creating the Personal Access Token (PAT) - ensure it is a ``classic`` and then under the checkboxes select **ONLY** : ``read:packages`` for the token.  This will give you the minimal access to ghcr.io that you require.
+
+Make sure you run the following commands in the VSCode WSL2 terminal, as mentioned in the above ``Open up a terminal``.
+
+.. code:: bash
+
+    export CR_PAT=<YOUR_TOKEN>
+    docker logout ghcr.io
+    echo ${CR_PAT} | docker login ghcr.io -u <GitHub USERNAME> --password-stdin
+
+You should then see:
+
+.. code:: bash
+
+    > Login Succeeded
+
+
 Running
 ~~~~~~~
 
