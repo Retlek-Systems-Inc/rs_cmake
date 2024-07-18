@@ -44,7 +44,7 @@ For Clang Compile
 .. code:: bash
 
    cd build
-   cmake -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_COMPILER=clang++-17 ..
+   cmake -G"Ninja Multi-Config" -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18 ..
    cmake --build . --config Debug
 
 For Cross Compile using GCC, note that tests are automatically turned off for any cross-compiled code since
@@ -160,7 +160,7 @@ First Configure the cmake build directory with clang and multi-config:
 .. code:: bash
 
    cd build
-   cmake -G"Ninja Multi-Config" -DSTATIC_ANALYSIS=OFF -DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_COMPILER=clang++-17 ..
+   cmake -G"Ninja Multi-Config" -DSTATIC_ANALYSIS=OFF -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18 ..
 
 For Address Sanitizer - run on suite of tests:
 
@@ -185,6 +185,12 @@ For Undefined Behavior Sanitizer - run on suite of tests:
 .. code:: bash
 
    cmake --build . --config Ubsan --target test
+
+For Control Flow Integrity Sanitizer - run on suite of tests:
+
+.. code:: bash
+
+   cmake --build . --config Cfisan --target test
 
 For Valgrind - run on suite of tests:
 
