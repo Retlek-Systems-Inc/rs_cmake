@@ -1,4 +1,4 @@
-# @copyright 2022 Retlek Systems Inc.
+# @copyright 2022-2024 Retlek Systems Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -52,19 +52,39 @@ include(CMakeParseArguments)
 include(CMakeDependentOption)
 
 # Add the Coverage configuration type
-AddConfiguration( CONFIG Coverage
-    BASE_CONFIG Debug
-    COMPILE_FLAGS
-        -fprofile-arcs
-        -ftest-coverage
-        -fprofile-update=atomic
-        --coverage
-    LINKER_FLAGS
-        -fprofile-arcs
-        -ftest-coverage
-        -fprofile-update=atomic
-        --coverage
-)
+# TODO(phelter): Add coverage setup for clang as well - not there yet.
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    AddConfiguration( CONFIG Coverage
+        BASE_CONFIG Debug
+        COMPILE_FLAGS
+            -fprofile-arcs
+            -ftest-coverage
+            -fprofile-update=atomic
+            --coverage
+        LINKER_FLAGS
+            -fprofile-arcs
+            -ftest-coverage
+            -fprofile-update=atomic
+            --coverage
+    )
+# elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # AddConfiguration( CONFIG Coverage
+    #     BASE_CONFIG Debug
+    #     COMPILE_FLAGS
+    #         -fprofile-instr-generate
+    #         -fcoverage-mapping
+    #         -fprofile-update=atomic
+    #         --coverage
+    #     LINKER_FLAGS
+    #         -fprofile-instr-generate
+    #         -fcoverage-mapping
+    #         -fprofile-update=atomic
+    #         --coverage
+    # )
+else()
+    message(WARNING "Coverage configuration not supported with compiler: ${CMAKE_CXX_COMPILER_ID}")
+    return()
+endif()
 
 get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(isMultiConfig)
@@ -78,6 +98,25 @@ else()
         # Not a multi-config and not a coverage build so don't bother adding these.
         return()
     endif()
+endif()
+
+
+# Define the custom command to delete profiling data files
+if (NOT TARGET CoverageClean)
+    add_custom_command(
+        OUTPUT ${CMAKE_BINARY_DIR}/coverage_clean_stamp
+        COMMAND ${CMAKE_COMMAND} -E echo "Deleting profiling data files..."
+        COMMAND find ${CMAKE_BINARY_DIR} -type f -name '*.gcda' -delete
+        COMMAND find ${CMAKE_BINARY_DIR} -type f -name '*.gcno' -delete
+        COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/coverage_clean_stamp
+        COMMENT "Cleaning up profiling data files"
+    )
+
+    # Define the custom target that depends on the custom command
+    add_custom_target( CoverageClean
+        DEPENDS ${CMAKE_BINARY_DIR}/coverage_clean_stamp
+        COMMENT "Custom target to clean coverage profiling data files"
+    )
 endif()
 
 # TODO(phelter): Figure out how to do the code-coverage target just for the Coverage build.
@@ -409,5 +448,4 @@ function(SETUP_TARGET_FOR_COVERAGE_GCOVR_HTML)
     COMMENT
       "Open ${CMAKE_CURRENT_BINARY_DIR}/${Coverage_NAME}/index.html in your browser to view the coverage report."
     )
-
 endfunction() # SETUP_TARGET_FOR_COVERAGE_GCOVR_HTML

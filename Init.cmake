@@ -1,4 +1,4 @@
-# @copyright 2020 Retlek Systems Inc.
+# @copyright 2020-2024 Retlek Systems Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -63,7 +63,7 @@ get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
 set(allowedBuildTypes Debug Release RelWithDebInfo MinSizeRel)
 if (NOT CMAKE_CROSSCOMPILING)
-  list(APPEND allowedBuildTypes Coverage Asan Tsan Ubsan)  #Msan Cfisan
+  list(APPEND allowedBuildTypes Coverage Asan Tsan Ubsan Msan Cfisan)
 endif()
 
 # To make case insensitive:

@@ -1,4 +1,4 @@
-# @copyright 2017 Retlek Systems Inc.
+# @copyright 2017-2024 Retlek Systems Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,62 +27,68 @@ Adds a Sanitizer Configurations
 
 #]=======================================================================]
 
-set(_commonSanFlags -fno-omit-frame-pointer)
+set(_supportedCompilers "GNU" "Clang")
 
-# Note leak and dynamic address sanitizers are a subset of address sanitizer so no need for separate run
-# Note integer sanitizer is a subset of undefined sanitizer so no need for a separate run
-# Note undefined could is added to any of the sanitizers, but left on it's own for now
-# The recommended (preferred) optimization level for sanitizers is O2 or RelWithDebInfo settings.
+if (CMAKE_CXX_COMPILER_ID IN_LIST _supportedCompilers)
 
-AddConfiguration( CONFIG Asan
-    BASE_CONFIG RelWithDebInfo
-    COMPILE_FLAGS
-        -fsanitize=address
-        ${_commonSanFlags}
-        -fno-optimize-sibling-calls
-        -fsanitize-address-use-after-scope
-    LINKER_FLAGS
-        -fsanitize=address
-)
+    # Note leak and dynamic address sanitizers are a subset of address sanitizer so no need for separate run
+    # Note integer sanitizer is a subset of undefined sanitizer so no need for a separate run
+    # Note undefined could is added to any of the sanitizers, but left on it's own for now
+    # The recommended (preferred) optimization level for sanitizers is O2 or RelWithDebInfo settings.
+    set(_commonSanFlags -fno-omit-frame-pointer)
 
-AddConfiguration( CONFIG Tsan
-    BASE_CONFIG RelWithDebInfo
-    COMPILE_FLAGS
-        -fsanitize=thread
-        ${_commonSanFlags}
-    LINKER_FLAGS
-        -fsanitize=thread
-)
+    AddConfiguration( CONFIG Asan
+        BASE_CONFIG RelWithDebInfo
+        COMPILE_FLAGS
+            -fsanitize=address
+            ${_commonSanFlags}
+            -fno-optimize-sibling-calls
+            -fsanitize-address-use-after-scope
+        LINKER_FLAGS
+            -fsanitize=address
+    )
 
-AddConfiguration( CONFIG Msan
-    BASE_CONFIG RelWithDebInfo
-    COMPILE_FLAGS
-        -fsanitize=memory
-        ${_commonSanFlags}
-        -fno-optimize-sibling-calls
-        -fsanitize-memory-track-origins=2
-    LINKER_FLAGS
-        -fsanitize=memory
-)
+    AddConfiguration( CONFIG Tsan
+        BASE_CONFIG RelWithDebInfo
+        COMPILE_FLAGS
+            -fsanitize=thread
+            ${_commonSanFlags}
+        LINKER_FLAGS
+            -fsanitize=thread
+    )
 
-AddConfiguration( CONFIG Ubsan
-    BASE_CONFIG RelWithDebInfo
-    COMPILE_FLAGS
-        -fsanitize=undefined
-        ${_commonSanFlags}
-        #-fsanitize-blacklist=BLACKLIST_FILE
-    LINKER_FLAGS
-        -fsanitize=undefined
-)
+    AddConfiguration( CONFIG Msan
+        BASE_CONFIG RelWithDebInfo
+        COMPILE_FLAGS
+            -fsanitize=memory
+            ${_commonSanFlags}
+            -fno-optimize-sibling-calls
+            -fsanitize-memory-track-origins=2
+        LINKER_FLAGS
+            -fsanitize=memory
+    )
 
-AddConfiguration( CONFIG Cfisan
-    BASE_CONFIG RelWithDebInfo
-    COMPILE_FLAGS
-        -fsanitize=cfi
-        ${_commonSanFlags}
-    LINKER_FLAGS
-        -fsanitize=cfi
-)
+    AddConfiguration( CONFIG Ubsan
+        BASE_CONFIG RelWithDebInfo
+        COMPILE_FLAGS
+            -fsanitize=undefined
+            ${_commonSanFlags}
+            #-fsanitize-blacklist=BLACKLIST_FILE
+        LINKER_FLAGS
+            -fsanitize=undefined
+    )
+
+    AddConfiguration( CONFIG Cfisan
+        BASE_CONFIG RelWithDebInfo
+        COMPILE_FLAGS
+            -fsanitize=cfi
+            ${_commonSanFlags}
+        LINKER_FLAGS
+            -fsanitize=cfi
+    )
+else()
+    message(STATUS "Sanitizers not supported for compiler: ${CMAKE_CXX_COMPILER_ID}")
+endif()
 
 #Valgrind specific options
 # TODO: Investigate :

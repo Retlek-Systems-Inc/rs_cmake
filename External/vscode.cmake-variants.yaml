@@ -1,5 +1,5 @@
 #######################################################################
-# @copyright 2020 Retlek Systems Inc.
+# @copyright 2020-2024 Retlek Systems Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -89,6 +89,18 @@ buildType:
       short: UbSan
       long: Undefined Behavior Sanitizer Build
       buildType: Ubsan
+      settings:
+        STATIC_ANALYSIS: "OFF"
+    msan:
+      short: MSan
+      long: Memory Sanitizer Build
+      buildType: Msan
+      settings:
+        STATIC_ANALYSIS: "OFF"
+    cfisan:
+      short: CfiSan
+      long: Control Flow Integrity Sanitizer Build
+      buildType: Cfisan
       settings:
         STATIC_ANALYSIS: "OFF"
     coverage:
