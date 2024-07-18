@@ -83,7 +83,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # )
 else()
     message(WARNING "Coverage configuration not supported with compiler: ${CMAKE_CXX_COMPILER_ID}")
-    return()
 endif()
 
 get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
