@@ -29,12 +29,18 @@ Adds a Sanitizer Configurations
 
 set(_commonSanFlags -fno-omit-frame-pointer)
 
+# Note leak and dynamic address sanitizers are a subset of address sanitizer so no need for separate run
+# Note integer sanitizer is a subset of undefined sanitizer so no need for a separate run
+# Note undefined could is added to any of the sanitizers, but left on it's own for now
+# The recommended (preferred) optimization level for sanitizers is O2 or RelWithDebInfo settings.
+
 AddConfiguration( CONFIG Asan
     BASE_CONFIG RelWithDebInfo
     COMPILE_FLAGS
         -fsanitize=address
         ${_commonSanFlags}
         -fno-optimize-sibling-calls
+        -fsanitize-address-use-after-scope
     LINKER_FLAGS
         -fsanitize=address
 )
@@ -48,19 +54,16 @@ AddConfiguration( CONFIG Tsan
         -fsanitize=thread
 )
 
-# AddConfiguration( CONFIG Msan
-#     BASE_CONFIG RelWithDebInfo
-#     COMPILE_FLAGS
-#         -fsanitize=memory
-# #        -fsanitize=leak
-#         ${_commonSanFlags}
-# #        --fsanitize-memory-track-origins
-#     LINKER_FLAGS
-#         -fsanitize=thread
-# #        -fsanitize=leak
-#         ${_commonSanFlags}
-# #        --fsanitize-memory-track-origins
-# )
+AddConfiguration( CONFIG Msan
+    BASE_CONFIG RelWithDebInfo
+    COMPILE_FLAGS
+        -fsanitize=memory
+        ${_commonSanFlags}
+        -fno-optimize-sibling-calls
+        -fsanitize-memory-track-origins=2
+    LINKER_FLAGS
+        -fsanitize=memory
+)
 
 AddConfiguration( CONFIG Ubsan
     BASE_CONFIG RelWithDebInfo
@@ -72,14 +75,14 @@ AddConfiguration( CONFIG Ubsan
         -fsanitize=undefined
 )
 
-# AddConfiguration( CONFIG Cfisan
-#     BASE_CONFIG RelWithDebInfo
-#     COMPILE_FLAGS
-#         -fsanitize=cfi
-#         ${_commonSanFlags}
-#     LINKER_FLAGS
-#         -fsanitize=cfi
-# )
+AddConfiguration( CONFIG Cfisan
+    BASE_CONFIG RelWithDebInfo
+    COMPILE_FLAGS
+        -fsanitize=cfi
+        ${_commonSanFlags}
+    LINKER_FLAGS
+        -fsanitize=cfi
+)
 
 #Valgrind specific options
 # TODO: Investigate :
