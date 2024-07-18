@@ -65,6 +65,15 @@ set(allowedBuildTypes Debug Release RelWithDebInfo MinSizeRel)
 if (NOT CMAKE_CROSSCOMPILING)
   list(APPEND allowedBuildTypes Coverage Asan Tsan Ubsan)  #Msan Cfisan
 endif()
+
+# To make case insensitive:
+# Create a lowercase version of allowedBuildTypes
+set(allowedBuildTypesLower)
+foreach(type IN LISTS allowedBuildTypes)
+  string(TOLOWER "${type}" typeLower)
+  list(APPEND allowedBuildTypesLower "${typeLower}")
+endforeach()
+
 if(isMultiConfig)
     message(STATUS "CMAKE_CONFIGURATION_TYPES = ${CMAKE_CONFIGURATION_TYPES}")
     set(configTypes ${CMAKE_CONFIGURATION_TYPES})
@@ -76,7 +85,18 @@ else()
     if(NOT DEFINED CMAKE_BUILD_TYPE)
         set(CMAKE_BUILD_TYPE Debug CACHE STRING "" FORCE)
     elseif(NOT CMAKE_BUILD_TYPE IN_LIST allowedBuildTypes)
-        message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
+        # Convert the provided CMAKE_BUILD_TYPE to lowercase
+        string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
+        message(STATUS "Unknown build type: ${CMAKE_BUILD_TYPE_LOWER}, allowed: ${allowedBuildTypesLower}")
+
+        # Find the correct case-insensitive match from the allowedBuildTypes
+        list(FIND allowedBuildTypesLower ${CMAKE_BUILD_TYPE_LOWER} index)
+        if(index EQUAL -1)
+            message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
+        else()
+            list(GET allowedBuildTypes ${index} CMAKE_BUILD_TYPE_CORRECT)
+            set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE_CORRECT} CACHE STRING "" FORCE)
+        endif()
     endif()
 endif()
 
