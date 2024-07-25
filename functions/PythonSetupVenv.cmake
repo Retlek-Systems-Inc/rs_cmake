@@ -71,8 +71,8 @@ function(PythonSetupVenv)
       ${_arg_REQUIREMENTS}
     COMMAND "${Python3_EXECUTABLE}" -m venv ${_arg_VENV_DIR}
     # Following are for PythonLint.cmake
-    COMMAND ${venv_dir}/bin/pip install black isort flake8 pylint --upgrade
-    COMMAND ${venv_dir}/bin/pip install -r ${_arg_REQUIREMENTS} --upgrade
+    COMMAND ${_arg_VENV_DIR}/bin/pip install black isort flake8 pylint --upgrade
+    COMMAND ${_arg_VENV_DIR}/bin/pip install -r ${_arg_REQUIREMENTS} --upgrade
     COMMENT "Building Python venv `${_arg_VENV_DIR}` from `${_arg_REQUIREMENTS}`."
   )
 
