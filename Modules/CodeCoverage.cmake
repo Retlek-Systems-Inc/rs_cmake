@@ -171,7 +171,7 @@ find_program(SIMPLE_PYTHON_EXECUTABLE python)
 
 if(NOT GCOV_PATH)
     message(WARNING "gcov not found! No Coverage targets generated...")
-    return()
+    # return()
 endif() # NOT GCOV_PATH
 
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
