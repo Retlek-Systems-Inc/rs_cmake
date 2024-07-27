@@ -56,7 +56,8 @@ Execution of PythonLint_<target name> will result in a
 
 function(PythonLint)
     if(NOT DEFINED Python3_EXECUTABLE)
-        message(FATAL_ERROR "Python not defined, use `find_package(Python ... REQUIRED)")
+        message(WARNING "PythonLint: Python3 not defined, use `find_package(Python3 ... REQUIRED)")
+        return()
     endif()
 
     include( CMakeParseArguments )
