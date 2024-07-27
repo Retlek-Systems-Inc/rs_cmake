@@ -84,7 +84,7 @@ function(PythonSetupVenv)
     return()
   endif()
 
-  set(ENV{VIRTUAL_ENV} ${venv_dir})
+  set(ENV{VIRTUAL_ENV} ${_arg_VENV_DIR})
   set(Python3_FIND_VIRTUALENV ONLY)
   unset (Python3_EXECUTABLE)
   find_package (Python3 COMPONENTS Interpreter Development)
