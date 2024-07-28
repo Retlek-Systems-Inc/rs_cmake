@@ -56,7 +56,7 @@ Execution of PythonLint_<target name> will result in a
 
 function(PythonLint)
     if(NOT DEFINED Python3_EXECUTABLE)
-        message(WARNING "PythonLint: Python3 not defined, use `find_package(Python3 ... REQUIRED)")
+        message(AUTHOR_WARNING "PythonLint: Python3 not defined, use `find_package(Python3 ... REQUIRED)")
         return()
     endif()
 
