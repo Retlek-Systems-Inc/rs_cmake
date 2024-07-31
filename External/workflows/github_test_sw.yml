@@ -96,7 +96,7 @@ jobs:
             build_type: Tsan
           - name: "Clang Memory Sanitizer"
             build_dir: ci_build/clang #{{ env.CLANG_DIR}}
-            build_type: Ubsan
+            build_type: Msan
           - name: "Clang Undefined Behavior Sanitizer"
             build_dir: ci_build/clang #{{ env.CLANG_DIR}}
             build_type: Ubsan
