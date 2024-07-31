@@ -43,9 +43,9 @@ Examples:
 
 The following targets are created using this command:
 
-.. variable:: PythonSetupVenv target
+.. variable:: SetupPythonEnv()
 
-And the Python3 executable is retargeted to the venv directory
+The Python3 executable is retargeted to the venv directory at configuration time
 The default VENV_DIR was selected to support VSCode IDE
 
 #]=======================================================================]
@@ -58,22 +58,30 @@ function(PythonSetupVenv)
     set(_arg_VENV_DIR ${CMAKE_SOURCE_DIR}/.venv )
   endif()
 
-  if(NOT DEFINED Python3_EXECUTABLE)
-      find_package (Python3 ${_arg_VERSION} REQUIRED COMPONENTS Interpreter)
-  endif()
-
+  if(EXISTS "${_arg_VENV_DIR}")
+    message(STATUS "PythonSetupVenv: Using existing ${_arg_VENV_DIR}")
+  else()
+    message(STATUS "PythonSetupVenv: Creating a new ${_arg_VENV_DIR}")
+    set(ENV{VIRTUAL_ENV} "")
+    set(Python3_FIND_VIRTUALENV STANDARD)
+    find_package (Python3 ${_arg_VERSION} REQUIRED COMPONENTS Interpreter)
+  
     if (NOT DEFINED Python3_EXECUTABLE)
-        message(FATAL_ERROR "Python not defined, use `find_package(Python ... REQUIRED)")
+      message(FATAL_ERROR "Python not defined, use `find_package(Python ... REQUIRED)")
     endif()
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E echo "Creating python virtual environment in ${_arg_VENV_DIR}"
+      COMMAND "${Python3_EXECUTABLE}" -m venv ${_arg_VENV_DIR}
+    )
+  endif()
 
   add_custom_target (SetupPythonEnv
     DEPENDS
       ${_arg_REQUIREMENTS}
-    COMMAND "${Python3_EXECUTABLE}" -m venv ${_arg_VENV_DIR}
     # Following are for PythonLint.cmake
     COMMAND ${_arg_VENV_DIR}/bin/pip install black isort flake8 pylint --upgrade
     COMMAND ${_arg_VENV_DIR}/bin/pip install -r ${_arg_REQUIREMENTS} --upgrade
-    COMMENT "Building Python venv `${_arg_VENV_DIR}` from `${_arg_REQUIREMENTS}`."
+    COMMENT "Installing Python requirements in `${_arg_VENV_DIR}` from `${_arg_REQUIREMENTS}`."
   )
 
   # Retarget the Python3 executable.
@@ -87,5 +95,9 @@ function(PythonSetupVenv)
   set(ENV{VIRTUAL_ENV} ${_arg_VENV_DIR})
   set(Python3_FIND_VIRTUALENV ONLY)
   unset (Python3_EXECUTABLE)
-  find_package (Python3 COMPONENTS Interpreter Development)
+  find_package(Python3 COMPONENTS Interpreter Development)
+  if (NOT DEFINED Python3_EXECUTABLE)
+    message(FATAL_ERROR "Python not defined, delete the ${_arg_VENV_DIR} and run rebuild_cache and SetupPythonEnv")
+  endif()
+
 endfunction(PythonSetupVenv)
