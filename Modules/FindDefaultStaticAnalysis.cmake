@@ -89,6 +89,7 @@ if(STATIC_ANALYSIS)
                 --force
                 --check-config
                 --suppress=missingIncludeSystem
+                --checkers-report=${CMAKE_BINARY_DIR}/cppcheck_checkers.rpt
                 "--template='{file}:{line} {severity} ({id}):{message}'")
         endif()
     endif(USE_CPPCHECK)
