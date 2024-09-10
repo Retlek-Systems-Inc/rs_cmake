@@ -55,6 +55,7 @@ RUN wget --progress=dot:giga "https://developer.arm.com/-/media/Files/downloads/
     && rm -f ${ARM_NAME}.tar.xz*
 
 ENV WORK_PATH=/tmp
+ENV PATH="$PATH:/usr/local/${ARM_NAME}"
 ENV CMAKE_ENV_DEPS_PATH=${WORK_PATH}/cmake_env_deps
 ENV CMAKE_ENV_BASE_PATH=${WORK_PATH}/base
 
