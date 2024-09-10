@@ -55,10 +55,16 @@ Execution of PythonLint_<target name> will result in a
 #]=======================================================================]
 
 function(PythonLint)
+    find_package(Python3 COMPONENTS Interpreter REQUIRED)
     if(NOT DEFINED Python3_EXECUTABLE)
         message(AUTHOR_WARNING "PythonLint: Python3 not defined, use `find_package(Python3 ... REQUIRED)")
         return()
     endif()
+
+    find_python_module(black REQUIRED)
+    find_python_module(isort REQUIRED)
+    find_python_module(flake8 REQUIRED)
+    find_python_module(pylint REQUIRED)
 
     include( CMakeParseArguments )
     cmake_parse_arguments(_arg
