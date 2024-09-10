@@ -48,7 +48,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.4
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.5
     env:
       CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
     steps:
@@ -75,7 +75,7 @@ jobs:
     name: ${{ matrix.name }} Build and Test
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.4
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.5
       options: --privileged # For Tsan below can remove once https://github.com/google/sanitizers/issues/1716 no longer an issue
     needs: prepare
     strategy:
@@ -164,7 +164,7 @@ jobs:
     name: ${{ matrix.name }} Analysis
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.4
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.5
     needs: prepare
     strategy:
       fail-fast: false
