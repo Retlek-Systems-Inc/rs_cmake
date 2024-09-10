@@ -86,6 +86,21 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-aarch64-linux-gnu
       # --------------------
+      # SW arm-none-eabi Container - relies on SW Dev container
+      - name: Build sw-arm-none-eabi container
+        uses: docker/build-push-action@v5
+        with:
+          context: ./docker/sw-arm-none-eabi
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-arm-none-eabi:${{ steps.info.outputs.version }}
+            ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-arm-none-eabi:latest
+          platforms: ${{ env.PLATFORMS }}
+      - name: Inspect sw-arm-none-eabi docker image
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-arm-none-eabi
+      # --------------------
       # Doc Container - relies on SW Dev container
       - name: Build docs container
         uses: docker/build-push-action@v5

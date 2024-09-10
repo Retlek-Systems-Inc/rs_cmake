@@ -20,7 +20,7 @@ cmake_dependent_option(BUILD_BENCHMARK "No Benchmark tests"         OFF "NOT CMA
 
 FetchContent_Declare( rs_cmake
     GIT_REPOSITORY https://github.com/Retlek-Systems-Inc/rs_cmake
-    GIT_TAG        v0.4.3
+    GIT_TAG        v0.4.4
 )
 
 FetchContent_GetProperties( rs_cmake )

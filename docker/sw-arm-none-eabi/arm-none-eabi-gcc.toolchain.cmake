@@ -1,4 +1,4 @@
-# @copyright 2022 Retlek Systems Inc.
+# @copyright 2022-2024 Retlek Systems Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@ set(CMAKE_SYSTEM_PROCESSOR ARM)
 set(TOOLCHAIN_TRIPPLE arm-none-eabi)
 
 # Assuming toolchain installed in /usr/local - search newest first.
-set(TOOLCHAIN_LOCATION "/usr/local/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-${TOOLCHAIN_TRIPPLE}")
+set(TOOLCHAIN_LOCATION "/usr/local/arm-gnu-toolchain-13.3.rel1-x86_64-${TOOLCHAIN_TRIPPLE}")
 set(TOOLCHAIN_PATH ${TOOLCHAIN_LOCATION} CACHE INTERNAL "Toolchain Location.")
 
 set(TOOLCHAIN_BIN_DIR ${TOOLCHAIN_PATH}/bin)
