@@ -22,7 +22,7 @@
 
 # Currently using verilator for testing.
 if (VERILOG_TEST)
-    find_package( verilator 5.006 REQUIRED )
+    find_package( verilator 5.026 REQUIRED )
 
     if (NOT verilator_FOUND)
         message(FATAL_ERROR "Verilator was not found. Either install it, or set the VERILATOR_ROOT environment variable")
@@ -175,6 +175,7 @@ macro(add_verilator_base_target)
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shift-sign-overflow>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shorten-64-to-32>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-sign-conversion>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-switch-default>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-thread-safety-negative>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-undefined-reinterpret-cast>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-unused-parameter>
@@ -192,6 +193,7 @@ macro(add_verilator_base_target)
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-implicit-int-float-conversion>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-prototypes>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shadow>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-sign-compare>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-switch-enum>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unreachable-code>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-macros>
