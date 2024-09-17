@@ -193,7 +193,7 @@ macro(add_verilator_base_target)
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-implicit-int-float-conversion>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-missing-prototypes>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-shadow>
-            $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-sign-compare>
+            $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-sign-compare>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-switch-enum>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unreachable-code>
             $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unused-macros>
@@ -287,19 +287,31 @@ function(SETUP_VERILOG_TARGET_FOR_COVERAGE_LCOV_HTML)
   endif() # NOT GENHTML_PATH
 
   set(_verilog_merged_info verilog_merged.info)
+
+  # Separate clean command - to be executed before ctest or other test calls.
+  add_custom_target(
+    ${Coverage_NAME}_clean
+    # Remove all coverage files.
+    COMMAND ${CMAKE_COMMAND} -E rm -f ${Coverage_DATA_FILES}
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    VERBATIM
+    COMMENT
+      "Clean all coverage data files..."
+  )
+
   # Setup target
   add_custom_target(
     ${Coverage_NAME}
 
     # Remove all coverage files.
-    COMMAND ${CMAKE_COMMAND} -E rm -f ${Coverage_DATA_FILES}
+    # COMMAND ${CMAKE_COMMAND} -E rm -f ${Coverage_DATA_FILES}
     # Cleanup lcov
     COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS}
         -directory .
         --zerocounters
     # Create baseline to make sure untouched files show up in the report
     COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS}
-        -c -i -d . -o ${Coverage_NAME}.base
+        --ignore-errors empty -c -i -d . -o ${Coverage_NAME}.base
     # Run tests
     COMMAND ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
     # Capturing lcov counters and generating report
@@ -324,7 +336,7 @@ function(SETUP_VERILOG_TARGET_FOR_COVERAGE_LCOV_HTML)
     DEPENDS ${Coverage_DEPENDENCIES}
     COMMENT
       "Resetting code coverage counters to zero. Processing code coverage counters and generating report."
-    )
+  )
 
   # Show where to find the lcov info report
   add_custom_command(

@@ -81,8 +81,8 @@ function(RSVerilateLib TARGET_DEST)
   endif()
 
   if (NOT TARGET ${VERILATE_HDL_TARGET})
-  message(FATAL_ERROR "rs_verilate hdl target '${VERILATE_HDL_TARGET}' not found")
-endif()
+    message(FATAL_ERROR "rs_verilate hdl target '${VERILATE_HDL_TARGET}' not found")
+  endif()
 
   if (NOT VERILATE_PREFIX)
     if (VERILATE_TOP_MODULE)
@@ -103,7 +103,7 @@ endif()
   endif()
 
   if (VERILATE_TRACE_STRUCTS)
-      list(APPEND VERILATOR_ARGS --trace-structs)
+    list(APPEND VERILATOR_ARGS --trace-structs)
   endif()
 
   set(VERILATOR_VERILOG_INCLUDES "$<TARGET_PROPERTY:${VERILATE_HDL_TARGET},INTERFACE_INCLUDE_DIRECTORIES>")
@@ -179,6 +179,7 @@ endif()
       $<TARGET_PROPERTY:${VERILATE_HDL_TARGET},INTERFACE_SOURCES>
     COMMENT "Executing Verilator... ${VERILATE_PREFIX}"
   )
+  add_custom_target( RSVerilate_${TARGET_DEST} DEPENDS ${VDIR}/${VERILATE_PREFIX}.h)
 
 
   # Re-creating cmake based on settings - no need to use the one in that directory.
@@ -306,7 +307,7 @@ endif()
   if (NOT TARGET GenerateVerilatedCode)
     add_custom_target(GenerateVerilatedCode)
   endif()
-  add_dependencies(GenerateVerilatedCode ${TARGET_DEST})
+  add_dependencies(GenerateVerilatedCode RSVerilate_${TARGET_DEST})
 
 endfunction()
 
