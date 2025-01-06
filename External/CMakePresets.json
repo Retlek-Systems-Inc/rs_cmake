@@ -1,0 +1,208 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 19,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "native-clang",
+            "description": "Native clang configuration for all native builds",
+            "hidden": false,
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/build",
+            "toolchainFile": "$ENV{CMAKE_ENV_DEPS_PATH}/rs_cmake-src/toolchain/clang.toolchain.cmake",
+            "cacheVariables": {
+                "STATIC_ANALYSIS": "OFF"
+            }
+        },
+        {
+            "name": "native-gcc",
+            "description": "Native GNU (gcc) configuration for all native builds",
+            "hidden": false,
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/build",
+            "toolchainFile": "$ENV{CMAKE_ENV_DEPS_PATH}/rs_cmake-src/toolchain/gcc.toolchain.cmake",
+            "cacheVariables": {
+                "STATIC_ANALYSIS": "OFF"
+            }
+        },
+        {
+            "name": "analysis-clang-tidy",
+            "description": "Native Static analysis configuration with clang-tidy enabled",
+            "inherits": "native-clang",
+            "cacheVariables": {
+                "STATIC_ANALYSIS": "ON",
+                "USE_CLANG_TIDY": "ON",
+                "CLANG_TIDY_FIX": "OFF",
+                "USE_CPP_CHECK": "OFF",
+                "USE_CPP_LINT": "OFF"
+            }
+        },
+        {
+            "name": "analysis-clang-tidy-fix",
+            "description": "Native Static analysis configuration with clang-tidy FIX enabled",
+            "inherits": "analysis-clang-tidy",
+            "cacheVariables": {
+                "CLANG_TIDY_FIX": "ON"
+            }
+        },
+        {
+            "name": "analysis-cpp-check",
+            "description": "Native Static analysis configuration with cpp_check enabled",
+            "inherits": "analysis-clang-tidy",
+            "cacheVariables": {
+                "USE_CLANG_TIDY": "OFF",
+                "USE_CPP_CHECK": "ON"
+            }
+        },
+        {
+            "name": "analysis-cpp-lint",
+            "description": "Native Static analysis configuration with cpp_lint enabled",
+            "inherits": "analysis-clang-tidy",
+            "cacheVariables": {
+                "USE_CLANG_TIDY": "OFF",
+                "USE_CPP_LINT": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "native-clang-debug",
+            "description": "Debug Build, no optimizations and debug info",
+            "configurePreset": "native-clang",
+            "configuration": "Debug"
+        },
+        {
+            "name": "native-gcc-debug",
+            "description": "Debug Build, no optimizations and debug info",
+            "configurePreset": "native-gcc",
+            "configuration": "Debug"
+        },
+        {
+            "name": "analysis-clang-tidy-debug",
+            "description": "Debug Static analysis Build, with clang-tidy enabled",
+            "configurePreset": "analysis-clang-tidy",
+            "configuration": "Debug"
+        },
+        {
+            "name": "analysis-clang-tidy-fix-debug",
+            "description": "Debug Static analysis Build, with clang-tidy FIX enabled",
+            "configurePreset": "analysis-clang-tidy-fix",
+            "configuration": "Debug"
+        },
+        {
+            "name": "analysis-cpp-check-debug",
+            "description": "Debug Static analysis Build, with cpp_check enabled",
+            "configurePreset": "analysis-cpp-check",
+            "configuration": "Debug"
+        },
+        {
+            "name": "analysis-cpp-lint-debug",
+            "description": "Debug Static analysis Build, with cpp_lint enabled",
+            "configurePreset": "analysis-cpp-lint",
+            "configuration": "Debug"
+        },
+        {
+            "name": "native-clang-release",
+            "description": "Release Build",
+            "configurePreset": "native-clang",
+            "configuration": "Release"
+        },
+        {
+            "name": "native-gcc-release",
+            "description": "Release Build",
+            "configurePreset": "native-gcc",
+            "configuration": "Release"
+        },
+        {
+            "name": "native-gcc-relWithDebInfo",
+            "description": "Release with Deb Info Build, partial optimizations",
+            "configurePreset": "native-gcc",
+            "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "native-asan",
+            "description": "Address sanitizer Build",
+            "configurePreset": "native-clang",
+            "configuration": "Asan"
+        },
+        {
+            "name": "native-tsan",
+            "description": "Thread sanitizer Build",
+            "configurePreset": "native-clang",
+            "configuration": "Tsan"
+        },
+        {
+            "name": "native-ubsan",
+            "description": "Undefined Behavior sanitizer Build",
+            "configurePreset": "native-clang",
+            "configuration": "Ubsan"
+        },
+        {
+            "name": "native-msan",
+            "description": "Memory sanitizer Build",
+            "configurePreset": "native-clang",
+            "configuration": "Msan"
+        },
+        {
+            "name": "native-gcc-cov",
+            "description": "Coverage Build (GNU Only)",
+            "configurePreset": "native-gcc",
+            "configuration": "Coverage"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "native-clang-debug-test",
+            "description": "Test, no optimizations and debug info",
+            "inherits": "native-clang-debug"
+        },
+        {
+            "name": "native-gcc-debug-test",
+            "description": "Test, no optimizations and debug info",
+            "inherits": "native-clang-debug"
+        },
+        {
+            "name": "native-clang-release-test",
+            "description": "Test Release Build",
+            "inherits": "native-clang-release"
+        },
+        {
+            "name": "native-gcc-release-test",
+            "description": "Test Release Build",
+            "inherits": "native-gcc-release"
+        },
+        {
+            "name": "native-gcc-relWithDebInfo-test",
+            "description": "Test Release with Deb Info Build, partial optimizations",
+            "inherits": "native-gcc-relWithDebInfo"
+        },
+        {
+            "name": "native-asan-test",
+            "description": "Test Address sanitizer Build",
+            "inherits": "native-asan"
+        },
+        {
+            "name": "native-tsan-test",
+            "description": "Test Thread sanitizer Build",
+            "inherits": "native-tsan"
+        },
+        {
+            "name": "native-ubsan-test",
+            "description": "Test Undefined Behavior sanitizer Build",
+            "inherits": "native-ubsan"
+        },
+        {
+            "name": "native-msan-test",
+            "description": "Test Memory sanitizer Build",
+            "inherits": "native-msan"
+        },
+        {
+            "name": "native-gcc-cov-test",
+            "description": "Test Coverage Build (GNU Only)",
+            "inherits": "native-gcc-cov"
+        }
+    ]
+}
