@@ -61,6 +61,8 @@ RUN apt-get update -y \
     software-properties-common \
     wget \
     openssh-client \
+    gcc-14 \
+    g++-14 \
     gpg \
     git \
     cmake \

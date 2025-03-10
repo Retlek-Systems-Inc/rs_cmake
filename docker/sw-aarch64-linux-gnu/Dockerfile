@@ -30,8 +30,8 @@ LABEL org.opencontainers.image.description="RS CMake Software Arm aarch64 linux 
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
     apt-get install --no-install-recommends -y \
-    gcc-aarch64-linux-gnu \
-    g++-aarch64-linux-gnu \
+    gcc-14-aarch64-linux-gnu \
+    g++-14-aarch64-linux-gnu \
     qemu-system-arm \
     xz-utils \
     && apt-get clean \
