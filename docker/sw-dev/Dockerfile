@@ -82,7 +82,7 @@ RUN apt-get update -y \
 # hadolint ignore=DL3008
 RUN wget -q https://apt.llvm.org/llvm.sh \
     && chmod +x llvm.sh \
-    && ./llvm.sh 18 all
+    && ./llvm.sh 19 all
 
 # ---------------------------------------------------------
 
