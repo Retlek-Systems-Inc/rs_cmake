@@ -116,11 +116,3 @@ RUN git clone "${SLANG_REPO}" ${CMAKE_ENV_SLANG_PATH} \
 RUN wget --progress=dot:giga ${VERIBLE_URL}/${VERIBLE_VERSION}/${VERIBLE_FILE} \
     && tar -xzf ${VERIBLE_FILE} -C /usr/local --strip-components=1 \
     && rm -f ${VERIBLE_FILE}
-
-# Now create DEPS directory with pre-downloaded git repos
-RUN mkdir -p ${CMAKE_ENV_DEPS_PATH} \
-    && mkdir -p ${CMAKE_ENV_BASE_PATH}
-
-COPY base.cmake ${CMAKE_ENV_BASE_PATH}/CMakeLists.txt
-
-RUN  cmake -G "Ninja Multi-Config" -B${CMAKE_ENV_BASE_PATH}/build -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${CMAKE_ENV_DEPS_PATH} ${CMAKE_ENV_BASE_PATH}

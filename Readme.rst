@@ -20,7 +20,7 @@ All `Pre generated Docker images <https://github.com/orgs/Retlek-Systems-Inc/pac
 
 For Native Linux Compile environment:
 
-Create a simple CMakeLists.txt file for your code in your repo - see `base.cmake <https://github.com/Retlek-Systems-Inc/rs_cmake/blob/main/docker/sw-dev/base.cmake>`_ as an example.
+Create a simple CMakeLists.txt file for your code in your repo - see `base.cmake <https://github.com/Retlek-Systems-Inc/rs_cmake/blob/main/External/base.cmake>`_ as an example.
 Copy the `External/.devcontainer <https://github.com/Retlek-Systems-Inc/rs_cmake/tree/main/External/.devcontainer>`_ for VSCode + Docker support.
 
 Extensive use of ``CMakePresets.json`` is used to identify and create workflows for common builds and analysis.
