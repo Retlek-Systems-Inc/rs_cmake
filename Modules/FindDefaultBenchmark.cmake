@@ -50,8 +50,8 @@ if( BUILD_BENCHMARK )
             $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-maybe-uninitialized>
     )
 
-    target_ignore_static_analysis(TARGET behcmark CLANG_TIDY CPPCHECK CPPLINT IWYU)
-    target_ignore_static_analysis(TARGET behcmark_main CLANG_TIDY CPPCHECK CPPLINT IWYU)
+    target_ignore_static_analysis(TARGET benchmark CLANG_TIDY CPPCHECK CPPLINT IWYU)
+    target_ignore_static_analysis(TARGET benchmark_main CLANG_TIDY CPPCHECK CPPLINT IWYU)
 
     list(APPEND COVERAGE_LCOV_EXCLUDES '${benchmark_SOURCE_DIR}/*' )
 
