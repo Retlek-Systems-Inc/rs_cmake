@@ -34,6 +34,7 @@ if( BUILD_BENCHMARK )
     FetchContent_Declare( benchmark
       GIT_REPOSITORY    https://github.com/google/benchmark.git
       GIT_TAG           v1.9.1
+      EXCLUDE_FROM_ALL
     )
 
     # Prevent downloading gtest - use FindDefaultTest.
