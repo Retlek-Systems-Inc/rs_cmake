@@ -33,7 +33,7 @@ if( BUILD_BENCHMARK )
     include(FetchContent)
     FetchContent_Declare( benchmark
       GIT_REPOSITORY    https://github.com/google/benchmark.git
-      GIT_TAG           v1.8.4
+      GIT_TAG           v1.9.1
     )
 
     # Prevent downloading gtest - use FindDefaultTest.
@@ -48,6 +48,7 @@ if( BUILD_BENCHMARK )
       CHECKS
         -performance-avoid-endl
         -performance-enum-size
+        -clang-analyzer-deadcode.DeadStores
     )
 
     target_clang_tidy_definitions( TARGET benchmark_main
