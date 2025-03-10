@@ -44,6 +44,11 @@ if( BUILD_BENCHMARK )
     
     FetchContent_MakeAvailable(benchmark)
 
+    target_compile_options( benchmark
+        PRIVATE
+            $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-maybe-uninitialized>
+    )
+
     target_clang_tidy_definitions( TARGET benchmark
       CHECKS
         -performance-avoid-endl
