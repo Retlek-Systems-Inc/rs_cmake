@@ -78,14 +78,14 @@ if (CMAKE_CXX_COMPILER_ID IN_LIST _supportedCompilers)
             -fsanitize=undefined
     )
 
-    AddConfiguration( CONFIG Cfisan
-        BASE_CONFIG RelWithDebInfo
-        COMPILE_FLAGS
-            -fsanitize=cfi
-            ${_commonSanFlags}
-        LINKER_FLAGS
-            -fsanitize=cfi
-    )
+    # AddConfiguration( CONFIG Cfisan
+    #     BASE_CONFIG RelWithDebInfo
+    #     COMPILE_FLAGS
+    #         -fsanitize=cfi
+    #         ${_commonSanFlags}
+    #     LINKER_FLAGS
+    #         -fsanitize=cfi
+    # )
 else()
     message(STATUS "Sanitizers not supported for compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()

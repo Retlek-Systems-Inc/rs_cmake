@@ -63,7 +63,7 @@ get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
 set(allowedBuildTypes Debug Release RelWithDebInfo MinSizeRel)
 if (NOT CMAKE_CROSSCOMPILING)
-  list(APPEND allowedBuildTypes Coverage Asan Tsan Ubsan Msan Cfisan)
+  list(APPEND allowedBuildTypes Coverage Asan Tsan Ubsan Msan) #Cfisan
 endif()
 
 # To make case insensitive:

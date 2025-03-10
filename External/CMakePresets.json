@@ -164,7 +164,6 @@
             "name": "analysis-clang-tidy",
             "displayName": "Static Analysis Clang Tidy",
             "description": "Static analysis with clang-tidy (Native)",
-            "cleanFirst": true,
             "configurePreset": "analysis-clang-tidy",
             "configuration": "Release"
         },
@@ -208,13 +207,6 @@
             "description": "GNU Only",
             "configurePreset": "native-gcc",
             "configuration": "Msan"
-        },
-        {
-            "name": "cfisan",
-            "displayName": "Sanitize Control Flow Integrity",
-            "hidden": true,
-            "configurePreset": "native-clang",
-            "configuration": "Cfisan"
         },
         {
             "name": "coverage",

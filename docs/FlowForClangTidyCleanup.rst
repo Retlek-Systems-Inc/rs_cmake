@@ -13,9 +13,7 @@ eg. a third-party component you wish to review the clang-tidy issues or some oth
 
 .. code:: bash
 
-   cd build
-   cmake -G"Ninja Multi-Config" -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON ../.
-   cmake --build . --config Debug
+    cmake --workflow --preset=analysis-clang-tidy
 
 2. Run the build process on your single CMake target - eg: foo_target
 
@@ -54,9 +52,9 @@ If there is no set of unit tests to confirm the changes, I suggest limiting it t
 
 .. code:: bash
 
-   cd build
-   cmake -G"Ninja Multi-Config" -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON -DCLANG_TIDY_FIX=ON ../.
-   cmake --build . --config Debug
+    cmake --preset=analysis-clang-tidy-fix
+    cd build
+    ninja -k 1000
 
 Now to limit the tool from doing too much all at once, group specific issues and comment those out in the CMakeLists.txt file.
 Clean up the issues identified and suggest committing to git after every loop.

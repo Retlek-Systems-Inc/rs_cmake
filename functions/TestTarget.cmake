@@ -223,20 +223,8 @@ function( TestTarget )
 	endif()
 
     if( (_arg_FRAMEWORK STREQUAL "GTest") OR (_arg_FRAMEWORK STREQUAL "GMock") )
-        # target_clang_tidy_definitions( TARGET ${_target}
-        #   CHECKS
-        #     -cert-err58-cpp
-        #     -cppcoreguidelines-avoid-non-const-global-variables
-        #     -cppcoreguidelines-owning-memory
-        #     -cppcoreguidelines-pro-type-vararg
-        #     -fuchsia-default-arguments-calls
-        #     -fuchsia-multiple-inheritance # For Parameterized tests WithParamInterface
-        #     -fuchsia-statically-constructed-objects
-        #     -hicpp-vararg
-        #     -llvmlibc-callee-namespace
-        #     -llvmlibc-implementation-in-namespace
-        #     -*-avoid-goto # For EXPECT_THROW and EXPECT_DEATH tests.
-        # )
+        # Add in any GTest/GMock header specific issues
+        # All have been cleaned up now with v1.16.0
     elseif(_arg_FRAMEWORK STREQUAL "Benchmark")
         target_clang_tidy_definitions( TARGET ${_target}
           CHECKS

@@ -21,7 +21,7 @@
 
 find_program(CLANG_FORMAT
     NAMES
-        clang-format
+        clang-format-19
         clang-format-18
         clang-format-17
         clang-format-14
@@ -32,6 +32,7 @@ find_program(CLANG_FORMAT
         clang-format-8
         clang-format-7
         clang-format-6.0
+        clang-format
 )
 
 if(NOT CLANG_FORMAT)

@@ -32,7 +32,6 @@ if(STATIC_ANALYSIS)
     if (USE_CLANG_TIDY)
         find_program(CLANG_TIDY
           NAMES
-            clang-tidy
             clang-tidy-19
             clang-tidy-18
             clang-tidy-17
@@ -49,6 +48,7 @@ if(STATIC_ANALYSIS)
             clang-tidy-5.0
             clang-tidy-4.0
             clang-tidy-3.9
+            clang-tidy
         )
         message(STATUS "CLANG_TIDY = ${CLANG_TIDY}")
         if(NOT CLANG_TIDY)
@@ -287,8 +287,8 @@ function(target_ignore_static_analysis)
         endif()
     endif()
 
-    if( _arg_CPPCHECK )
-        # don't perform any cppcheck checks on this target
+    if( _arg_CPPLINT )
+        # don't perform any cpplint checks on this target
         get_target_property( _type ${_arg_TARGET} TYPE )
         if( NOT ${_type} STREQUAL "INTERFACE_LIBRARY" )
             set_target_properties( ${_arg_TARGET}

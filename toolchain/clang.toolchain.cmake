@@ -22,7 +22,6 @@
 
 find_program(CLANG_C 
     NAMES
-        clang
         clang-19
         clang-18
         clang-17
@@ -40,11 +39,11 @@ find_program(CLANG_C
         clang-5.0
         clang-4.0
         clang-3.9
+        clang
 )
 
 find_program(CLANG_CXX
     NAMES
-        clang++
         clang++-19
         clang++-18
         clang++-17
@@ -62,6 +61,7 @@ find_program(CLANG_CXX
         clang++-5.0
         clang++-4.0
         clang++-3.9
+        clang++
 )        
 
 set(CMAKE_C_COMPILER ${CLANG_C})

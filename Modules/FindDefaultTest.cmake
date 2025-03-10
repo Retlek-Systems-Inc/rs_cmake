@@ -82,80 +82,19 @@ if(BUILD_TEST)
       PUBLIC
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-global-constructors>
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-switch-default>
-        # $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-used-but-marked-unused>
     )
 
     target_compile_options( gmock
       PUBLIC
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-global-constructors>
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-switch-default>
-        # $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-used-but-marked-unused>
     )
 
-    target_clang_tidy_definitions(TARGET gtest
-      CHECKS
-        -bugprone-suspicious-include
-        -misc-include-cleaner
-    )
+    target_ignore_static_analysis(TARGET gtest CLANG_TIDY CPPCHECK CPPLINT IWYU)
+    target_ignore_static_analysis(TARGET gtest_main CLANG_TIDY CPPCHECK CPPLINT IWYU)
+    target_ignore_static_analysis(TARGET gmock CLANG_TIDY CPPCHECK CPPLINT IWYU)
+    target_ignore_static_analysis(TARGET gmock_main CLANG_TIDY CPPCHECK CPPLINT IWYU)
 
-    target_cppcheck_definitions(TARGET gtest
-      DEFINES
-        -UGTEST_CHECK_
-        -UGTEST_CUSTOM_GET_ARGVS_
-        -UGTEST_CUSTOM_INIT_GOOGLE_TEST_FUNCTION_
-        -UGTEST_CUSTOM_TEMPDIR_FUNCTION_
-        -UGTEST_CUSTOM_TEST_EVENT_LISTENER_
-        -UGTEST_DECLARE_bool_
-        -UGTEST_DEV_EMAIL_
-        -UGTEST_FLAG
-        -UGTEST_GET_BOOL_FROM_ENV_
-        -UGTEST_GET_INT32_FROM_ENV_
-        -UGTEST_GET_STRING_FROM_ENV_
-        -UGTEST_INIT_GOOGLE_TEST_NAME_
-        -UGTEST_INTERNAL_DEPRECATED
-        -UGTEST_LOG_
-        -UGTEST_OS_STACK_TRACE_GETTER_
-        -UPATH_MAX
-        -U_XOPEN_PATH_MAX
-        --suppress=missingInclude
-    )
-
-    target_clang_tidy_definitions(TARGET gtest_main
-      CHECKS
-        -cppcoreguidelines-pro-type-vararg
-        -hicpp-vararg
-        -llvmlibc-callee-namespace
-        -llvmlibc-implementation-in-namespace
-        -llvmlibc-restrict-system-libc-headers
-        -modernize-use-trailing-return-type
-    )
-    
-    target_cppcheck_definitions(TARGET gtest
-      DEFINES
-        --suppress=missingInclude
-    )
-
-    target_clang_tidy_definitions(TARGET gmock
-      CHECKS
-        -bugprone-suspicious-include
-        -misc-include-cleaner
-    )
-
-    target_cppcheck_definitions(TARGET gmock
-      DEFINES
-        -UGMOCK_DECLARE_bool_
-        --suppress=missingInclude
-    )
-
-    target_clang_tidy_definitions(TARGET gmock_main
-      CHECKS
-        -cppcoreguidelines-pro-type-vararg
-        -hicpp-vararg
-        -llvmlibc-callee-namespace
-        -llvmlibc-implementation-in-namespace
-        -llvmlibc-restrict-system-libc-headers
-        -modernize-use-trailing-return-type
-    )
 
     #--------------------------------------------------------------------
     # Simpler way of writing GMock instances for C headers.
