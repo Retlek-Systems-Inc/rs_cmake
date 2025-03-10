@@ -1,5 +1,5 @@
 #######################################################################
-# @copyright 2022-2024 Retlek Systems Inc.
+# @copyright 2022-2025 Retlek Systems Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -33,49 +33,43 @@ on:
       - "*"
 
 env:
-  BASE_BUILD_DIR: ci_build
-  DEPS_DIR: ci_build/deps
-  CLANG_DIR: ci_build/clang
-  GCC_DIR: ci_build/gcc
+  DEPS_DIR: .deps
+  CLANG_DIR: build
+  GCC_DIR: build_gcc
+  RPT_DIR: reports  # For Test reports and coverage
   CCACHE_DIR: ccache
   CLANG_VER: 18
-  CLANG_CMAKE_ARGS: -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18
-  GCC_CMAKE_ARGS: -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
-  # CLANG_CMAKE_ARGS: -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_AR=llvm-ar-18 -DCMAKE_RANLIB=llvm-ranlib-18
-  # GCC_CMAKE_ARGS: -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_AR=gcc-ar
 
 jobs:
   prepare:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.5
-    env:
-      CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.0
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
       - name: Cache CMake Build directories
         uses: actions/cache@v4
         with:
-          path: ${{ env.BASE_BUILD_DIR }}
+          path: |
+            ${{ env.DEPS_DIR }}
+            ${{ env.CLANG_DIR }}
+            ${{ env.GCC_DIR }}
           key: ${{ runner.os }}-CMakeFiles
           restore-keys: |
             ${{ runner.os }}-CMakeFiles
-      - name: Preparing build directories
-        run: |
-          mkdir -p ${DEPS_DIR}
-          mkdir -p ${CLANG_DIR}
-          mkdir -p ${GCC_DIR}
+      - name: Preparing build directories (Bootstrap)
+        run: cmake --preset=bootstrap
       - name: Preparing CMake clang
-        run: cmake -G "Ninja Multi-Config" -B${CLANG_DIR} ${CLANG_CMAKE_ARGS} -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+        run: cmake --preset=native-clang
       - name: Preparing CMake gcc
-        run: cmake -G "Ninja Multi-Config" -B${GCC_DIR} ${GCC_CMAKE_ARGS} -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+        run: cmake --preset=native-gcc
 
   build-and-test:
     name: ${{ matrix.name }} Build and Test
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.5
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.0
       options: --privileged # For Tsan below can remove once https://github.com/google/sanitizers/issues/1716 no longer an issue
     needs: prepare
     strategy:
@@ -83,43 +77,33 @@ jobs:
       matrix:
         include:
           - name: "Clang Debug"
-            build_dir: ci_build/clang #{{ env.CLANG_DIR}}
-            build_type: Debug
-          - name: "Clang RelWithDebInfo"
-            build_dir: ci_build/clang #{{ env.CLANG_DIR}}
-            build_type: RelWithDebInfo
+            preset: native-clang-debug
+          - name: "Clang Release"
+            preset: native-clang-release
           - name: "Clang Address Sanitizer"
-            build_dir: ci_build/clang #{{ env.CLANG_DIR}}
-            build_type: Asan
+            preset: asan
           - name: "Clang Thread Sanitizer"
-            build_dir: ci_build/clang #{{ env.CLANG_DIR}}
-            build_type: Tsan
-          - name: "Clang Memory Sanitizer"
-            build_dir: ci_build/clang #{{ env.CLANG_DIR}}
-            build_type: Msan
+            preset: asan
+          - name: "GNU Memory Sanitizer"
+            preset: msan
           - name: "Clang Undefined Behavior Sanitizer"
-            build_dir: ci_build/clang #{{ env.CLANG_DIR}}
-            build_type: Ubsan
+            preset: ubsan
           - name: "GCC Debug"
-            build_dir: ci_build/gcc #{{ env.GCC_DIR}}
-            build_type: Debug
-          - name: "GCC RelWithDebInfo"
-            build_dir: ci_build/gcc #{{ env.GCC_DIR}}
-            build_type: RelWithDebInfo
+            preset: native-gcc-debug
+          - name: "GCC Release"
+            preset: native-gcc-release
           - name: "GCC Coverage"
-            build_dir: ci_build/gcc #{{ env.GCC_DIR}}
-            build_type: Coverage
-    env:
-      BUILD_DIR: ${{ matrix.build_dir }}
-      BUILD_TYPE: ${{ matrix.build_type }}
-      CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
+            preset: coverage
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
       - name: Cached CMake Build directories
         uses: actions/cache@v4
         with:
-          path: ${{ env.BASE_BUILD_DIR }}
+          path: |
+            ${{ env.DEPS_DIR }}
+            ${{ env.CLANG_DIR }}
+            ${{ env.GCC_DIR }}
           key: ${{ runner.os }}-CMakeFiles
           restore-keys: |
             ${{ runner.os }}-CMakeFiles
@@ -127,36 +111,27 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ${{ runner.os }}-${{ matrix.build_type }}-CCache
+          key: ${{ runner.os }}-${{ matrix.preset }}-CCache
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.build_type }}-CCache
-      - name: Preparing CMake clang
-        if: ${{ matrix.build_dir == env.CLANG_DIR }}
-        run: cmake -G "Ninja Multi-Config" -B${CLANG_DIR} ${CLANG_CMAKE_ARGS} -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
-      - name: Preparing CMake gcc
-        if: ${{ matrix.build_dir == env.GCC_DIR }}
-        run: cmake -G "Ninja Multi-Config" -B${GCC_DIR} ${GCC_CMAKE_ARGS} -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+            ${{ runner.os }}-${{ matrix.preset }}-CCache
+      - name: Build And Test ${{ matrix.preset }}
+        run: |
+          cmake --workflow --preset=${{ matrix.preset }}
+          mv ${{ env.RPT_DIR }}/junit_test_report.xml ${{ env.RPT_DIR }}/${{matrix.preset}}_junit_test_report.xml
       # - name: Fix for Tsan mmap random bits
-      #   if: ${{ matrix.build_type == 'Tsan' }}
+      #   if: ${{ matrix.preset == 'Tsan' }}
       #   run: sysctl -w vm.mmap_rnd_bits=28 # See: https://github.com/google/sanitizers/issues/1716
-      - name: Build ${{ matrix.build_type }} in ${{ matrix.build_dir }}
-        run: cmake --build ${BUILD_DIR} --config ${BUILD_TYPE} -- -k 10000
-      - name: Test ${{ matrix.build_type }} in ${{ matrix.build_dir }}
-        run: ctest --test-dir ${BUILD_DIR} -C ${BUILD_TYPE} --output-on-failure --output-junit ${BUILD_TYPE}_report.xml
-      - name: Coverage Report ${{ matrix.build_type }} in ${{ matrix.build_dir }}
-        if: ${{ matrix.build_type == 'Coverage' }} # Only perform for Coverage.
-        run: cmake --build ${BUILD_DIR} --config ${BUILD_TYPE} --target code-coverage
       - name: Code Coverage Artifacts
-        if: ${{ matrix.build_type == 'Coverage' }} # Only perform for Coverage.
+        if: ${{ matrix.preset == 'coverage' }} # Only perform for coverage.
         uses: actions/upload-artifact@v4
         with:
           name: coverage-results
-          path: ${{ matrix.build_dir }}/code-coverage/
+          path: ${{ env.GCC_DIR }}/code-coverage/
       - name: Publish Test Report
         if: ${{ always() }}
-        uses: mikepenz/action-junit-report@v4
+        uses: mikepenz/action-junit-report@v5
         with:
-          report_paths: "${{ matrix.build_dir }}/${{ matrix.build_type }}_report.xml"
+          report_paths: "${{ env.RPT_DIR }}/${{ matrix.preset }}_junit_test_report.xml"
           fail_on_failure: true
           require_tests: true
 
@@ -164,35 +139,27 @@ jobs:
     name: ${{ matrix.name }} Analysis
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.4.5
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.0
     needs: prepare
     strategy:
       fail-fast: false
       matrix:
         include:
           - name: "ClangTidy"
-            build_dir: ci_build/clang #{{ env.CLANG_DIR}}
-            build_type: Debug
-            build_args: -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON
+            preset: analysis-clang-tidy
           - name: "CppCheck"
-            build_dir: ci_build/gcc #{{ env.GCC_DIR}}
-            build_type: Debug
-            build_args: -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=OFF -DUSE_CPPCHECK=ON
+            preset: analysis-cpp-check
           - name: "CppLint"
-            build_dir: ci_build/gcc #{{ env.GCC_DIR}}
-            build_type: Debug
-            build_args: -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=OFF -DUSE_CPPLINT=ON
-    env:
-      BUILD_DIR: ${{ matrix.build_dir }}
-      BUILD_TYPE: ${{ matrix.build_type }}
-      CMAKE_BUILD_ARGS: ${{ matrix.build_args }}
+            preset: analysis-cpp-lint
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
       - name: Cached CMake Build directories
         uses: actions/cache@v4
         with:
-          path: ${{ env.BASE_BUILD_DIR }}
+          path: |
+            ${{ env.DEPS_DIR }}
+            ${{ env.CLANG_DIR }}
           key: ${{ runner.os }}-CMakeFiles
           restore-keys: |
             ${{ runner.os }}-CMakeFiles
@@ -200,20 +167,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ${{ runner.os }}-${{ matrix.build_type }}-CCache
+          key: ${{ runner.os }}-${{ matrix.preset }}-CCache
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.build_type }}-CCache
-      - name: Preparing CMake clang
-        if: ${{ matrix.build_dir == env.CLANG_DIR }}
-        run: cmake -G "Ninja Multi-Config" -B${CLANG_DIR} ${CLANG_CMAKE_ARGS} -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
-      - name: Preparing CMake gcc
-        if: ${{ matrix.build_dir == env.GCC_DIR }}
-        run: cmake -G "Ninja Multi-Config" -B${GCC_DIR} ${GCC_CMAKE_ARGS} -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
-      - name: Scan Build ${{ matrix.build_type }} in ${{ matrix.build_dir }}
-        run: scan-build-${CLANG_VER} -o scan-build -k --status-bugs -internal-stats --keep-empty cmake --build ${BUILD_DIR} --config ${BUILD_TYPE}
+            ${{ runner.os }}-${{ matrix.preset }}-CCache
+      - name: Scan Build ${{ matrix.preset }}
+        run: |
+          scan-build-${{ env.CLANG_VER }} -o ${{ env.RPT_DIR }}/scan-build -k --status-bugs -internal-stats --keep-empty cmake --workflow --preset=${{ matrix.preset }}
       - name: Scan Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.build_type }}-scan-results
-          path: ${{ matrix.build_dir }}/scan-build/
+          name: ${{ matrix.preset }}-scan-results
+          path: ${{ env.RPT_DIR }}/scan-build/
           if-no-files-found: ignore

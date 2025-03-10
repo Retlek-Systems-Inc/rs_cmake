@@ -16,11 +16,10 @@ include(FetchContent)
 option(BUILD_TEST      "Builds the tests"           ON)
 option(BUILD_DOC       "Builds the documentation"   OFF)
 option(STATIC_ANALYSIS "Use Static Analysis tools." ON)
-option(BUILD_BENCHMARK "Benchmark libs"             ON)
 
 FetchContent_Declare( rs_cmake
     GIT_REPOSITORY https://github.com/Retlek-Systems-Inc/rs_cmake
-    GIT_TAG        v0.4.5
+    GIT_TAG        v0.5.0
 )
 
 FetchContent_GetProperties( rs_cmake )
@@ -36,7 +35,7 @@ include(Sanitizer)
 ########################################################################
 # Create the Version info
 CreateVersion(
-    PROJECT base-sw-arm-none-eabi-deps
+    PROJECT base-sw
     TARGET TBD_sw_version
     FILENAME TBD_sw_version
     VARIABLE TBDSwVersion
