@@ -50,17 +50,8 @@ if( BUILD_BENCHMARK )
             $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-maybe-uninitialized>
     )
 
-    target_clang_tidy_definitions( TARGET benchmark
-      CHECKS
-        -performance-avoid-endl
-        -performance-enum-size
-        -clang-analyzer-deadcode.DeadStores
-    )
-
-    target_clang_tidy_definitions( TARGET benchmark_main
-      CHECKS
-          -performance-enum-size
-    )
+    target_ignore_static_analysis(TARGET behcmark CLANG_TIDY CPPCHECK CPPLINT IWYU)
+    target_ignore_static_analysis(TARGET behcmark_main CLANG_TIDY CPPCHECK CPPLINT IWYU)
 
     list(APPEND COVERAGE_LCOV_EXCLUDES '${benchmark_SOURCE_DIR}/*' )
 

@@ -287,8 +287,8 @@ function(target_ignore_static_analysis)
         endif()
     endif()
 
-    if( _arg_CPPCHECK )
-        # don't perform any cppcheck checks on this target
+    if( _arg_CPPLINT )
+        # don't perform any cpplint checks on this target
         get_target_property( _type ${_arg_TARGET} TYPE )
         if( NOT ${_type} STREQUAL "INTERFACE_LIBRARY" )
             set_target_properties( ${_arg_TARGET}
