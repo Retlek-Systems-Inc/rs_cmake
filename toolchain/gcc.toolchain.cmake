@@ -21,7 +21,6 @@
 
 find_program(GCC_C 
     NAMES
-        gcc
         gcc-14
         gcc-13
         gcc-12
@@ -33,11 +32,11 @@ find_program(GCC_C
         gcc-6
         gcc-5
         gcc-4
+        gcc
 )
 
 find_program(GCC_CXX
     NAMES
-        g++
         g++-14
         g++-13
         g++-12
@@ -49,6 +48,7 @@ find_program(GCC_CXX
         g++-6
         g++-5
         g++-4
+        g++
 )        
 
 set(CMAKE_C_COMPILER_ID GNU )

@@ -82,7 +82,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     #         --coverage
     # )
 else()
-    message(WARNING "Coverage configuration not supported with compiler: ${CMAKE_CXX_COMPILER_ID}")
+    message(STATUS "Coverage configuration not supported with compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
 get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
@@ -129,7 +129,9 @@ execute_process(
 
 # Check prereqs
 find_program(GCOV_PATH
-             NAMES ${CMAKE_SOURCE_DIR}/tests/llvm-gcov.sh gcov-${GNU_VER}
+             NAMES gcov-${GNU_VER}
+                   ${CMAKE_SOURCE_DIR}/tests/llvm-gcov.sh 
+                   gcov
              PATHS ENV PATH)
 find_program(LCOV_PATH
              NAMES lcov
@@ -262,20 +264,13 @@ function(SETUP_TARGET_FOR_COVERAGE_LCOV_HTML)
       "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
     )
 
-  # Show where to find the lcov info report
+  # Show where to find the lcov info report and web reports
   add_custom_command(
     TARGET ${Coverage_NAME} POST_BUILD
-    COMMAND ;
+    COMMAND ${CMAKE_COMMAND} -E echo "Lcov code coverage info report saved in ${Coverage_NAME}.info.cleaned"
+    COMMAND ${CMAKE_COMMAND} -E echo "Open ./${Coverage_NAME}/index.html in your browser to view the coverage report."
     COMMENT
-      "Lcov code coverage info report saved in ${Coverage_NAME}.info.cleaned")
-
-  # Show info where to find the report
-  add_custom_command(
-    TARGET ${Coverage_NAME} POST_BUILD
-    COMMAND ;
-    COMMENT
-      "Open ./${Coverage_NAME}/index.html in your browser to view the coverage report."
-    )
+      "Lcov code coverage report: ${Coverage_NAME}.info.cleaned, web: ./${Coverage_NAME}/index.html ")
 
 endfunction() # SETUP_TARGET_FOR_COVERAGE_LCOV_HTML
 

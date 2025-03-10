@@ -32,7 +32,6 @@ if(STATIC_ANALYSIS)
     if (USE_CLANG_TIDY)
         find_program(CLANG_TIDY
           NAMES
-            clang-tidy
             clang-tidy-19
             clang-tidy-18
             clang-tidy-17
@@ -49,6 +48,7 @@ if(STATIC_ANALYSIS)
             clang-tidy-5.0
             clang-tidy-4.0
             clang-tidy-3.9
+            clang-tidy
         )
         message(STATUS "CLANG_TIDY = ${CLANG_TIDY}")
         if(NOT CLANG_TIDY)

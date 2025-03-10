@@ -118,7 +118,7 @@ function( AddConfiguration )
                 CACHE INTERNAL "Whether or not ${arg_CONFIG} is supported by at least one compiler."
             )
         else()
-            message( WARNING "The ${_LANG} compiler does not support '${arg_COMPILE_FLAGS}' for ${_configName} build")
+            message( STATUS "${_configName} configuration not supported for ${_LANG} compiler flags: '${arg_COMPILE_FLAGS}'")
         endif()
     endforeach()
 
