@@ -25,7 +25,7 @@ Create Dependency Graph
 
 Creates a target that will execute and create the dependency graph for this
 project
-  
+
 Examples:
 
 .. code-block:: cmake
