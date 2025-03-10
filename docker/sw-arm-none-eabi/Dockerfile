@@ -43,7 +43,7 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 
 # arm-none-eabi from https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
-ARG ARM_VER="13.3.rel1"
+ARG ARM_VER="14.2.rel1"
 ARG ARM_TRIPLET="arm-none-eabi"
 ARG ARM_NAME="arm-gnu-toolchain-${ARM_VER}-x86_64-${ARM_TRIPLET}"
 ENV PATH="$PATH:/usr/local/${ARM_NAME}/bin"
