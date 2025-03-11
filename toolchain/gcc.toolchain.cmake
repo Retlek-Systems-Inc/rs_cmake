@@ -51,7 +51,24 @@ find_program(GCC_CXX
         g++
 )        
 
+find_program(GCC_GCOV
+    NAMES
+        gcov-14
+        gcov-13
+        gcov-12
+        gcov-11
+        gcov-10
+        gcov-9
+        gcov-8
+        gcov-7
+        gcov-6
+        gcov-5
+        gcov-4
+        gcov
+)
+
 set(CMAKE_C_COMPILER_ID GNU )
 set(CMAKE_C_COMPILER ${GCC_C})
 set(CMAKE_CXX_COMPILER_ID GNU )
 set(CMAKE_CXX_COMPILER ${GCC_CXX})
+set(GNU_COVERAGE_TOOL ${GCC_GCOV} CACHE FILEPATH "GNU Coverage tool location")

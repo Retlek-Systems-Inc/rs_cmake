@@ -120,19 +120,10 @@ endif()
 
 # TODO(phelter): Figure out how to do the code-coverage target just for the Coverage build.
 
-# Detect the coverage version to use:
-execute_process(
-    COMMAND ${CMAKE_CXX_COMPILER} -dumpversion
-    OUTPUT_VARIABLE GNU_VER
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+# Check prereqs - TODO Use GNU_COVERAGE_TOOL
+set(GCOV_PATH ${GNU_COVERAGE_TOOL})
+message(STATUS "Coverage GCOV_PATH = '${GCOV_PATH}', compiler : '${CMAKE_CXX_COMPILER}'")
 
-# Check prereqs
-find_program(GCOV_PATH
-             NAMES gcov-${GNU_VER}
-                   ${CMAKE_SOURCE_DIR}/tests/llvm-gcov.sh 
-                   gcov
-             PATHS ENV PATH)
 find_program(LCOV_PATH
              NAMES lcov
                    lcov.bat
