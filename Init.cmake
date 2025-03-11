@@ -153,7 +153,7 @@ endif()
 # Setup for CMake Presets in CMake etc..
 if(NOT EXISTS ${CMAKE_SOURCE_DIR}/CMakePresets.json)
     configure_file(${CMAKE_CURRENT_LIST_DIR}/External/CMakePresets.json
-        ${CMAKE_SOURCE_DIR}/CMakePresets.json)
+        ${CMAKE_SOURCE_DIR}/CMakePresets.json COPYONLY)
 endif()
 
 ###################

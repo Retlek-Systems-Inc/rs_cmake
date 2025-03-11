@@ -122,7 +122,6 @@ endif()
 
 # Check prereqs - TODO Use GNU_COVERAGE_TOOL
 set(GCOV_PATH ${GNU_COVERAGE_TOOL})
-message(STATUS "Coverage GCOV_PATH = '${GCOV_PATH}', compiler : '${CMAKE_CXX_COMPILER}'")
 
 find_program(LCOV_PATH
              NAMES lcov
