@@ -21,6 +21,32 @@
 #
 #[=======================================================================[.rst:
 
+CheckUploadToRemote
+-------------------
+
+Confirms all of the executables are available on both remote and local host
+for UploadToRemote(...) calls.
+
+CheckUploadToRemote(
+  REMOTE_USER <user>
+  REMOTE_HOST <hostname>
+)
+
+Examples:
+
+.. code-block:: cmake
+
+  CheckUploadToRemote(
+    REMOTE_USER user
+    REMOTE_HOST hostname
+  )
+The following variables are defined by this function:
+
+.. variable:: SSH_EXE    ssh executable
+.. variable:: RSYNC_EXE  rsync executable optional
+.. variable:: SCP_EXE    ssh copy executable (optional if RSYNC_EXE supported)
+
+
 UploadToRemote
 --------------
 
@@ -81,9 +107,82 @@ Where the created target name is:
 #]=======================================================================]
 
 
-find_program(SSH_EXE NAMES ssh )
-find_program(RSYNC_EXE NAMES rsync )
-find_program(SCP_EXE NAMES scp )
+function( CheckUploadToRemote )
+    set( _options )
+    set( _oneValueArgs REMOTE_USER REMOTE_HOST)
+    set( _multiValueArgs )
+    include( CMakeParseArguments )
+    cmake_parse_arguments( "_arg" "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN} )
+
+    if( _arg_UNPARSED_ARGUMENTS )
+        message( FATAL_ERROR "Unknown argument(s) to CheckUploadMode: ${_arg_UNPARSED_ARGUMENTS}" )
+    endif()
+
+    if(NOT _arg_REMOTE_USER)
+        message( FATAL_ERROR "Must specify REMOTE_USER <user> name - eg: 'user'" )
+    endif()
+
+    if(NOT _arg_REMOTE_HOST)
+        message( FATAL_ERROR "Must specify REMOTE_HOST <hostname> name - eg: 'hostname'" )
+    endif()
+
+    find_program(SSH_EXE NAMES ssh )
+    find_program(RSYNC_EXE NAMES rsync )
+    find_program(SCP_EXE NAMES scp )
+
+    set(REMOTE   "${_arg_REMOTE_USER}@${_arg_REMOTE_HOST}")
+
+    execute_process(
+        COMMAND ${SSH_EXE} -q -o BatchMode=yes -o ConnectTimeout=5 ${REMOTE} exit
+        RESULT_VARIABLE SSH_RESULT
+        OUTPUT_QUIET ERROR_QUIET
+    )
+    if(SSH_RESULT EQUAL 0)
+        message(STATUS "CheckUploadToRemote: SSH connection to '${REMOTE}' successful.")
+        set(SSH_EXE ${SSH_EXE} PARENT_SCOPE)
+    else()
+        message(WARNING "CheckUploadToRemote: SSH connection to '${REMOTE}' failed. Ensure credentials and network settings are correct.")
+        return()
+    endif()
+
+    # Check if rsync is available on the remote machine
+    if(RSYNC_EXE)
+        execute_process(
+            COMMAND ${SSH_EXE} ${REMOTE} rsync --version
+            RESULT_VARIABLE RSYNC_RESULT
+            ERROR_QUIET
+        )
+        if(RSYNC_RESULT EQUAL 0)
+            message(STATUS "CheckUploadToRemote: 'rsync' is available on the remote machine '${REMOTE}'")
+            set(RSYNC_EXE ${RSYNC_EXE} PARENT_SCOPE)
+            return()
+        else()
+            message(STATUS "CheckUploadToRemote: 'rsync' is NOT available on the remote machine '${REMOTE}'")
+            #continue
+        endif()
+    else()
+        message(STATUS "CheckUploadToRemote: 'rsync' is NOT installed locally.")
+        #continue
+    endif()
+
+    if(SCP_EXE)
+        # Check if SCP is available on the remote machine
+        execute_process(
+            COMMAND ${SSH_EXE} ${REMOTE} command -v scp
+            RESULT_VARIABLE SCP_RESULT
+            OUTPUT_QUIET ERROR_QUIET
+        )
+        if(SCP_RESULT EQUAL 0)
+            message(STATUS "CheckUploadToRemote: 'scp' is available on the remote machine '${REMOTE}'")
+            set(SCP_EXE ${SCP_EXE} PARENT_SCOPE)
+        else()
+            message(WARNING "CheckUploadToRemote: Neither 'rsync' nor 'scp' is available on the remote machine '${REMOTE}'. Unable to support 'UploadToRemote'.")
+        endif()
+    else()
+        message(WARNING "CheckUploadToRemote: 'scp' is NOT installed locally. Unable to support 'UploadToRemote'")
+    endif()
+endfunction()
+
 
 function( UploadToRemote )
     set( _options )
@@ -93,7 +192,7 @@ function( UploadToRemote )
     cmake_parse_arguments( "_arg" "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN} )
 
     if( _arg_UNPARSED_ARGUMENTS )
-        message( FATAL_ERROR "Unknown argument(s) to UploadDirToRemote: ${_arg_UNPARSED_ARGUMENTS}" )
+        message( FATAL_ERROR "Unknown argument(s) to UploadToRemote: ${_arg_UNPARSED_ARGUMENTS}" )
     endif()
 
     if (NOT (_arg_TARGET OR _arg_DIRECTORY OR _arg_FILE ))
@@ -114,24 +213,13 @@ function( UploadToRemote )
         message( FATAL_ERROR "Must specify REMOTE_DEST <destination directory> name - eg: '~/uploads'" )
     endif()
 
-    if(NOT SSH_EXE)
-        message(FATAL_ERROR "No 'ssh' executable found, must install ssh and have access via PubkeyAuthentication operational")
-    endif()
-
-
     # Check remote accessibility
     set(HOST_DEST   "${_arg_REMOTE_USER}@${_arg_REMOTE_HOST}")
     set(DESTINATION "${HOST_DEST}:${_arg_REMOTE_DEST}")
 
-    execute_process(
-        COMMAND ${SSH_EXE} ${HOST_DEST} "echo Accessible"
-        RESULT_VARIABLE SSH_ACCESSIBLE
-        OUTPUT_VARIABLE SSH_OUTPUT
-        ERROR_QUIET
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-    if (NOT SSH_ACCESSIBLE EQUAL 0)
-        message(FATAL_ERROR "Cannot access remote host: ${_arg_REMOTE_HOST} as user: ${_arg_REMOTE_USER}")
+    if (NOT (SSH_EXE AND (RSYNC_EXE OR SCP_EXE)))
+        message(WARNING "UploadToRemote: Cannot access remote host: ${HOST_DEST}. UploadToRemote disabled.")
+        return()
     endif()
 
     # Determine the local source path and UploadToRemote Target name
@@ -202,10 +290,10 @@ function( UploadToRemote )
                 COMMENT "Uploading (scp) '${SOURCE_PATH}' to '${DESTINATION}'")
         endif()
     else()
-        message(FATAL_ERROR "Neither rsync nor (scp + ssh) is available for file transfer.")
+        message(FATAL_ERROR "UploadToRemote: Neither rsync nor (scp + ssh) is available for file transfer.")
     endif()
     add_custom_target( ${TARGET_NAME} DEPENDS ${UPLOAD_OUTPUT_FILE})
-    message(STATUS "Created upload target: ${TARGET_NAME}")
+    message(STATUS "UploadToRemote: Created target '${TARGET_NAME}'")
 
     if(TARGET ${TARGET_NAME})
         if (NOT TARGET "UploadToRemoteAll")
