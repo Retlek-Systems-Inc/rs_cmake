@@ -299,7 +299,7 @@ function( UploadToRemote )
         if (NOT TARGET "UploadToRemoteAll")
             add_custom_target(UploadToRemoteAll
                 COMMENT "Uploading All function")
-            message(STATUS "Created upload all target: UploadToRemoteAll")
+            message(STATUS "UploadToRemote: Created target 'UploadToRemoteAll' for All uploads")
         endif()
         add_dependencies(UploadToRemoteAll ${TARGET_NAME})
     endif()
