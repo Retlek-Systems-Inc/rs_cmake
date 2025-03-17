@@ -44,7 +44,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.2
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.5
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -69,7 +69,7 @@ jobs:
     name: ${{ matrix.name }} Build and Test
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.2
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.5
       options: --privileged # For Tsan below can remove once https://github.com/google/sanitizers/issues/1716 no longer an issue
     needs: prepare
     strategy:
@@ -114,9 +114,11 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.preset }}-CCache
           restore-keys: |
             ${{ runner.os }}-${{ matrix.preset }}-CCache
+      - name: Preparing build directories (Bootstrap)
+        run: cmake -G "Ninja Multi-Config" -S . -B build -DFETCHCONTENT_BASE_DIR=.deps
       - name: Build And Test ${{ matrix.preset }}
         run: |
-          cmake --workflow --preset=${{ matrix.preset }}
+          cmake --workflow --preset=${{ matrix.preset }} --fresh
           mv ${{ env.RPT_DIR }}/junit_test_report.xml ${{ env.RPT_DIR }}/${{matrix.preset}}_junit_test_report.xml
       # - name: Fix for Tsan mmap random bits
       #   if: ${{ matrix.preset == 'Tsan' }}
@@ -139,7 +141,7 @@ jobs:
     name: ${{ matrix.name }} Analysis
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.2
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.5
     needs: prepare
     strategy:
       fail-fast: false
@@ -170,9 +172,10 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.preset }}-CCache
           restore-keys: |
             ${{ runner.os }}-${{ matrix.preset }}-CCache
+      - name: Preparing build directories (Bootstrap)
+        run: cmake -G "Ninja Multi-Config" -S . -B build -DFETCHCONTENT_BASE_DIR=.deps
       - name: Scan Build ${{ matrix.preset }}
-        run: |
-          scan-build-${{ env.CLANG_VER }} -o ${{ env.RPT_DIR }}/scan-build -k --status-bugs -internal-stats --keep-empty cmake --workflow --preset=${{ matrix.preset }}
+        run: scan-build-${{ env.CLANG_VER }} -o ${{ env.RPT_DIR }}/scan-build -k --status-bugs -internal-stats --keep-empty cmake --workflow --preset=${{ matrix.preset }} --fresh
       - name: Scan Build Artifacts
         uses: actions/upload-artifact@v4
         with:

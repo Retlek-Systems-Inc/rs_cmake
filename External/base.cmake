@@ -19,7 +19,7 @@ option(STATIC_ANALYSIS "Use Static Analysis tools." ON)
 
 FetchContent_Declare( rs_cmake
     GIT_REPOSITORY https://github.com/Retlek-Systems-Inc/rs_cmake
-    GIT_TAG        v0.5.2
+    GIT_TAG        v0.5.5
 )
 
 FetchContent_GetProperties( rs_cmake )
