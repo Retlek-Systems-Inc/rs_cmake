@@ -67,7 +67,7 @@
         {
             "name": "native-clang-msan",
             "displayName": "Sanitize Memory",
-            "description": "Issues with re-compile of stdlib (Native Clang)",
+            "description": "Not supported Requires recompiled stdlib (Native Clang)",
             "hidden": true,
             "configurePreset": "native-clang",
             "configuration": "Msan"
@@ -141,7 +141,7 @@
         {
             "name": "native-clang-msan-unit-test",
             "displayName": "Sanitize Memory Unit Test",
-            "description": "Issues with re-compile of stdlib (Native Clang)",
+            "description": "Not supported Requires recompiled stdlib (Native Clang)",
             "hidden": true,
             "inherits": "base-unit-test",
             "configurePreset": "native-clang",
@@ -255,7 +255,7 @@
         },
         {
             "name": "native-clang-msan",
-            "displayName": "Sanitize Memory (Native Clang)",
+            "displayName": "Sanitize Memory",
             "description": "Build and run Unit tests - Needs Debug (Native Clang)",
             "steps": [
                 {
