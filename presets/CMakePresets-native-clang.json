@@ -1,0 +1,299 @@
+{
+    "version": 8,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 28,
+        "patch": 0
+    },
+    "include": [
+        "CMakePresets-common.json"
+    ],
+    "configurePresets": [
+        {
+            "name": "native-clang",
+            "displayName": "Clang Config",
+            "description": "Clang without analysis (Native)",
+            "inherits": "base",
+            "toolchainFile": "${sourceDir}/.deps/rs_cmake-src/toolchain/clang.toolchain.cmake",
+            "cacheVariables": {
+                "STATIC_ANALYSIS": "OFF"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "native-clang-debug",
+            "displayName": "Debug",
+            "description": "No optimizations and debug info (Native Clang)",
+            "configurePreset": "native-clang",
+            "configuration": "Debug"
+        },
+        {
+            "name": "native-clang-release",
+            "displayName": "Release",
+            "description": "Performance optimizations (Native Clang)",
+            "configurePreset": "native-clang",
+            "configuration": "Release"
+        },
+        {
+            "name": "native-clang-relWithDebInfo",
+            "displayName": "Release with deb info",
+            "description": "Most performance optimizations and debug info (Native Clang)",
+            "hidden": true,
+            "configurePreset": "native-clang",
+            "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "native-clang-asan",
+            "displayName": "Sanitize Address",
+            "description": "(Native Clang)",
+            "configurePreset": "native-clang",
+            "configuration": "Asan"
+        },
+        {
+            "name": "native-clang-tsan",
+            "displayName": "Sanitize Threads",
+            "description": "(Native Clang)",
+            "configurePreset": "native-clang",
+            "configuration": "Tsan"
+        },
+        {
+            "name": "native-clang-ubsan",
+            "displayName": "Sanitize Undefined Behavior",
+            "description": "(Native Clang)",
+            "configurePreset": "native-clang",
+            "configuration": "Ubsan"
+        },
+        {
+            "name": "native-clang-msan",
+            "displayName": "Sanitize Memory",
+            "description": "Not supported Requires recompiled stdlib (Native Clang)",
+            "hidden": true,
+            "configurePreset": "native-clang",
+            "configuration": "Msan"
+        },
+        {
+            "name": "native-clang-coverage",
+            "displayName": "Coverage",
+            "description": "Needs Support (Native Clang)",
+            "hidden": true,
+            "configurePreset": "native-clang",
+            "configuration": "Coverage"
+        },
+        {
+            "name": "native-clang-coverage-report",
+            "displayName": "Coverage Reports",
+            "description": "Needs Support (Native Clang)",
+            "hidden": true,
+            "inherits": "native-clang-coverage",
+            "targets": "code-coverage"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "native-clang-debug-unit-test",
+            "displayName": "Debug Unit Test",
+            "description": "(Native Clang)",
+            "inherits": "base-unit-test",
+            "configurePreset": "native-clang",
+            "configuration": "Debug"
+        },
+        {
+            "name": "native-clang-release-unit-test",
+            "displayName": "Release Unit Test",
+            "description": "(Native Clang)",
+            "inherits": "base-unit-test",
+            "configurePreset": "native-clang",
+            "configuration": "Release"
+        },
+        {
+            "name": "native-clang-release-stress-test",
+            "displayName": "Release Stress Test",
+            "description": "(Native Clang)",
+            "inherits": "base-stress-test",
+            "configurePreset": "native-clang",
+            "configuration": "Release"
+        },
+        {
+            "name": "native-clang-asan-unit-test",
+            "displayName": "Sanitize Address Unit Test",
+            "description": "(Native Clang)",
+            "inherits": "base-unit-test",
+            "configurePreset": "native-clang",
+            "configuration": "Asan"
+        },
+        {
+            "name": "native-clang-tsan-unit-test",
+            "displayName": "Sanitize Threads Unit Test",
+            "description": "(Native Clang)",
+            "inherits": "base-unit-test",
+            "configurePreset": "native-clang",
+            "configuration": "Tsan"
+        },
+        {
+            "name": "native-clang-ubsan-unit-test",
+            "displayName": "Sanitize Undefined Behavior Unit Test",
+            "description": "(Native Clang)",
+            "inherits": "base-unit-test",
+            "configurePreset": "native-clang",
+            "configuration": "Ubsan"
+        },
+        {
+            "name": "native-clang-msan-unit-test",
+            "displayName": "Sanitize Memory Unit Test",
+            "description": "Not supported Requires recompiled stdlib (Native Clang)",
+            "hidden": true,
+            "inherits": "base-unit-test",
+            "configurePreset": "native-clang",
+            "configuration": "Msan"
+        },
+        {
+            "name": "native-clang-coverage-unit-test",
+            "displayName": "Coverage Unit Test",
+            "description": "Not supported yet (Native Clang)",
+            "hidden": true,
+            "inherits": "base-unit-test",
+            "configurePreset": "native-clang",
+            "configuration": "Coverage"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "native-clang-debug",
+            "displayName": "Debug",
+            "description": "Build and run Unit tests (Native Clang)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-clang"
+                },
+                {
+                    "type": "build",
+                    "name": "native-clang-debug"
+                },
+                {
+                    "type": "test",
+                    "name": "native-clang-debug-unit-test"
+                }
+            ]
+        },
+        {
+            "name": "native-clang-release",
+            "displayName": "Release",
+            "description": "Build and run Unit tests (Native Clang)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-clang"
+                },
+                {
+                    "type": "build",
+                    "name": "native-clang-release"
+                },
+                {
+                    "type": "test",
+                    "name": "native-clang-release-unit-test"
+                }
+            ]
+        },
+        {
+            "name": "native-clang-asan",
+            "displayName": "Sanitize Address",
+            "description": "Build and run Unit tests (Native Clang)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-clang"
+                },
+                {
+                    "type": "build",
+                    "name": "native-clang-asan"
+                },
+                {
+                    "type": "test",
+                    "name": "native-clang-asan-unit-test"
+                }
+            ]
+        },
+        {
+            "name": "native-clang-tsan",
+            "displayName": "Sanitize Thread",
+            "description": "Build and run Unit tests (Native Clang)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-clang"
+                },
+                {
+                    "type": "build",
+                    "name": "native-clang-tsan"
+                },
+                {
+                    "type": "test",
+                    "name": "native-clang-tsan-unit-test"
+                }
+            ]
+        },
+        {
+            "name": "native-clang-ubsan",
+            "displayName": "Sanitize Undefined Behavior",
+            "description": "Build and run Unit tests (Native Clang)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-clang"
+                },
+                {
+                    "type": "build",
+                    "name": "native-clang-ubsan"
+                },
+                {
+                    "type": "test",
+                    "name": "native-clang-ubsan-unit-test"
+                }
+            ]
+        },
+        {
+            "name": "native-clang-msan",
+            "displayName": "Sanitize Memory",
+            "description": "Build and run Unit tests - Needs Debug (Native Clang)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-clang"
+                },
+                {
+                    "type": "build",
+                    "name": "native-clang-msan"
+                },
+                {
+                    "type": "test",
+                    "name": "native-clang-msan-unit-test"
+                }
+            ]
+        },
+        {
+            "name": "native-clang-coverage",
+            "displayName": "Coverage",
+            "description": "Build and run Unit tests - Needs Debug (Native Clang)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-clang"
+                },
+                {
+                    "type": "build",
+                    "name": "native-clang-coverage"
+                },
+                {
+                    "type": "test",
+                    "name": "native-clang-coverage-unit-test"
+                },
+                {
+                    "type": "build",
+                    "name": "native-clang-coverage-report"
+                }
+            ]
+        }
+    ]
+}

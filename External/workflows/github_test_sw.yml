@@ -38,13 +38,13 @@ env:
   GCC_DIR: build_gcc
   RPT_DIR: reports  # For Test reports and coverage
   CCACHE_DIR: ccache
-  CLANG_VER: 18
+  CLANG_VER: 19
 
 jobs:
   prepare:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.2
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.5
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -59,17 +59,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-CMakeFiles
       - name: Preparing build directories (Bootstrap)
-        run: cmake --preset=bootstrap
+        run: cmake -G "Ninja Multi-Config" -S . -B build -DFETCHCONTENT_BASE_DIR=.deps
       - name: Preparing CMake clang
-        run: cmake --preset=native-clang
+        run: cmake --preset=native-clang --fresh
       - name: Preparing CMake gcc
-        run: cmake --preset=native-gcc
+        run: cmake --preset=native-gcc --fresh
 
   build-and-test:
     name: ${{ matrix.name }} Build and Test
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.2
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.5
       options: --privileged # For Tsan below can remove once https://github.com/google/sanitizers/issues/1716 no longer an issue
     needs: prepare
     strategy:
@@ -81,19 +81,19 @@ jobs:
           - name: "Clang Release"
             preset: native-clang-release
           - name: "Clang Address Sanitizer"
-            preset: asan
+            preset: native-clang-asan
           - name: "Clang Thread Sanitizer"
-            preset: asan
+            preset: native-clang-tsan
           - name: "GNU Memory Sanitizer"
-            preset: msan
+            preset: native-gcc-msan
           - name: "Clang Undefined Behavior Sanitizer"
-            preset: ubsan
+            preset: native-clang-ubsan
           - name: "GCC Debug"
             preset: native-gcc-debug
           - name: "GCC Release"
             preset: native-gcc-release
           - name: "GCC Coverage"
-            preset: coverage
+            preset: native-gcc-coverage
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -114,9 +114,11 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.preset }}-CCache
           restore-keys: |
             ${{ runner.os }}-${{ matrix.preset }}-CCache
+      - name: Preparing build directories (Bootstrap)
+        run: cmake -G "Ninja Multi-Config" -S . -B build -DFETCHCONTENT_BASE_DIR=.deps
       - name: Build And Test ${{ matrix.preset }}
         run: |
-          cmake --workflow --preset=${{ matrix.preset }}
+          cmake --workflow --preset=${{ matrix.preset }} --fresh
           mv ${{ env.RPT_DIR }}/junit_test_report.xml ${{ env.RPT_DIR }}/${{matrix.preset}}_junit_test_report.xml
       # - name: Fix for Tsan mmap random bits
       #   if: ${{ matrix.preset == 'Tsan' }}
@@ -139,7 +141,7 @@ jobs:
     name: ${{ matrix.name }} Analysis
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.2
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.5
     needs: prepare
     strategy:
       fail-fast: false
@@ -170,9 +172,10 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.preset }}-CCache
           restore-keys: |
             ${{ runner.os }}-${{ matrix.preset }}-CCache
+      - name: Preparing build directories (Bootstrap)
+        run: cmake -G "Ninja Multi-Config" -S . -B build -DFETCHCONTENT_BASE_DIR=.deps
       - name: Scan Build ${{ matrix.preset }}
-        run: |
-          scan-build-${{ env.CLANG_VER }} -o ${{ env.RPT_DIR }}/scan-build -k --status-bugs -internal-stats --keep-empty cmake --workflow --preset=${{ matrix.preset }}
+        run: scan-build-${{ env.CLANG_VER }} -o ${{ env.RPT_DIR }}/scan-build -k --status-bugs -internal-stats --keep-empty cmake --workflow --preset=${{ matrix.preset }} --fresh
       - name: Scan Build Artifacts
         uses: actions/upload-artifact@v4
         with:

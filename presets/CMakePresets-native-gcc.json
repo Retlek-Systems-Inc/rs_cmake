@@ -1,0 +1,294 @@
+{
+    "version": 8,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 28,
+        "patch": 0
+    },
+    "include": [
+        "CMakePresets-common.json"
+    ],
+    "configurePresets": [
+        {
+            "name": "native-gcc",
+            "displayName": "GCC Config",
+            "description": "GCC without analysis (Native)",
+            "inherits": "base",
+            "binaryDir": "${sourceDir}/build_gcc",
+            "toolchainFile": "${sourceDir}/.deps/rs_cmake-src/toolchain/gcc.toolchain.cmake",
+            "cacheVariables": {
+                "STATIC_ANALYSIS": "OFF"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "native-gcc-debug",
+            "displayName": "Debug",
+            "description": "No optimizations and debug info (Native GCC)",
+            "configurePreset": "native-gcc",
+            "configuration": "Debug"
+        },
+        {
+            "name": "native-gcc-release",
+            "displayName": "Release",
+            "description": "Performance optimizations (Native GCC)",
+            "configurePreset": "native-gcc",
+            "configuration": "Release"
+        },
+        {
+            "name": "native-gcc-relWithDebInfo",
+            "displayName": "Release with deb info",
+            "description": "Most performance optimizations and debug info (Native GCC)",
+            "configurePreset": "native-gcc",
+            "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "native-gcc-asan",
+            "displayName": "Sanitize Address",
+            "description": "(Native GCC)",
+            "configurePreset": "native-gcc",
+            "configuration": "Asan"
+        },
+        {
+            "name": "native-gcc-tsan",
+            "displayName": "Sanitize Threads",
+            "description": "(Native GCC)",
+            "configurePreset": "native-gcc",
+            "configuration": "Tsan"
+        },
+        {
+            "name": "native-gcc-ubsan",
+            "displayName": "Sanitize Undefined Behavior",
+            "description": "(Native GCC)",
+            "configurePreset": "native-gcc",
+            "configuration": "Ubsan"
+        },
+        {
+            "name": "native-gcc-msan",
+            "displayName": "Sanitize Memory",
+            "description": "Issues with re-compile of stdlib (Native GCC)",
+            "configurePreset": "native-gcc",
+            "configuration": "Msan"
+        },
+        {
+            "name": "native-gcc-coverage",
+            "displayName": "Coverage",
+            "description": "Needs Support (Native GCC)",
+            "configurePreset": "native-gcc",
+            "configuration": "Coverage"
+        },
+        {
+            "name": "native-gcc-coverage-report",
+            "displayName": "Coverage Reports",
+            "description": "Needs Support (Native GCC)",
+            "inherits": "native-gcc-coverage",
+            "targets": "code-coverage"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "native-gcc-debug-unit-test",
+            "displayName": "Debug Unit Test",
+            "description": "(Native GCC)",
+            "inherits": "base-unit-test",
+            "configurePreset": "native-gcc",
+            "configuration": "Debug"
+        },
+        {
+            "name": "native-gcc-release-unit-test",
+            "displayName": "Release Unit Test",
+            "description": "(Native GCC)",
+            "inherits": "base-unit-test",
+            "configurePreset": "native-gcc",
+            "configuration": "Release"
+        },
+        {
+            "name": "native-gcc-release-stress-test",
+            "displayName": "Release Stress Test",
+            "description": "(Native GCC)",
+            "inherits": "base-stress-test",
+            "configurePreset": "native-gcc",
+            "configuration": "Release"
+        },
+        {
+            "name": "native-gcc-asan-unit-test",
+            "displayName": "Sanitize Address Unit Test",
+            "description": "(Native GCC)",
+            "inherits": "base-unit-test",
+            "configurePreset": "native-gcc",
+            "configuration": "Asan"
+        },
+        {
+            "name": "native-gcc-tsan-unit-test",
+            "displayName": "Sanitize Threads Unit Test",
+            "description": "(Native GCC)",
+            "inherits": "base-unit-test",
+            "configurePreset": "native-gcc",
+            "configuration": "Tsan"
+        },
+        {
+            "name": "native-gcc-ubsan-unit-test",
+            "displayName": "Sanitize Undefined Behavior Unit Test",
+            "description": "(Native GCC)",
+            "inherits": "base-unit-test",
+            "configurePreset": "native-gcc",
+            "configuration": "Ubsan"
+        },
+        {
+            "name": "native-gcc-msan-unit-test",
+            "displayName": "Sanitize Memory Unit Test",
+            "description": "(Native GCC)",
+            "inherits": "base-unit-test",
+            "configurePreset": "native-gcc",
+            "configuration": "Msan"
+        },
+        {
+            "name": "native-gcc-coverage-unit-test",
+            "displayName": "Coverage Unit Test",
+            "description": "(Native GCC)",
+            "inherits": "base-unit-test",
+            "configurePreset": "native-gcc",
+            "configuration": "Coverage"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "native-gcc-debug",
+            "displayName": "Debug",
+            "description": "Build and run Unit tests (Native GCC)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-gcc"
+                },
+                {
+                    "type": "build",
+                    "name": "native-gcc-debug"
+                },
+                {
+                    "type": "test",
+                    "name": "native-gcc-debug-unit-test"
+                }
+            ]
+        },
+        {
+            "name": "native-gcc-release",
+            "displayName": "Release",
+            "description": "Build and run Unit tests (Native GCC)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-gcc"
+                },
+                {
+                    "type": "build",
+                    "name": "native-gcc-release"
+                },
+                {
+                    "type": "test",
+                    "name": "native-gcc-release-unit-test"
+                }
+            ]
+        },
+        {
+            "name": "native-gcc-asan",
+            "displayName": "Sanitize Address",
+            "description": "Build and run Unit tests (Native GCC)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-gcc"
+                },
+                {
+                    "type": "build",
+                    "name": "native-gcc-asan"
+                },
+                {
+                    "type": "test",
+                    "name": "native-gcc-asan-unit-test"
+                }
+            ]
+        },
+        {
+            "name": "native-gcc-tsan",
+            "displayName": "Sanitize Thread",
+            "description": "Build and run Unit tests  (Native GCC)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-gcc"
+                },
+                {
+                    "type": "build",
+                    "name": "native-gcc-tsan"
+                },
+                {
+                    "type": "test",
+                    "name": "native-gcc-tsan-unit-test"
+                }
+            ]
+        },
+        {
+            "name": "native-gcc-ubsan",
+            "displayName": "Sanitize Undefined Behavior",
+            "description": "Build and run Unit tests (Native GCC)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-gcc"
+                },
+                {
+                    "type": "build",
+                    "name": "native-gcc-ubsan"
+                },
+                {
+                    "type": "test",
+                    "name": "native-gcc-ubsan-unit-test"
+                }
+            ]
+        },
+        {
+            "name": "native-gcc-msan",
+            "displayName": "Sanitize Memory",
+            "description": "Build and run Unit tests (Native GCC)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-gcc"
+                },
+                {
+                    "type": "build",
+                    "name": "native-gcc-msan"
+                },
+                {
+                    "type": "test",
+                    "name": "native-gcc-msan-unit-test"
+                }
+            ]
+        },
+        {
+            "name": "native-gcc-coverage",
+            "displayName": "Coverage",
+            "description": "Build, run Unit tests, and reports (Native GCC)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-gcc"
+                },
+                {
+                    "type": "build",
+                    "name": "native-gcc-coverage"
+                },
+                {
+                    "type": "test",
+                    "name": "native-gcc-coverage-unit-test"
+                },
+                {
+                    "type": "build",
+                    "name": "native-gcc-coverage-report"
+                }
+            ]
+        }
+    ]
+}

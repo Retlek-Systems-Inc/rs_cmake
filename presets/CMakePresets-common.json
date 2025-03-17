@@ -1,0 +1,75 @@
+{
+    "version": 9,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 28,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "base",
+            "description": "Base definition for ensuring all configs use common FetchContent base directory",
+            "hidden": true,
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "FETCHCONTENT_BASE_DIR": "${sourceDir}/.deps"
+            }
+        },
+        {
+            "name": "bootstrap",
+            "displayName": "Bootstrap",
+            "description": "For populating dependencies",
+            "inherits": "base"
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "base-coverage-report",
+            "displayName": "Create Coverage Reports",
+            "hidden": true,
+            "configurePreset": "base",
+            "targets": "code-coverage"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "base-unit-test",
+            "hidden": true,
+            "displayName": "Single Unit Test Run",
+            "configurePreset": "base",
+            "configuration": "Debug",
+            "output": {
+                "shortProgress": false,
+                "outputOnFailure": true,
+                "outputJUnitFile": "${sourceDir}/reports/junit_test_report.xml"
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": false,
+                "interactiveDebugging": false
+            }
+        },
+        {
+            "name": "base-stress-test",
+            "hidden": true,
+            "displayName": "Stress Unit Test Run",
+            "description": "Run unit tests multiple times randomizing order and seed - TODO",
+            "configurePreset": "base",
+            "configuration": "Release",
+            "output": {
+                "shortProgress": false,
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": false,
+                "interactiveDebugging": false,
+                "repeat": {
+                    "count": 1000,
+                    "mode": "until-fail"
+                }
+            }
+        }
+    ]
+}
