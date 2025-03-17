@@ -158,6 +158,7 @@ function( CheckUploadToRemote )
             return()
         else()
             message(STATUS "CheckUploadToRemote: 'rsync' is NOT available on the remote machine '${REMOTE}'")
+            set(RSYNC_EXE "" PARENT_SCOPE)
             #continue
         endif()
     else()
