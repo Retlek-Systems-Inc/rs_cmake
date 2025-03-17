@@ -15,7 +15,7 @@
             "hidden": true,
             "generator": "Ninja Multi-Config",
             "binaryDir": "${sourceDir}/build_device",
-            "toolchainFile": "../toolchain/arm-none-eabi-gcc.toolchain.cmake",
+            "toolchainFile": "${sourceDir}/.deps/rs_cmake-src/toolchain/arm-none-eabi-gcc.toolchain.cmake",
             "cacheVariables": {
                 "STATIC_ANALYSIS": "OFF",
                 "BUILD_FOR_DEVICE": "ON"

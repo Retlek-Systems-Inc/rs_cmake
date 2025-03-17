@@ -14,7 +14,7 @@
             "displayName": "Clang Config",
             "description": "Clang without analysis (Native)",
             "inherits": "base",
-            "toolchainFile": "../toolchain/clang.toolchain.cmake",
+            "toolchainFile": "${sourceDir}/.deps/rs_cmake-src/toolchain/clang.toolchain.cmake",
             "cacheVariables": {
                 "STATIC_ANALYSIS": "OFF"
             }

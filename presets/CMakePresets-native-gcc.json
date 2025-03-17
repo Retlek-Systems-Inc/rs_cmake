@@ -15,7 +15,7 @@
             "description": "GCC without analysis (Native)",
             "inherits": "base",
             "binaryDir": "${sourceDir}/build_gcc",
-            "toolchainFile": "../toolchain/gcc.toolchain.cmake",
+            "toolchainFile": "${sourceDir}/.deps/rs_cmake-src/toolchain/gcc.toolchain.cmake",
             "cacheVariables": {
                 "STATIC_ANALYSIS": "OFF"
             }

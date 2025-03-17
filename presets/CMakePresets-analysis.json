@@ -15,7 +15,7 @@
             "hidden": true,
             "binaryDir": "${sourceDir}/build_analysis",
             "inherits": "base",
-            "toolchainFile": "../toolchain/clang.toolchain.cmake",
+            "toolchainFile": "${sourceDir}/.deps/rs_cmake-src/toolchain/clang.toolchain.cmake",
             "cacheVariables": {
                 "BUILD_BENCHMARK": "OFF",
                 "STATIC_ANALYSIS": "ON"
