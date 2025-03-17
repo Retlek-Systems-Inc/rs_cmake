@@ -28,5 +28,3 @@ Checks: '
 
 # All warnings that don't fit into this are considered errors.
 WarningsAsErrors: '*'
-
-...
