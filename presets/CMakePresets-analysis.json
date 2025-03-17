@@ -1,0 +1,141 @@
+{
+    "version": 8,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 28,
+        "patch": 0
+    },
+    "include": [
+        "CMakePresets-common.json"
+    ],
+    "configurePresets": [
+        {
+            "name": "analysis-base",
+            "description": "Analysis (Native Clang)",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build_analysis",
+            "inherits": "base",
+            "toolchainFile": "../toolchain/clang.toolchain.cmake",
+            "cacheVariables": {
+                "BUILD_BENCHMARK": "OFF",
+                "STATIC_ANALYSIS": "ON"
+            }
+        },
+        {
+            "name": "analysis-clang-tidy",
+            "displayName": "Static Analysis Clang Tidy",
+            "inherits": "analysis-base",
+            "cacheVariables": {
+                "USE_CLANG_TIDY": "ON",
+                "CLANG_TIDY_FIX": "OFF",
+                "USE_CPP_CHECK": "OFF",
+                "USE_CPP_LINT": "OFF"
+            }
+        },
+        {
+            "name": "analysis-clang-tidy-fix",
+            "displayName": "Static Analysis Clang Tidy (FIX)",
+            "inherits": "analysis-base",
+            "cacheVariables": {
+                "USE_CLANG_TIDY": "ON",
+                "CLANG_TIDY_FIX": "ON",
+                "USE_CPP_CHECK": "OFF",
+                "USE_CPP_LINT": "OFF"
+            }
+        },
+        {
+            "name": "analysis-cpp-check",
+            "displayName": "Static Analysis Cpp Check",
+            "inherits": "analysis-base",
+            "cacheVariables": {
+                "USE_CLANG_TIDY": "OFF",
+                "CLANG_TIDY_FIX": "OFF",
+                "USE_CPP_CHECK": "ON",
+                "USE_CPP_LINT": "OFF"
+            }
+        },
+        {
+            "name": "analysis-cpp-lint",
+            "displayName": "Static Analysis Cpp Lint",
+            "inherits": "analysis-base",
+            "cacheVariables": {
+                "USE_CLANG_TIDY": "OFF",
+                "CLANG_TIDY_FIX": "OFF",
+                "USE_CPP_CHECK": "OFF",
+                "USE_CPP_LINT": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "analysis-clang-tidy",
+            "displayName": "Static Analysis Clang Tidy",
+            "description": "Release (Native Clang)",
+            "configurePreset": "analysis-clang-tidy",
+            "configuration": "Release"
+        },
+        {
+            "name": "analysis-cpp-check",
+            "displayName": "Static Analysis Cpp Check",
+            "description": "Release (Native Clang)",
+            "cleanFirst": true,
+            "configurePreset": "analysis-cpp-check",
+            "configuration": "Release"
+        },
+        {
+            "name": "analysis-cpp-lint",
+            "displayName": "Static Analysis Cpp Lint",
+            "description": "Release (Native Clang)",
+            "cleanFirst": true,
+            "configurePreset": "analysis-cpp-lint",
+            "configuration": "Release"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "analysis-clang-tidy",
+            "displayName": "Static Analysis Clang Tidy",
+            "description": "Release Analysis (Native Clang)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "analysis-clang-tidy"
+                },
+                {
+                    "type": "build",
+                    "name": "analysis-clang-tidy"
+                }
+            ]
+        },
+        {
+            "name": "analysis-cpp-check",
+            "displayName": "Static Analysis Cpp Check",
+            "description": "Release Analysis (Native Clang)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "analysis-cpp-check"
+                },
+                {
+                    "type": "build",
+                    "name": "analysis-cpp-check"
+                }
+            ]
+        },
+        {
+            "name": "analysis-cpp-lint",
+            "displayName": "Static Analysis Cpp Lint",
+            "description": "Release Analysis (Native Clang)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "analysis-cpp-lint"
+                },
+                {
+                    "type": "build",
+                    "name": "analysis-cpp-lint"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,97 @@
+{
+    "version": 8,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 28,
+        "patch": 0
+    },
+    "include": [
+        "CMakePresets-common.json"
+    ],
+    "configurePresets": [
+        {
+            "name": "arm-none-gcc",
+            "description": "Device configuration for all device specific builds",
+            "hidden": true,
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/build_device",
+            "toolchainFile": "../toolchain/arm-none-eabi-gcc.toolchain.cmake",
+            "cacheVariables": {
+                "STATIC_ANALYSIS": "OFF",
+                "BUILD_FOR_DEVICE": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "arm-none-gcc-debug",
+            "displayName": "Debug",
+            "description": "No optimizations and debug info (arm-none GCC)",
+            "configurePreset": "arm-none-gcc",
+            "configuration": "Debug"
+        },
+        {
+            "name": "arm-none-gcc-relWithDebInfo",
+            "hidden": true,
+            "displayName": "Device build Release with deb info",
+            "description": "Most performance optimizations and debug info (arm-none GCC)",
+            "configurePreset": "arm-none-gcc",
+            "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "arm-none-gcc-release",
+            "hidden": true,
+            "displayName": "Release",
+            "description": "Performance optimizations (arm-none Clang)",
+            "configurePreset": "arm-none-gcc",
+            "configuration": "RelWithDebInfo"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "arm-none-gcc-debug",
+            "displayName": "Debug",
+            "description": "Build and run Unit tests (arm-none GCC)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "arm-none-gcc"
+                },
+                {
+                    "type": "build",
+                    "name": "arm-none-gcc-debug"
+                }
+            ]
+        },
+        {
+            "name": "arm-none-gcc-relWithDebInfo",
+            "displayName": "RelWithDebInfo",
+            "description": "Build and run Unit tests (arm-none GCC)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "arm-none-gcc"
+                },
+                {
+                    "type": "build",
+                    "name": "arm-none-gcc-release"
+                }
+            ]
+        },
+        {
+            "name": "arm-none-gcc-release",
+            "displayName": "Release",
+            "description": "Build and run Unit tests (arm-none GCC)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "arm-none-gcc"
+                },
+                {
+                    "type": "build",
+                    "name": "arm-none-gcc-release"
+                }
+            ]
+        }
+    ]
+}
