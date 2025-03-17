@@ -2,6 +2,14 @@ For Configure Presets:
 
 The `Bootstrap` is used to initialize with an initial .deps/rs_cmake-src before any further updates can be done.
 
+Use:
+
+```bash
+cmake -G "Ninja Multi-Config" -S . -B build -DFETCHCONTENT_BASE_DIR=.deps
+```
+
+first and then this will allow all presets to be setup properly.
+
 The included presets are for canned sets of build types and examples.
 
 Add your own configurePresets, build, test, workflow presets as needed eg:

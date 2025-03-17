@@ -13,7 +13,7 @@
             "name": "analysis-base",
             "description": "Analysis (Native Clang)",
             "hidden": true,
-            "binaryDir": "${sourceDir}/build_analysis",
+            "binaryDir": "${sourceDir}/build",
             "inherits": "base",
             "toolchainFile": "${sourceDir}/.deps/rs_cmake-src/toolchain/clang.toolchain.cmake",
             "cacheVariables": {
