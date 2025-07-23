@@ -38,6 +38,7 @@ TestTarget(
   [ TYPE [UNIT, MANUAL, BENCHMARK] ] - default unit.
   [ CUSTOM_NAME <executable name> ] - overrides default naming convention of executable
   [ FRAMEWORK [ GTest | GMock | Benchmark ] ] - default GTest
+  [ NO_DISCOVERY ] - when used will only create a single test and bypass any sub-test discovery
   [ MOCK_LIBRARY <mock target> [<mock target> ...] ]
   [ LINK_LIBRARY <target> [<target> ...] ]
 )
@@ -73,7 +74,7 @@ The following targets are defined by this module:
               Benchark_<target_name> OR `CUSTOM_NAME name defined`.
 #]=======================================================================]
 function( TestTarget )
-    set( _options )
+    set( _options NO_DISCOVERY )
     set( _oneValueArgs TARGET FRAMEWORK TYPE CUSTOM_NAME)
     set( _multiValueArgs SOURCES MOCK_LIBRARY LINK_LIBRARY)
     include( CMakeParseArguments )
@@ -219,12 +220,12 @@ function( TestTarget )
               # Note: Care must be taken here - these have to be last.
 	          ${_mock_libs}
 	          ${_arg_LINK_LIBRARY}
+              $<$<CONFIG:Msan>:${MSAN_LINK_LIBRARIES}>
 	    )
 	endif()
 
     if( (_arg_FRAMEWORK STREQUAL "GTest") OR (_arg_FRAMEWORK STREQUAL "GMock") )
-        # Add in any GTest/GMock header specific issues
-        # All have been cleaned up now with v1.16.0
+        # Add in any GTest/GMock header specific issues - need to add to each of the test argets.
     elseif(_arg_FRAMEWORK STREQUAL "Benchmark")
         target_clang_tidy_definitions( TARGET ${_target}
           CHECKS
@@ -264,8 +265,16 @@ function( TestTarget )
     if( _arg_TYPE STREQUAL UNIT )
         message( STATUS "${_arg_TYPE} test ${_target} add_test.")
         # Note: If we support other test frameworks will need to do the following:
-        if( NOT CMAKE_CROSSCOMPILING AND ((_arg_FRAMEWORK STREQUAL "GTest") OR (_arg_FRAMEWORK STREQUAL "GMock")) )
-            gtest_discover_tests( ${_target} )
+        if( NOT _arg_NO_DISCOVERY AND NOT CMAKE_CROSSCOMPILING AND ((_arg_FRAMEWORK STREQUAL "GTest") OR (_arg_FRAMEWORK STREQUAL "GMock")) )
+            if(CMAKE_BUILD_TYPE STREQUAL "MSan")
+                gtest_discover_tests( ${_target}
+                    DISCOVERY_MODE PRE_TEST
+                    DISCOVERY_TIMEOUT 30
+                    PROPERTIES ENVIRONMENT "MSAN_OPTIONS=halt_on_error=0:report_umrs=0"
+                )
+            else()
+                gtest_discover_tests( ${_target} )
+            endif()
         else()
             add_test( NAME ${_target} COMMAND ${_command} )
         endif()

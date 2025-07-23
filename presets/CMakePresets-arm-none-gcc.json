@@ -42,7 +42,7 @@
             "name": "arm-none-gcc-release",
             "hidden": true,
             "displayName": "Release",
-            "description": "Performance optimizations (arm-none Clang)",
+            "description": "Performance optimizations (arm-none GCC)",
             "configurePreset": "arm-none-gcc",
             "configuration": "RelWithDebInfo"
         }
