@@ -67,8 +67,7 @@
         {
             "name": "native-clang-msan",
             "displayName": "Sanitize Memory",
-            "description": "Not supported Requires recompiled stdlib (Native Clang)",
-            "hidden": true,
+            "description": "(Native Clang)",
             "configurePreset": "native-clang",
             "configuration": "Msan"
         },
