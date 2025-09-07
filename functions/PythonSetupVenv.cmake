@@ -28,6 +28,7 @@ Sets up default usage of the venv environment for python instead of the machine
 installed version.
 
 PythonSetupVenv(
+    [EXCLUDE_FROM_ALL]
     [VERSION <Python version>]
     [VENV_DIR <full .venv dir location>] - default is "${CMAKE_SOURCE_DIR}/.venv"
     REQUIREMENTS <pip requirements.txt file>
@@ -52,11 +53,13 @@ The default VENV_DIR was selected to support VSCode IDE
 
 function(PythonSetupVenv)
   include( CMakeParseArguments )
-  cmake_parse_arguments(_arg "" "VERSION;VENV_DIR;REQUIREMENTS" "" ${ARGN})
+  cmake_parse_arguments(_arg "EXCLUDE_FROM_ALL" "VERSION;VENV_DIR;REQUIREMENTS" "" ${ARGN})
 
   if(NOT _arg_VENV_DIR )
     set(_arg_VENV_DIR ${CMAKE_SOURCE_DIR}/.venv )
   endif()
+
+  set(stamp_file ${_arg_VENV_DIR}/venv.stamp)
 
   if(EXISTS "${_arg_VENV_DIR}")
     message(STATUS "PythonSetupVenv: Using existing ${_arg_VENV_DIR}")
@@ -75,13 +78,23 @@ function(PythonSetupVenv)
     )
   endif()
 
-  add_custom_target (SetupPythonEnv
-    DEPENDS
-      ${_arg_REQUIREMENTS}
-    # Following are for PythonLint.cmake
+  add_custom_command(
+    OUTPUT ${stamp_file}
+    DEPENDS ${_arg_REQUIREMENTS}
     COMMAND ${_arg_VENV_DIR}/bin/pip install black isort flake8 pylint --upgrade
     COMMAND ${_arg_VENV_DIR}/bin/pip install -r ${_arg_REQUIREMENTS} --upgrade
+    COMMAND ${CMAKE_COMMAND} -E touch ${stamp_file}
     COMMENT "Installing Python requirements in `${_arg_VENV_DIR}` from `${_arg_REQUIREMENTS}`."
+  )
+
+  set(target_opts)
+  if(_arg_EXCLUDE_FROM_ALL)
+    list(APPEND target_opts EXCLUDE_FROM_ALL)
+  endif()
+
+  add_custom_target (SetupPythonEnv
+    ${target_opts}
+    DEPENDS ${stamp_file}
   )
 
   # Retarget the Python3 executable.
