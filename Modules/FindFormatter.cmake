@@ -27,11 +27,22 @@ if(FORMATTER)
     if (USE_CLANG_FORMAT)
       find_program(CLANG_FORMAT 
         NAMES
-            clang-format
+            clang-format-20
+            clang-format-19
+            clang-format-18
+            clang-format-17
+            clang-format-16
+            clang-format-15
+            clang-format-14
+            clang-format-13
+            clang-format-11
+            clang-format-10
+            clang-format-9
             clang-format-8
             clang-format-7
             clang-format-6.0
             clang-format-4.0
+            clang-format
       )
       if(NOT CLANG_FORMAT)
             message(WARNING "Could not find clang-format, must be installed to format itmes.")

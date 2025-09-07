@@ -120,8 +120,6 @@ find_package(DefaultStaticAnalysis REQUIRED)
 #Testing:
 find_package(DefaultTest REQUIRED)
 
-find_package(DefaultBenchmark REQUIRED)
-
 #Documentation:
 set(DOC_EXCLUDE_PATTERNS  
   */build*/*) # Add your exclude patterns to documentation.
@@ -155,6 +153,14 @@ if(NOT EXISTS ${CMAKE_SOURCE_DIR}/CMakePresets.json)
     configure_file(${CMAKE_CURRENT_LIST_DIR}/External/CMakePresets.json
         ${CMAKE_SOURCE_DIR}/CMakePresets.json COPYONLY)
 endif()
+
+###################
+# Setup for default sbom.cmake
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/sbom.cmake)
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/External/sbom.cmake
+        ${CMAKE_SOURCE_DIR}/sbom.cmake COPYONLY)
+endif()
+
 
 ###################
 # Setup for gitlab ci
