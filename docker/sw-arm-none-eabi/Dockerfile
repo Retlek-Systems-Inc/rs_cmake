@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 # hadolint ignore=DL3029
-FROM --platform=$BUILDPLATFORM ubuntu:24.04
+FROM --platform=$BUILDPLATFORM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
 
 LABEL org.opencontainers.image.description="RS CMake Software Arm None EABI Dev"
 
@@ -43,7 +43,7 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 
 # arm-none-eabi from https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
-ARG ARM_VER="14.2.rel1"
+ARG ARM_VER="14.3.rel1"
 ARG ARM_TRIPLET="arm-none-eabi"
 ARG ARM_NAME="arm-gnu-toolchain-${ARM_VER}-x86_64-${ARM_TRIPLET}"
 ENV PATH="$PATH:/usr/local/${ARM_NAME}/bin"
