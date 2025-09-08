@@ -37,7 +37,7 @@ variables:
   CLANG_VER: 18
 
 default:
-  image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.5.0
+  image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.6.0
   before_script:
     # Subproject tools
     #    - apt -y install protobuf-compiler python-protobuf libprotobuf-dev

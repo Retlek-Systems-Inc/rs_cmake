@@ -16,10 +16,10 @@
     "customizations": {
         "vscode": {
             "settings": {
-                "clang-format.executable": "clang-format-18",
+                "clang-format.executable": "clang-format-20",
                 "clang-format.language.cpp.enable": true,
                 "C_Cpp.clang_format_sortIncludes": true,
-                "C_Cpp.clang_format_path": "clang-format-18",
+                "C_Cpp.clang_format_path": "clang-format-20",
                 "editor.formatOnSave": true
             },
             // Add the IDs of extensions you want installed when the container is created.

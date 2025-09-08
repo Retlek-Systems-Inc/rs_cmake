@@ -24,22 +24,7 @@
 if(BUILD_DOC)
     find_package(Doxygen REQUIRED dot)
     find_package(PlantUML REQUIRED)
-
-    include(FetchContent)
-    FetchContent_Declare(
-      wavedrom   
-      GIT_REPOSITORY    https://github.com/wavedrom/wavedrom.git
-      GIT_TAG           v2.1.2
-    )
-    #FetchContent_MakeAvailable(wavedrom)
-    # Currently assuming these are installed.
-    FetchContent_Declare(
-      doxygenVerilog
-      GIT_REPOSITORY https://github.com/avelure/doxygen-verilog.git
-      GIT_TAG        master
-    )
-#    FetchContent_MakeAvailable(doxygenVerilog)
-    
+   
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN  NO)
     set(DOXYGEN_OPTIMIZE_OUTPUT_VERILOG YES)

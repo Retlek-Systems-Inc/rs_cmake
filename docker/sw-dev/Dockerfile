@@ -84,7 +84,25 @@ RUN apt-get update -y \
 # hadolint ignore=DL3008
 RUN wget -q https://apt.llvm.org/llvm.sh \
     && chmod +x llvm.sh \
-    && ./llvm.sh 19 all
+    && ./llvm.sh 20 all
+
+# ---------------------------------------------------------
+# Install Python + pre-commit
+# hadolint ignore=DL3008
+RUN apt-get update -y \
+    && DEBIAN_FRONTEND=noninteractive \
+    apt-get install --no-install-recommends -y \
+    python3 \
+    python3-pip \
+    python3-venv \
+    pipx \
+    && pipx ensurepath \
+    && pipx install pre-commit==4.3.0 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Ensure pipx-installed binaries are in PATH for all future steps
+ENV PATH="/usr/local/bin:$PATH"
 
 # ---------------------------------------------------------
 

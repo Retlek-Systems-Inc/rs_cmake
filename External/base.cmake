@@ -6,9 +6,7 @@ cmake_policy(SET CMP0076 NEW) # full paths
 cmake_policy(SET CMP0077 NEW) # options do nothing when defined as variable.
 cmake_policy(SET CMP0144 NEW) # find_package uses <PACKAGENAME>_ROOT for search
 
-project(base-sw-deps VERSION 0.5.0 LANGUAGES C CXX)
-
-include(FetchContent)
+project(base-sw-deps VERSION 0.5.6 LANGUAGES C CXX)
 
 ########################################################################
 # Native Environment
@@ -17,16 +15,7 @@ option(BUILD_TEST      "Builds the tests"           ON)
 option(BUILD_DOC       "Builds the documentation"   OFF)
 option(STATIC_ANALYSIS "Use Static Analysis tools." ON)
 
-FetchContent_Declare( rs_cmake
-    GIT_REPOSITORY https://github.com/Retlek-Systems-Inc/rs_cmake
-    GIT_TAG        v0.5.5
-)
-
-FetchContent_GetProperties( rs_cmake )
-if(NOT rs_cmake_POPULATED)
-  FetchContent_Populate( rs_cmake )
-  include(${rs_cmake_SOURCE_DIR}/Init.cmake)
-endif()
+include(sbom.cmake)
 
 # Now add the definitions of each
 include(CodeCoverage)

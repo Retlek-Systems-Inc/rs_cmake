@@ -58,9 +58,9 @@ jobs:
       CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS:BOOL=OFF -DBUILD_DOCS:BOOL=ON -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Cache CMake Build directories
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.BASE_BUILD_DIR }}
           key: ${{ runner.os }}-CMakeFiles-
@@ -89,9 +89,9 @@ jobs:
       BUILD_TYPE: ${{ matrix.build_type }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Cached CMake Build directories
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.BUILD_DIR }}
           key: ${{ runner.os }}-CMakeFiles-
@@ -103,13 +103,13 @@ jobs:
         run: cmake --build ${BUILD_DIR} --config ${BUILD_TYPE} --target GenerateDocs
       - name: Document Artifacts
         #if: ${{ matrix.build_type == 'RelWithDebInfo' }} # Only perform for RelWithDebInfo.
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: documents
           path: ${{ DOCS_DIR }}/docs/
       # - name: Publish Documents
       #   if: ${{ always() }}
-      #   uses: mikepenz/action-junit-report@v3
+      #   uses: mikepenz/action-junit-report@v5
       #   with:
       #     report_paths: "${{ matrix.build_dir }}/${{ matrix.build_type }}_report.xml"
       #     fail_on_failure: true

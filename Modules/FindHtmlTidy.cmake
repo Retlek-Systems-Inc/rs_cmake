@@ -67,11 +67,11 @@ function(add_target_html_tidy)
     cmake_parse_arguments( "_arg" "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN} )
     
     if( _arg_UNPARSED_ARGUMENTS )
-        message( FATAL_ERROR "Unknown argument(s) to target_clang_tidy_checks: ${_arg_UNPARSED_ARGUMENTS}" )
+        message( FATAL_ERROR "Unknown argument(s) to add_target_html_tidy: ${_arg_UNPARSED_ARGUMENTS}" )
     endif()
     
     if( NOT _arg_TARGET )
-        message( FATAL_ERROR "Must specify TARGET <target> to add clang-tidy checks" )
+        message( FATAL_ERROR "Must specify TARGET <target> to add html-tidy checks" )
     endif()
 
     if( TARGET ${_arg_TARGET})

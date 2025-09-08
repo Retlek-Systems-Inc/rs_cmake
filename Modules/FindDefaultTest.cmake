@@ -53,17 +53,11 @@ if(BUILD_TEST)
         )
     endmacro()
 
-    include(FetchContent)
-    FetchContent_Declare( googletest
-      GIT_REPOSITORY    https://github.com/google/googletest.git
-      GIT_TAG           v1.16.0
-      EXCLUDE_FROM_ALL
-    )
-
     # Prevent overriding the parent project's compiler/linker
     # settings on Windows
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE) 
 
+    include(FetchContent)
     FetchContent_MakeAvailable(googletest)
 
     # Add clang-tidy definition to include warnings/errors for googletest.
@@ -95,18 +89,6 @@ if(BUILD_TEST)
     target_ignore_static_analysis(TARGET gmock CLANG_TIDY CPPCHECK CPPLINT IWYU)
     target_ignore_static_analysis(TARGET gmock_main CLANG_TIDY CPPCHECK CPPLINT IWYU)
 
-
-    #--------------------------------------------------------------------
-    # Simpler way of writing GMock instances for C headers.
-    get_property(_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
-    if ("C" IN_LIST _languages)
-        FetchContent_Declare( gmock_c
-            GIT_REPOSITORY    https://github.com/Retlek-Systems-Inc/C-Mock.git
-            GIT_TAG           v0.1.1
-        )
-        FetchContent_MakeAvailable(gmock_c)
-        list(APPEND COVERAGE_LCOV_EXCLUDES '${gmock_c_SOURCE_DIR}/*' )
-    endif()
 
     enable_testing()
     add_definitions(-DBUILD_TEST)
