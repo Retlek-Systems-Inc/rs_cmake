@@ -38,7 +38,7 @@ env:
   GCC_DIR: build_gcc
   RPT_DIR: reports  # For Test reports and coverage
   CCACHE_DIR: ccache
-  CLANG_VER: 19
+  CLANG_VER: 20
 
 jobs:
   prepare:
@@ -59,11 +59,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-CMakeFiles
       - name: Preparing build directories (Bootstrap)
-        run: cmake -G "Ninja Multi-Config" -S . -B build -DFETCHCONTENT_BASE_DIR=.deps
+        run: cmake --preset bootstrap --fresh
       - name: Preparing CMake clang
-        run: cmake --preset=native-clang --fresh
+        run: cmake --preset native-clang --fresh
       - name: Preparing CMake gcc
-        run: cmake --preset=native-gcc --fresh
+        run: cmake --preset native-gcc --fresh
 
   build-and-test:
     name: ${{ matrix.name }} Build and Test
@@ -114,11 +114,9 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.preset }}-CCache
           restore-keys: |
             ${{ runner.os }}-${{ matrix.preset }}-CCache
-      - name: Preparing build directories (Bootstrap)
-        run: cmake -G "Ninja Multi-Config" -S . -B build -DFETCHCONTENT_BASE_DIR=.deps
       - name: Build And Test ${{ matrix.preset }}
         run: |
-          cmake --workflow --preset=${{ matrix.preset }} --fresh
+          cmake --workflow --preset ${{ matrix.preset }}
           mv ${{ env.RPT_DIR }}/junit_test_report.xml ${{ env.RPT_DIR }}/${{matrix.preset}}_junit_test_report.xml
       # - name: Fix for Tsan mmap random bits
       #   if: ${{ matrix.preset == 'Tsan' }}
@@ -173,9 +171,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.preset }}-CCache
       - name: Preparing build directories (Bootstrap)
-        run: cmake -G "Ninja Multi-Config" -S . -B build -DFETCHCONTENT_BASE_DIR=.deps
+        run: cmake --preset bootstrap --fresh
       - name: Scan Build ${{ matrix.preset }}
-        run: scan-build-${{ env.CLANG_VER }} -o ${{ env.RPT_DIR }}/scan-build -k --status-bugs -internal-stats --keep-empty cmake --workflow --preset=${{ matrix.preset }} --fresh
+        run: scan-build-${{ env.CLANG_VER }} -o ${{ env.RPT_DIR }}/scan-build -k --status-bugs -internal-stats --keep-empty cmake --workflow --preset ${{ matrix.preset }}
       - name: Scan Build Artifacts
         uses: actions/upload-artifact@v4
         with:

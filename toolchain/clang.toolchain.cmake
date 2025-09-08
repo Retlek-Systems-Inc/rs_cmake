@@ -66,5 +66,5 @@ find_program(CLANG_CXX
         clang++
 )        
 
-set(CMAKE_C_COMPILER ${CLANG_C})
-set(CMAKE_CXX_COMPILER ${CLANG_CXX})
+set(CMAKE_C_COMPILER ${CLANG_C} CACHE FILEPATH "C compiler")
+set(CMAKE_CXX_COMPILER ${CLANG_CXX} CACHE FILEPATH "C++ compiler")
