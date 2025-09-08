@@ -97,7 +97,7 @@ RUN apt-get update -y \
     python3-venv \
     pipx \
     && pipx ensurepath \
-    && pipx install pre-commit \
+    && pipx install pre-commit==4.3.0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
