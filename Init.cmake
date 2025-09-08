@@ -161,6 +161,12 @@ if(NOT EXISTS ${CMAKE_SOURCE_DIR}/sbom.cmake)
         ${CMAKE_SOURCE_DIR}/sbom.cmake COPYONLY)
 endif()
 
+###################
+# Setup pre-commit hooks.
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/.pre-commit-config.yaml)
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/External/.pre-commit-config.yaml
+        ${CMAKE_SOURCE_DIR}/.pre-commit-config.yaml COPYONLY)
+endif()
 
 ###################
 # Setup for gitlab ci
