@@ -87,6 +87,24 @@ RUN wget -q https://apt.llvm.org/llvm.sh \
     && ./llvm.sh 20 all
 
 # ---------------------------------------------------------
+# Install Python + pre-commit
+# hadolint ignore=DL3008
+RUN apt-get update -y \
+    && DEBIAN_FRONTEND=noninteractive \
+    apt-get install --no-install-recommends -y \
+    python3 \
+    python3-pip \
+    python3-venv \
+    pipx \
+    && pipx ensurepath \
+    && pipx install pre-commit \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Ensure pipx-installed binaries are in PATH for all future steps
+ENV PATH="/usr/local/bin:$PATH"
+
+# ---------------------------------------------------------
 
 ENV WORK_PATH=/tmp
 ENV CMAKE_ENV_DEPS_PATH=${WORK_PATH}/cmake_env_deps
