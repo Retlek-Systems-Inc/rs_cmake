@@ -32,7 +32,7 @@ include(FetchContent)
 #set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 FetchContent_Declare(rs_cmake
     GIT_REPOSITORY git@github.com:Retlek-Systems-Inc/rs_cmake.git
-    GIT_TAG        v0.5.6 
+    GIT_TAG        v0.6.0
 )
 
 FetchContent_Declare(gmock_c # Alternative version - see fork details.
