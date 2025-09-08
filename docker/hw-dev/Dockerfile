@@ -53,6 +53,7 @@ RUN apt-get update -y \
     libfl2 \
     libfl-dev \
     libgoogle-perftools-dev \
+    libunwind-dev \
     numactl \
     perl \
     perl-doc \
@@ -65,13 +66,13 @@ RUN apt-get update -y \
 
 # Using version v5.006
 ARG VERILATOR_REPO=https://github.com/verilator/verilator
-ARG VERILATOR_COMMIT=v5.026
+ARG VERILATOR_COMMIT=v5.040
 
 ARG SLANG_REPO=https://github.com/MikePopoloski/slang.git
-ARG SLANG_COMMIT=v6.0
+ARG SLANG_COMMIT=v9.0
 
 ARG VERIBLE_URL=https://github.com/chipsalliance/verible/releases/download
-ARG VERIBLE_VERSION=v0.0-3724-gdec56671
+ARG VERIBLE_VERSION=v0.0-4023-gc1271a00
 ARG VERIBLE_FILE=verible-${VERIBLE_VERSION}-linux-static-x86_64.tar.gz
 ARG VERIBLE_RELEASE=${VERIBLE_URL}/${VERIBLE_VERSION}/${VERIBLE_FILE}
 
