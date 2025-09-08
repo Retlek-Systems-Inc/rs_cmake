@@ -43,7 +43,7 @@ jobs:
       # --------------------
       # SW Dev Container
       - name: Build sw-dev container
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./docker/sw-dev
           push: true
@@ -58,7 +58,7 @@ jobs:
       # --------------------
       # HW Dev Container - relies on SW Dev container
       - name: Build hw-dev container
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./docker/hw-dev
           push: true
@@ -73,7 +73,7 @@ jobs:
       # --------------------
       # SW aarch64-linux-gnu Container - relies on SW Dev container
       - name: Build sw-aarch64-linux-gnu container
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./docker/sw-aarch64-linux-gnu
           push: true
@@ -88,7 +88,7 @@ jobs:
       # --------------------
       # SW arm-none-eabi Container - relies on SW Dev container
       - name: Build sw-arm-none-eabi container
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./docker/sw-arm-none-eabi
           push: true
@@ -103,7 +103,7 @@ jobs:
       # --------------------
       # Doc Container - relies on SW Dev container
       - name: Build docs container
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./docker/docs
           push: true
@@ -118,7 +118,7 @@ jobs:
       # --------------------
       # HW Backend Container - relies on SW Dev container
       - name: Build hw-backend container
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./docker/hw-backend
           push: true
