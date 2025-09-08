@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# hadolint ignore=DL3029
+# hadolint ignore=DL3007,DL3029
 FROM --platform=$BUILDPLATFORM ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
 
 LABEL org.opencontainers.image.description="RS CMake Software Arm None EABI Dev"
