@@ -19,14 +19,12 @@
 # SOFTWARE.
 #
 
-include(CMakeForceCompiler)
-
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR ARM)
 set(TOOLCHAIN_TRIPPLE arm-none-eabi)
 
 # Assuming toolchain installed in /usr/local - search newest first.
-set(TOOLCHAIN_LOCATION "/usr/local/arm-gnu-toolchain-13.3.rel1-x86_64-${TOOLCHAIN_TRIPPLE}")
+set(TOOLCHAIN_LOCATION "/usr/local/arm-gnu-toolchain-14.3.rel1-x86_64-${TOOLCHAIN_TRIPPLE}" CACHE PATH "ARM toolchain root")
 set(TOOLCHAIN_PATH ${TOOLCHAIN_LOCATION} CACHE INTERNAL "Toolchain Location.")
 
 set(TOOLCHAIN_BIN_DIR ${TOOLCHAIN_PATH}/bin)
@@ -35,10 +33,10 @@ set(TOOLCHAIN_BIN_DIR ${TOOLCHAIN_PATH}/bin)
 
 
 find_program(TOOLCHAIN_C   NAMES ${TOOLCHAIN_TRIPPLE}-gcc
-	PATHS ${TOOLCHAIN_BIN_DIR}
+	PATHS ${TOOLCHAIN_BIN_DIR} REQUIRED
 	DOC "arm-gcc Toolchain C compiler executable" )
 find_program(TOOLCHAIN_CXX NAMES ${TOOLCHAIN_TRIPPLE}-g++
-    PATHS ${TOOLCHAIN_BIN_DIR}
+    PATHS ${TOOLCHAIN_BIN_DIR} REQUIRED
     DOC "arm-gcc Toolchain CXX compiler executable" )
 find_program(TOOLCHAIN_OBJCOPY   NAMES ${TOOLCHAIN_TRIPPLE}-objcopy
     PATHS ${TOOLCHAIN_BIN_DIR}
@@ -47,17 +45,13 @@ find_program(TOOLCHAIN_SIZE_TOOL NAMES ${TOOLCHAIN_TRIPPLE}-size
     PATHS ${TOOLCHAIN_BIN_DIR}
     DOC "arm-gcc Toolchain size tool executable" )
 
-set(CMAKE_C_COMPILER ${TOOLCHAIN_C})
-set(CMAKE_ASM_COMPILER ${TOOLCHAIN_C})
-set(CMAKE_CXX_COMPILER ${TOOLCHAIN_CXX})
-
-# set(CMAKE_C_COMPILER_TARGET ${TOOLCHAIN_C})
-# set(CMAKE_CXX_COMPILER_TARGET ${TOOLCHAIN_CXX})
+set(CMAKE_C_COMPILER ${TOOLCHAIN_C}     CACHE FILEPATH "C compiler")
+set(CMAKE_ASM_COMPILER ${TOOLCHAIN_C}   CACHE FILEPATH "ASM compiler")
+set(CMAKE_CXX_COMPILER ${TOOLCHAIN_CXX} CACHE FILEPATH "C++ compiler")
 
 # Without that flag CMake is not able to pass test compilation check
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-set(CMAKE_LINKER    ${TOOLCHAIN_C})
 set(CMAKE_OBJCOPY   ${TOOLCHAIN_OBJCOPY}   CACHE INTERNAL "Toolchain Object Copy tool")
 set(CMAKE_SIZE_TOOL ${TOOLCHAIN_SIZE_TOOL} CACHE INTERNAL "Toolchain Size Tool")
 

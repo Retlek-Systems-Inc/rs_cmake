@@ -76,12 +76,14 @@ if(BUILD_TEST)
       PUBLIC
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-global-constructors>
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-switch-default>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unsafe-buffer-usage-in-libc-call> # Death tests
     )
 
     target_compile_options( gmock
       PUBLIC
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-global-constructors>
         $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-switch-default>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unsafe-buffer-usage-in-libc-call> # Death tests
     )
 
     target_ignore_static_analysis(TARGET gtest CLANG_TIDY CPPCHECK CPPLINT IWYU)

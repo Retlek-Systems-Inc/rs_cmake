@@ -67,8 +67,8 @@ find_program(GCC_GCOV
         gcov
 )
 
-set(CMAKE_C_COMPILER_ID GNU )
-set(CMAKE_C_COMPILER ${GCC_C})
-set(CMAKE_CXX_COMPILER_ID GNU )
-set(CMAKE_CXX_COMPILER ${GCC_CXX})
-set(GNU_COVERAGE_TOOL ${GCC_GCOV} CACHE FILEPATH "GNU Coverage tool location")
+set(CMAKE_C_COMPILER ${GCC_C} CACHE FILEPATH "C compiler")
+set(CMAKE_CXX_COMPILER ${GCC_CXX} CACHE FILEPATH "C++ compiler")
+if (GCC_GCOV)
+    set(GNU_COVERAGE_TOOL ${GCC_GCOV} CACHE FILEPATH "GNU Coverage tool location")
+endif()
