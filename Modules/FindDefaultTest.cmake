@@ -66,11 +66,6 @@ if(BUILD_TEST)
                     "${gtest_SOURCE_DIR}/.clang-tidy" COPYONLY )
     configure_file( "${CMAKE_CURRENT_LIST_DIR}/StaticAnalysis/.clang-tidy.all.in"
                     "${gmock_SOURCE_DIR}/.clang-tidy" COPYONLY )
-
-    add_library(GTest::GTest ALIAS gtest)
-    add_library(GTest::Main ALIAS gtest_main)
-    add_library(GMock::GMock ALIAS gmock)
-    add_library(GMock::Main ALIAS gmock_main)
     
     target_compile_options( gtest
       PUBLIC
