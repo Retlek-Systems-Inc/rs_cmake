@@ -101,7 +101,7 @@ function( MockTarget )
     
     target_link_libraries( ${_target}
         PUBLIC
-            GMock::GMock
+            GTest::gmock
             $<$<BOOL:${_arg_USE_GMOCK_C}>:gmock_c>
     )
 

@@ -26,54 +26,73 @@
 # List of all of the local and third-party repos that were used in the creation
 # of the code associated with this application
 
+set(DEP_SRC_BASE "${CMAKE_SOURCE_DIR}/.deps")
+
 include(FetchContent)
 
 #options from front-end build environment: BUILD_TEST, STATIC_ANALYSIS, BUILD_DOC, VERILOG_TEST
 #set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
-FetchContent_Declare(rs_cmake
-    GIT_REPOSITORY git@github.com:Retlek-Systems-Inc/rs_cmake.git
-    GIT_TAG        v0.6.0
+FetchContent_Declare( rs_cmake
+    GIT_REPOSITORY    https://github.com/Retlek-Systems-Inc/rs_cmake.git
+    GIT_TAG           v0.6.2
+    SOURCE_DIR        ${DEP_SRC_BASE}/rs_cmake-src
+    GIT_SHALLOW       TRUE
 )
 
-FetchContent_Declare(gmock_c # Alternative version - see fork details.
-    GIT_REPOSITORY git@github.com:Retlek-Systems-Inc/C-Mock.git
-    GIT_TAG        v0.1.2
+FetchContent_Declare( gmock_c # Alternative version - see fork details.
+    GIT_REPOSITORY    https://github.com/Retlek-Systems-Inc/C-Mock.git
+    GIT_TAG           v0.1.2
+    SOURCE_DIR        ${DEP_SRC_BASE}/gmock_c-src
+    GIT_SHALLOW       TRUE
     EXCLUDE_FROM_ALL
 )
 
-FetchContent_Declare(googletest
+FetchContent_Declare( googletest
     GIT_REPOSITORY    https://github.com/google/googletest.git
     GIT_TAG           v1.17.0
+    SOURCE_DIR        ${DEP_SRC_BASE}/googletest-src
+    GIT_SHALLOW       TRUE
     EXCLUDE_FROM_ALL
 )
 
 FetchContent_Declare( benchmark
     GIT_REPOSITORY    https://github.com/google/benchmark.git
     GIT_TAG           v1.9.4
+    SOURCE_DIR        ${DEP_SRC_BASE}/benchmark-src
+    GIT_SHALLOW       TRUE
     EXCLUDE_FROM_ALL
 )
 
 # For BUILD_DOC
-FetchContent_Declare(
-    wavedrom
+FetchContent_Declare( wavedrom
     GIT_REPOSITORY    https://github.com/wavedrom/wavedrom.git
     GIT_TAG           v2.1.2
+    SOURCE_DIR        ${DEP_SRC_BASE}/wavedrom-src
+    GIT_SHALLOW       TRUE
 )
 
-FetchContent_Declare(
-    doxygenVerilog
-    GIT_REPOSITORY https://github.com/avelure/doxygen-verilog.git
-    GIT_TAG        master
+FetchContent_Declare( doxygenVerilog
+    GIT_REPOSITORY    https://github.com/avelure/doxygen-verilog.git
+    GIT_TAG           master
+    SOURCE_DIR        ${DEP_SRC_BASE}/doxygenVerilog-src
+    GIT_SHALLOW       TRUE
 )
 
 
-#--------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# All Population now
+# -----------------------------------------------------------------------------
 # Note this MUST be the first one for everything to work properly
-FetchContent_GetProperties(rs_cmake)
-if(NOT rs_cmake_POPULATED)
-  FetchContent_MakeAvailable(rs_cmake)
-  include(${rs_cmake_SOURCE_DIR}/Init.cmake)
+FetchContent_MakeAvailable(rs_cmake)
+
+if (BOOTSTRAP_ONLY)
+  # Don't populate anything else
+  message(STATUS "BOOTSTRAP_ONLY: Populated rs_cmake")
+  return()
 endif()
+
+FetchContent_GetProperties(rs_cmake)
+include(${rs_cmake_SOURCE_DIR}/Init.cmake)
 
 #--------------------------------------------------------------------
 # Simpler way of writing GMock instances for C headers.
@@ -86,6 +105,7 @@ if(BUILD_TEST)
     endif()
 endif()
 
+#--------------------------------------------------------------------
 if( BUILD_BENCHMARK )
     # Prevent downloading gtest - use FindDefaultTest.
     set(BENCHMARK_DOWNLOAD_DEPENDENCIES OFF CACHE BOOL "" FORCE)
