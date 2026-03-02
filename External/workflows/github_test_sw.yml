@@ -47,7 +47,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.6.2
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.6.3
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -74,7 +74,7 @@ jobs:
     name: ${{ matrix.name }} Build and Test
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.6.2
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.6.3
       options: --privileged # For Tsan below can remove once https://github.com/google/sanitizers/issues/1716 no longer an issue
     needs: prepare
     strategy:
@@ -144,7 +144,7 @@ jobs:
     name: ${{ matrix.name }} Analysis
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.6.2
+      image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.6.3
     needs: prepare
     strategy:
       fail-fast: false

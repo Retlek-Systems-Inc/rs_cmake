@@ -34,14 +34,14 @@ include(FetchContent)
 #set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 FetchContent_Declare( rs_cmake
     GIT_REPOSITORY    https://github.com/Retlek-Systems-Inc/rs_cmake.git
-    GIT_TAG           v0.6.2
+    GIT_TAG           v0.6.3
     SOURCE_DIR        ${DEP_SRC_BASE}/rs_cmake-src
     GIT_SHALLOW       TRUE
 )
 
 FetchContent_Declare( gmock_c # Alternative version - see fork details.
     GIT_REPOSITORY    https://github.com/Retlek-Systems-Inc/C-Mock.git
-    GIT_TAG           v0.1.2
+    GIT_TAG           v0.2.0
     SOURCE_DIR        ${DEP_SRC_BASE}/gmock_c-src
     GIT_SHALLOW       TRUE
     EXCLUDE_FROM_ALL
@@ -57,7 +57,7 @@ FetchContent_Declare( googletest
 
 FetchContent_Declare( benchmark
     GIT_REPOSITORY    https://github.com/google/benchmark.git
-    GIT_TAG           v1.9.4
+    GIT_TAG           v1.9.5
     SOURCE_DIR        ${DEP_SRC_BASE}/benchmark-src
     GIT_SHALLOW       TRUE
     EXCLUDE_FROM_ALL

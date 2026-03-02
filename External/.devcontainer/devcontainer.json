@@ -20,7 +20,32 @@
                 "clang-format.language.cpp.enable": true,
                 "C_Cpp.clang_format_sortIncludes": true,
                 "C_Cpp.clang_format_path": "clang-format-20",
-                "editor.formatOnSave": true
+                "editor.formatOnSave": true,
+                "cmake.generator": "Ninja Multi-Config",
+                "cmake.setBuildTypeOnMultiConfig": true,
+                "testMate.cpp.test.advancedExecutables": [
+                    {
+                        // For Native Clang builds
+                        "pattern": "{build,BUILD}/test/**/*Test_*",
+                        "cwd": "${absDirpath}",
+                        "env": {
+                            "ASAN_OPTIONS": "abort_on_error=1:detect_leaks=1:exitcode=1",
+                            "LSAN_OPTIONS": "report_objects=1:verbosity=1",
+                            "TSAN_OPTIONS": "halt_on_error=1:report_signal_unsafe=1:second_deadlock_stack=1:exitcode=1",
+                            "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1:exitcode=1"
+                        }
+                    },
+                    {
+                        // For Dcm Test suite runs.
+                        "pattern": "{build,BUILD}/_deps/**/bin/dcm_cpp_test_*",
+                        "cwd": "${absDirpath}"
+                    },
+                    {
+                        // For Native GCC builds
+                        "pattern": "{build_gcc}/test/**/*Test_*",
+                        "cwd": "${absDirpath}"
+                    }
+                ]
             },
             // Add the IDs of extensions you want installed when the container is created.
             "extensions": [
