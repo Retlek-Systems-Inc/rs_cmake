@@ -50,9 +50,9 @@ jobs:
       image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.6.3
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Cache CMake Build directories
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ${{ env.DEPS_DIR }}
@@ -101,9 +101,9 @@ jobs:
             preset: native-gcc-coverage
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Cached CMake Build directories
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ${{ env.DEPS_DIR }}
@@ -113,7 +113,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-CMakeFiles
       - name: Cached CCACHE directories
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ runner.os }}-${{ matrix.preset }}-CCache
@@ -128,13 +128,13 @@ jobs:
       #   run: sysctl -w vm.mmap_rnd_bits=28 # See: https://github.com/google/sanitizers/issues/1716
       - name: Code Coverage Artifacts
         if: ${{ success() &&  matrix.preset == 'native-gcc-coverage' }} # Only perform for coverage case
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-results
           path: ${{ env.GCC_DIR }}/code-coverage/
       - name: Publish Test Report
         if: ${{ always() }}
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@v6
         with:
           report_paths: "${{ env.RPT_DIR }}/${{ matrix.preset }}_junit_test_report.xml"
           fail_on_failure: true
@@ -158,9 +158,9 @@ jobs:
             preset: analysis-cpp-lint
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Cached CMake Build directories
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ${{ env.DEPS_DIR }}
@@ -170,7 +170,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-CMakeFiles
       - name: Cached CCACHE directories
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ runner.os }}-${{ matrix.preset }}-CCache
@@ -180,7 +180,7 @@ jobs:
         run: scan-build-${{ env.CLANG_VER }} -o ${{ env.RPT_DIR }}/scan-build -k --status-bugs -internal-stats --keep-empty cmake --workflow --preset ${{ matrix.preset }} --fresh
       - name: Scan Build Artifacts
         if: ${{ success() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.preset }}-scan-results
           path: ${{ env.RPT_DIR }}/scan-build/
