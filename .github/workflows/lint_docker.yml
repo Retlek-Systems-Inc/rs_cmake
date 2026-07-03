@@ -12,16 +12,16 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    container:
-      image: hadolint/hadolint:latest-debian
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Lint Dockerfile(s)
-        run: |
-          hadolint ./docker/sw-dev/Dockerfile
-          hadolint ./docker/sw-aarch64-linux-gnu/Dockerfile
-          hadolint ./docker/sw-arm-none-eabi/Dockerfile
-          hadolint ./docker/hw-dev/Dockerfile
-          hadolint ./docker/hw-backend/Dockerfile
-          hadolint ./docker/docs/Dockerfile
+        uses: hadolint/hadolint-action@v3.3.0
+        with:
+          dockerfile: |
+            ./docker/sw-dev/Dockerfile
+            ./docker/sw-aarch64-linux-gnu/Dockerfile
+            ./docker/sw-arm-none-eabi/Dockerfile
+            ./docker/hw-dev/Dockerfile
+            ./docker/hw-backend/Dockerfile
+            ./docker/docs/Dockerfile
