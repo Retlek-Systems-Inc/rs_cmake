@@ -24,7 +24,7 @@ set(CMAKE_SYSTEM_PROCESSOR ARM)
 set(TOOLCHAIN_TRIPPLE arm-none-eabi)
 
 # Assuming toolchain installed in /usr/local - search newest first.
-set(TOOLCHAIN_LOCATION "/usr/local/arm-gnu-toolchain-14.3.rel1-x86_64-${TOOLCHAIN_TRIPPLE}" CACHE PATH "ARM toolchain root")
+set(TOOLCHAIN_LOCATION "/usr/local/arm-gnu-toolchain-15.3.rel1-x86_64-${TOOLCHAIN_TRIPPLE}" CACHE PATH "ARM toolchain root")
 set(TOOLCHAIN_PATH ${TOOLCHAIN_LOCATION} CACHE INTERNAL "Toolchain Location.")
 
 set(TOOLCHAIN_BIN_DIR ${TOOLCHAIN_PATH}/bin)
