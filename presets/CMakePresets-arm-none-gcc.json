@@ -1,5 +1,5 @@
 {
-    "version": 8,
+    "version": 10,
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 28,
@@ -13,7 +13,7 @@
             "name": "arm-none-gcc",
             "description": "Device configuration for all device specific builds",
             "hidden": true,
-            "generator": "Ninja Multi-Config",
+            "inherits": "base",
             "binaryDir": "${sourceDir}/build_device",
             "toolchainFile": "${sourceDir}/.deps/rs_cmake-src/toolchain/arm-none-eabi-gcc.toolchain.cmake",
             "cacheVariables": {
@@ -32,19 +32,18 @@
         },
         {
             "name": "arm-none-gcc-relWithDebInfo",
-            "hidden": true,
             "displayName": "Device build Release with deb info",
             "description": "Most performance optimizations and debug info (arm-none GCC)",
+            "hidden": true,
             "configurePreset": "arm-none-gcc",
             "configuration": "RelWithDebInfo"
         },
         {
             "name": "arm-none-gcc-release",
-            "hidden": true,
             "displayName": "Release",
-            "description": "Performance optimizations (arm-none Clang)",
+            "description": "Performance optimizations (arm-none GCC)",
             "configurePreset": "arm-none-gcc",
-            "configuration": "RelWithDebInfo"
+            "configuration": "Release"
         }
     ],
     "workflowPresets": [
@@ -67,6 +66,7 @@
             "name": "arm-none-gcc-relWithDebInfo",
             "displayName": "RelWithDebInfo",
             "description": "Build and run Unit tests (arm-none GCC)",
+            "hidden": true,
             "steps": [
                 {
                     "type": "configure",
@@ -74,7 +74,7 @@
                 },
                 {
                     "type": "build",
-                    "name": "arm-none-gcc-release"
+                    "name": "arm-none-gcc-relWithDebInfo"
                 }
             ]
         },

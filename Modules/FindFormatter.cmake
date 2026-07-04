@@ -27,6 +27,8 @@ if(FORMATTER)
     if (USE_CLANG_FORMAT)
       find_program(CLANG_FORMAT 
         NAMES
+            clang-format-22
+            clang-format-21
             clang-format-20
             clang-format-19
             clang-format-18

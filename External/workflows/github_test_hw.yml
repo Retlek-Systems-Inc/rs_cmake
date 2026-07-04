@@ -40,7 +40,7 @@ env:
   DEPS_DIR: ci_build/deps
   CLANG_DIR: ci_build/clang
   GCC_DIR: ci_build/gcc
-  CLANG_VER: 20
+  CLANG_VER: 22
 
 jobs:
   prepare:
@@ -51,9 +51,9 @@ jobs:
       CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Cache CMake Build directories
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.BASE_BUILD_DIR }}
           key: ${{ runner.os }}-CMakeFiles-
@@ -87,9 +87,9 @@ jobs:
       BUILD_TYPE: ${{ matrix.build_type }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Cached CMake Build directories
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.BASE_BUILD_DIR }}
           key: ${{ runner.os }}-CMakeFiles-
@@ -108,13 +108,13 @@ jobs:
         run: cmake --build ${BUILD_DIR} --config ${BUILD_TYPE} --target verilog-code-coverage
       - name: Code Coverage Artifacts
         #if: ${{ matrix.build_type == 'RelWithDebInfo' }} # Only perform for RelWithDebInfo.
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: verilog-coverage-results
           path: ${{ matrix.build_dir }}/verilog-code-coverage/
       - name: Publish Test Report
         if: ${{ always() }}
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@v6
         with:
           report_paths: "${{ matrix.build_dir }}/${{ matrix.build_type }}_report.xml"
           fail_on_failure: true
@@ -148,9 +148,9 @@ jobs:
       CMAKE_BUILD_ARGS: ${{ matrix.build_args }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Cached CMake Build directories
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.BASE_BUILD_DIR }}
           key: ${{ runner.os }}-CMakeFiles-
@@ -161,7 +161,7 @@ jobs:
       - name: Scan Build ${{ matrix.build_type }} in ${{ matrix.build_dir }}
         run: scan-build-${CLANG_VER} -o scan-build -k --status-bugs -internal-stats --keep-empty cmake --build ${BUILD_DIR} --config ${BUILD_TYPE}
       - name: Scan Build Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.build_type }}-scan-results
           path: ${{ matrix.build_dir }}/scan-build/

@@ -29,7 +29,7 @@ Initialize the directory with rs_cmake and other common modules:
 
 .. code:: bash
 
-   cmake --preset=bootstrap
+   cmake --preset bootstrap
 
 This will download the common rs_cmake and dependencies into a .deps directory for sharing among the various build directories.
 
@@ -54,13 +54,14 @@ For a list of various presets defined use:
         "analysis-clang-tidy"   - Static Analysis Clang Tidy
         "analysis-cpp-check"    - Static Analysis Cpp Check
         "analysis-cpp-lint"     - Static Analysis Cpp Lint
-        "asan"                  - Sanitize Address Workflow
-        "tsan"                  - Sanitize Thread Workflow
-        "ubsan"                 - Sanitize Undefined Behavior Workflow
-        "msan"                  - Sanitize Memory Workflow
-        "coverage"              - Coverage Workflow
-        "device-relWithDebInfo" - Device Debug
-        "device-release"        - Device Release
+        "native-clang-asan"     - Sanitize Address Workflow
+        "native-clang-tsan"     - Sanitize Threads Workflow
+        "native-clang-ubsan"    - Sanitize Undefined Behavior Workflow
+        "native-clang-msan"     - Sanitize Memory Workflow (Not working)
+        "native-gcc-valgrind"   - Sanitize Memory Workflow (Valgrind)
+        "native-gcc-coverage"   - Coverage Workflow
+        "arm-none-gcc-debug"     - Device Debug
+        "arm-none-gcc-release"   - Device Release
 
 
 A Workflow will execute the configure/build/test flow all in one and possibly run post build commands for creating reports etc.
@@ -69,7 +70,7 @@ For Clang Configure/Build/Test
 
 .. code:: bash
 
-    cmake --workflow --preset=native-clang-[debug|release]
+    cmake --workflow --preset native-clang-[debug|release]
 
 For Cross Compile using GCC, note that tests are automatically turned off for any cross-compiled code since
 many cross compiler devices are not setup to fully support GoogleTest.
@@ -99,7 +100,8 @@ Be sure to identify the appropriate configurePreset for device toolchainFile fil
 Once this is defined running:
 
 .. code:: bash
-    cmake --workflow --preset=device-[relWithDebInfo|release]
+
+    cmake --workflow --preset device-[relWithDebInfo|release]
 
 will compile that specific device preset workflow.
     
@@ -118,13 +120,13 @@ To clean-up the code automatically with CLANG_TIDY, you can modify the .clang-ti
 
 .. code:: bash
 
-    cmake --workflow --preset=analysis-clang-tidy
+    cmake --workflow --preset analysis-clang-tidy
 
 It is also good practice to run LLVM ``scan-build`` on the test suite as well and this can be done on the static analysis builds using:
 
 .. code:: bash
 
-    scan-build-18 -o reports/scan-build -k --status-bugs -internal-stats --keep-empty cmake --workflow --preset=analysis-cpp-check
+    scan-build-22 -o reports/scan-build -k --status-bugs -internal-stats --keep-empty cmake --workflow --preset analysis-cpp-check
 
 Running Tests
 -------------
@@ -135,13 +137,13 @@ For Linux environment the following can be run:
 
 .. code:: bash
 
-    cmake --workflow --preset=native-clang-release
+    cmake --workflow --preset native-clang-release
     # Once run through once all the builds and the unit tests will be performed.  Can run additional tests like:
-    cmake --workflow --pretest=native-clang-release # To run again - but compilation will already have taken place.
+    cmake --workflow --preset native-clang-release # To run again - but compilation will already have taken place.
     #OR
-    ctest --preset=native-clang-debug-unit-test
+    ctest --preset native-clang-debug-unit-test
     #OR to run 1000 iterations (see CMakePresets.json for definition) of the unit tests.
-    ctest --preset=native-clang-release-stress-test
+    ctest --preset native-clang-release-stress-test
 
 Performing ``ninja test`` runs all of the unit tests under the CTest framework.
 This will run all gtest ``TestTarget`` executables one after another and give pass-fail per ``TestTarget``
@@ -150,7 +152,7 @@ To perform an independent test and see the more detailed test results for each t
 
 .. code:: bash
 
-    cmake --workflow --preset=native-clang-release
+    cmake --workflow --preset native-clang-release
     build/test/Release/UnitTest_<target> is the command line location for the various builds.
 
 Once compiled each test resides in ``build/test/UnitTest_<target>``.
@@ -160,7 +162,7 @@ Running Tests with coverage
 
 .. code:: bash
 
-    cmake --workflow --preset=coverage
+    cmake --workflow --preset native-gcc-coverage
     # To view the results:
     firefox build_gcc/code-coverage/index.html
 
@@ -174,20 +176,18 @@ For Clang Tidy - Just checks
 
 .. code:: bash
 
-   cmake --workflow --preset=analysis-clang-tidy
+   cmake --workflow --preset analysis-clang-tidy
 
 For Clang Tidy - Fixes
 
 .. code:: bash
 
-   cd build
-   cmake -G"Ninja Multi-Config" -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON -DCLANG_TIDY_FIX=ON ../.
-   cmake --build . --config Debug
+   cmake --workflow --preset analysis-clang-tidy-fix
 
 Running Tests with Dynamic Sanitizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The sanitizer tests are only run with clang at the moment.  No testing of GNU compiler and sanitizers is performed.
+The sanitizer tests are only run with either clang and/or gcc. 
 Since these are dynamic sanitizers, it is suggested to disable static analysis for these specific tests to speed up the
 compile time exection.
 
@@ -197,36 +197,39 @@ For Address Sanitizer - run on suite of tests:
 
 .. code:: bash
 
-    cmake --workflow --preset=asan
+    cmake --workflow --preset native-clang-asan
 
 For Thread Sanitizer - run on suite of tests:
 
 .. code:: bash
 
-    cmake --workflow --preset=tsan
+    cmake --workflow --preset native-clang-tsan
 
-For Memory Sanitizer - run on suite of tests:
+For Memory Sanitizer - run on suite of tests (Not currently working):
 
 .. code:: bash
 
-    cmake --workflow --preset=msan
+    cmake --workflow --preset native-clang-msan
 
 For Undefined Behavior Sanitizer - run on suite of tests:
 
 .. code:: bash
 
-    cmake --workflow --preset=ubsan
+    cmake --workflow --preset native-clang-ubsan
 
 For Control Flow Integrity Sanitizer - run on suite of tests:
 
+[] TODO: Haven't gotten this to run yet.
+
 .. code:: bash
 
-    cmake --workflow --preset=cfisan
+    cmake --workflow --preset native-clang-cfisan
 
 For Valgrind - run on suite of tests:
 
-[] TODO: Haven't gotten this to run yet.
+.. code:: bash
 
+    cmake --workflow --preset native-gcc-valgrind
 
 Creating documentation
 ----------------------
@@ -235,9 +238,8 @@ To create documentation perform the following:
 
 .. code:: bash
 
-    cmake --preset=native-clang
-    cd build
-    ninja doc
+    cmake --preset native-clang
+    cmake --build --preset native-clang-debug --target doc
 
     # to view:
     firefox doc/html/index.html
@@ -327,7 +329,7 @@ Continuous Integration/Deployment Setup
 Building Docker
 ~~~~~~~~~~~~~~~
 
-See ``.github/publish_docker.yml`` but for building and debugging locally:
+See ``.github/workflows/publish_docker.yml`` but for building and debugging locally:
 
 .. code:: bash
 

@@ -21,6 +21,7 @@
 
 find_program(GCC_C 
     NAMES
+        gcc-15
         gcc-14
         gcc-13
         gcc-12
@@ -37,6 +38,7 @@ find_program(GCC_C
 
 find_program(GCC_CXX
     NAMES
+        g++-15
         g++-14
         g++-13
         g++-12
@@ -53,6 +55,7 @@ find_program(GCC_CXX
 
 find_program(GCC_GCOV
     NAMES
+        gcov-15
         gcov-14
         gcov-13
         gcov-12

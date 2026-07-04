@@ -1,5 +1,5 @@
 {
-    "version": 9,
+    "version": 10,
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 28,
@@ -21,15 +21,6 @@
             "displayName": "Bootstrap",
             "description": "For populating dependencies",
             "inherits": "base"
-        }
-    ],
-    "buildPresets": [
-        {
-            "name": "base-coverage-report",
-            "displayName": "Create Coverage Reports",
-            "hidden": true,
-            "configurePreset": "base",
-            "targets": "code-coverage"
         }
     ],
     "testPresets": [

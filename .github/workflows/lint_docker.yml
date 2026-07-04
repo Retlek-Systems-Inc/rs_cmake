@@ -12,16 +12,18 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    container:
-      image: hadolint/hadolint:latest-debian
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - name: Lint Dockerfile(s)
+        uses: actions/checkout@v7
+      - name: Find Dockerfile(s)
+        id: find
         run: |
-          hadolint ./docker/sw-dev/Dockerfile
-          hadolint ./docker/sw-aarch64-linux-gnu/Dockerfile
-          hadolint ./docker/sw-arm-none-eabi/Dockerfile
-          hadolint ./docker/hw-dev/Dockerfile
-          hadolint ./docker/hw-backend/Dockerfile
-          hadolint ./docker/docs/Dockerfile
+          echo "Dockerfiles to lint:"
+          find . -name "Dockerfile" \
+            -not -path "*/.git/*" \
+            -not -path "*/.deps/*" \
+            -not -path "*/build*"
+      - name: Lint Dockerfile(s)
+        uses: hadolint/hadolint-action@v3.3.0
+        with:
+          recursive: true

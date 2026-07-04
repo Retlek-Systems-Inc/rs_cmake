@@ -19,15 +19,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       # --------------------
       # General docker configuration and Access
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - name: Login to Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -43,7 +43,7 @@ jobs:
       # --------------------
       # SW Dev Container
       - name: Build sw-dev container
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./docker/sw-dev
           push: true
@@ -52,13 +52,14 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-dev:latest
           platforms: ${{ env.PLATFORMS }}
       - name: Inspect sw-dev docker image
-        uses: docker/metadata-action@v5
+        id: meta_sw_dev
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-dev
       # --------------------
       # HW Dev Container - relies on SW Dev container
       - name: Build hw-dev container
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./docker/hw-dev
           push: true
@@ -67,13 +68,14 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-dev:latest
           platforms: ${{ env.PLATFORMS }}
       - name: Inspect hw-dev docker image
-        uses: docker/metadata-action@v5
+        id: meta_hw_dev
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-dev
       # --------------------
       # SW aarch64-linux-gnu Container - relies on SW Dev container
       - name: Build sw-aarch64-linux-gnu container
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./docker/sw-aarch64-linux-gnu
           push: true
@@ -82,13 +84,14 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-aarch64-linux-gnu:latest
           platforms: ${{ env.PLATFORMS }}
       - name: Inspect sw-aarch64-linux-gnu docker image
-        uses: docker/metadata-action@v5
+        id: meta_sw_arch64
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-aarch64-linux-gnu
       # --------------------
       # SW arm-none-eabi Container - relies on SW Dev container
       - name: Build sw-arm-none-eabi container
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./docker/sw-arm-none-eabi
           push: true
@@ -97,13 +100,14 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-arm-none-eabi:latest
           platforms: ${{ env.PLATFORMS }}
       - name: Inspect sw-arm-none-eabi docker image
-        uses: docker/metadata-action@v5
+        id: meta_sw_arm_none_eabi
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/sw-arm-none-eabi
       # --------------------
       # Doc Container - relies on SW Dev container
       - name: Build docs container
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./docker/docs
           push: true
@@ -112,13 +116,14 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/docs:latest
           platforms: ${{ env.PLATFORMS }}
       - name: Inspect docs docker image
-        uses: docker/metadata-action@v5
+        id: meta_docs
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/docs
       # --------------------
       # HW Backend Container - relies on SW Dev container
       - name: Build hw-backend container
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./docker/hw-backend
           push: true
@@ -128,6 +133,6 @@ jobs:
           platforms: ${{ env.PLATFORMS }}
       - name: Inspect hw-backend docker image
         id: meta_hw_backend
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ steps.info.outputs.image_name }}/hw-backend

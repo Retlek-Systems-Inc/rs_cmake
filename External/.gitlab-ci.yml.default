@@ -23,260 +23,111 @@ include:
 
 stages:
   - prepare
-  - build
+#  - build
   - test
-  - analysis
+  - analyze
 # - benchmark
 # - deploy
 
 variables:
-  BASE_BUILD_DIR: ci_build
-  DEPS_DIR: ${CMAKE_ENV_DEPS_PATH}
-  GCC_DIR: ${BASE_BUILD_DIR}/gcc
-  CLANG_DIR: ${BASE_BUILD_DIR}/clang
-  CLANG_VER: 20
+  CLANG_VER: 22
+  DEPS_DIR: .deps
+  CLANG_DIR: build
+  GCC_DIR: build_gcc
+  RPT_DIR: reports
+  CCACHE_DIR: ccache
 
 default:
-  image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:v0.6.3
+  image: ghcr.io/retlek-systems-inc/rs_cmake/sw-dev:latest
   before_script:
-    # Subproject tools
-    #    - apt -y install protobuf-compiler python-protobuf libprotobuf-dev
-    # Setup git access using ssh keys
     - eval $(ssh-agent -s)
     - echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-
-    # Setup git access using gitlab ci token and username
-    # - git config --global credential.helper store
-    # - echo "https://${RS_CI_DEPLOY_USER}:${RS_CI_DEPLOY_TOKEN}@gitlab.com" > ~/.git-credentials
-    # after_script:
-    # - rm ~/.git-credentials
 
 cache: &global_cache
   key: $CI_COMMIT_REF_SLUG
   paths:
-    - ${BASE_BUILD_DIR}
+    - $DEPS_DIR
+    - $CLANG_DIR
+    - $GCC_DIR
+    - $CCACHE_DIR
   policy: pull-push
 
 # Common prepare for clang and gcc
 
-.gcc_prepare: &gcc_prepare
-  - echo "** Preparing in '${GCC_DIR}' with CMAKE ARGS '${CMAKE_BUILD_ARGS}"
-  - cmake -G "Ninja Multi-Config" -B${GCC_DIR} -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
-
-.clang_prepare: &clang_prepare
-  - echo "** Preparing in '${CLANG_DIR}' with CMAKE ARGS '${CMAKE_BUILD_ARGS}"
-  - cmake -G "Ninja Multi-Config" -B${CLANG_DIR} -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
-
-.common_prepare: &common_prepare
-  - mkdir -p ${DEPS_DIR}
-  - mkdir -p ${GCC_DIR}
-  - mkdir -p ${CLANG_DIR}
-  - *gcc_prepare
-  - *clang_prepare
-
-.common_build: &common_build
-  - echo "** Running Config '${BUILD_TYPE}' in '${BUILD_DIR}'"
-  - cmake --build ${BUILD_DIR} --config ${BUILD_TYPE} -- -k 10000
-
-# Additional build with scan-build to generate reports.
-.analysis_build: &analysis_build
-  - echo "** Running Config with scan-build '${BUILD_TYPE}' in '${BUILD_DIR}'"
-  - scan-build-${CLANG_VER} -o scan-build -k --status-bugs -internal-stats --keep-empty cmake --build ${BUILD_DIR} --config ${BUILD_TYPE}
-
-# Common Run Tests
-.common_test: &common_test
-  - cd ${BUILD_DIR}
-  - echo "** Testing Config '${BUILD_TYPE}' in '${BUILD_DIR}'"
-  - ctest -C ${BUILD_TYPE} --output-on-failure --output-junit ${BUILD_TYPE}_report.xml
-
-.prepare_template: &prepare_configuration
+#------------------------------------------------------------------------------
+prepare:
   stage: prepare
-  inherit:
-    default: [image, before_script]
   cache:
     <<: *global_cache
+    policy: push          # Only this job writes — all others pull
   script:
-    - *common_prepare
+    - cmake --preset bootstrap
+    - cmake --preset native-clang --fresh
+    - cmake --preset native-gcc --fresh
 
-.build_template: &build_configuration
-  stage: build
-  needs: ["common:prepare"]
-  #  extends: common:prepare
-  script:
-    - *common_build
-
-.test_template: &test_configuration
+#------------------------------------------------------------------------------
+build-and-test:
   stage: test
+  needs: [prepare]
   cache:
     <<: *global_cache
     policy: pull
+  parallel:
+    matrix:
+      - PRESET: native-clang-debug
+      - PRESET: native-clang-release
+      - PRESET: native-clang-asan
+        ASAN_OPTIONS: "abort_on_error=1:detect_leaks=1:exitcode=1"
+      - PRESET: native-clang-tsan
+        TSAN_OPTIONS: "halt_on_error=1:report_signal_unsafe=1:second_deadlock_stack=1:exitcode=1"
+      - PRESET: native-clang-ubsan
+        UBSAN_OPTIONS: "halt_on_error=1:print_stacktrace=1:exitcode=1"
+      - PRESET: native-gcc-debug
+      - PRESET: native-gcc-release
+      - PRESET: native-gcc-coverage
+      - PRESET: native-gcc-valgrind
   script:
-    - *common_build # cache not guaranteed
-    - *common_test
-    #- cmake --build . --target memcheck -- -k 10000 - check with valgrind TODO(phelter)
+    - cmake --workflow --preset $PRESET
+    - mkdir -p $RPT_DIR
+    - mv $RPT_DIR/junit_test_report.xml $RPT_DIR/${PRESET}_junit_test_report.xml
+  after_script:
+    # Only runs for coverage — harmless no-op for other presets
+    - |
+      if [ "$PRESET" = "native-gcc-coverage" ]; then
+        mv $GCC_DIR/code-coverage coverage-results
+      fi
   artifacts:
     when: always
     reports:
-      junit: ${BUILD_DIR}/${BUILD_TYPE}_report.xml
+      junit: $RPT_DIR/${PRESET}_junit_test_report.xml
+    paths:
+      - coverage-results/    # Empty for non-coverage jobs — GitLab ignores missing paths
+    expire_in: 1 week
 
-.analysis_template: &analysis_configuration
-  stage: analysis
-  needs: ["clang-debug:build"] # Don't do any analysis until clang-debug build complete
-  #  extends: common:prepare
+#------------------------------------------------------------------------------
+analyze:
+  stage: analyze
+  needs: [prepare]
   cache:
     <<: *global_cache
     policy: pull
+  parallel:
+    matrix:
+      - PRESET: analysis-clang-tidy
+      - PRESET: analysis-cpp-check
+      - PRESET: analysis-cpp-lint
   script:
-    - *clang_prepare # Need additional prepare because chaging CMAKE_BUILD_ARGS - only run with clang
-    - *common_build
-
-#------------------------------------------------------------------------------
-common:prepare:
-  variables:
-    CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=OFF
-  <<: *prepare_configuration
-
-#------------------------------------------------------------------------------
-gcc-debug:build:
-  variables:
-    BUILD_DIR: ${GCC_DIR}
-    BUILD_TYPE: Debug
-  <<: *build_configuration
-
-gcc-debug:test:
-  needs: ["gcc-debug:build"]
-  extends: gcc-debug:build
-  <<: *test_configuration
-
-#------------------------------------------------------------------------------
-gcc-relwithdebinfo:build:
-  variables:
-    BUILD_DIR: ${GCC_DIR}
-    BUILD_TYPE: RelWithDebInfo
-  <<: *build_configuration
-
-gcc-relwithdebinfo:test:
-  needs: ["gcc-relwithdebinfo:build"]
-  extends: gcc-relwithdebinfo:build
-  <<: *test_configuration
-
-#------------------------------------------------------------------------------
-clang-debug:build:
-  variables:
-    BUILD_DIR: ${CLANG_DIR}
-    BUILD_TYPE: Debug
-  <<: *build_configuration
-
-clang-debug:test:
-  needs: ["clang-debug:build"]
-  extends: clang-debug:build
-  <<: *test_configuration
-
-#------------------------------------------------------------------------------
-clang-asan:build:
-  variables:
-    BUILD_DIR: ${CLANG_DIR}
-    BUILD_TYPE: Asan
-  <<: *build_configuration
-
-clang-asan:test:
-  needs: ["clang-asan:build"]
-  extends: clang-asan:build
-  <<: *test_configuration
-
-#------------------------------------------------------------------------------
-clang-tsan:build:
-  variables:
-    BUILD_DIR: ${CLANG_DIR}
-    BUILD_TYPE: Tsan
-  <<: *build_configuration
-
-clang-tsan:test:
-  needs: ["clang-tsan:build"]
-  extends: clang-tsan:build
-  <<: *test_configuration
-
-#------------------------------------------------------------------------------
-clang-ubsan:build:
-  variables:
-    BUILD_DIR: ${CLANG_DIR}
-    BUILD_TYPE: Ubsan
-  <<: *build_configuration
-
-clang-ubsan:test:
-  needs: ["clang-ubsan:build"]
-  extends: clang-ubsan:build
-  <<: *test_configuration
-
-#------------------------------------------------------------------------------
-gcc-coverage:build:
-  variables:
-    BUILD_DIR: ${GCC_DIR}
-    BUILD_TYPE: Coverage
-  <<: *build_configuration
-
-gcc-coverage:test:
-  stage: test
-  needs: ["gcc-coverage:build"]
-  extends: gcc-coverage:build
-  cache:
-    <<: *global_cache
-    policy: pull
-  script:
-    - *common_build # cache not guaranteed
-    - *common_test
-    - cmake --build . --config ${BUILD_TYPE} --target code-coverage
-  artifacts:
-    when: always
-    reports:
-      junit: ${BUILD_DIR}/{$BUILD_TYPE}_report.xml
-    paths:
-      - ${BUILD_DIR}/code-coverage/*
-
-#------------------------------------------------------------------------------
-# clang-format:
-#   stage: analysis
-#   needs: ["common:prepare"]
-#   #  only: [main, merge_requests]
-#   inherit:
-#     default: [image, before_script]
-#   variables:
-#     BUILD_DIR: ${BASE_BUILD_DIR}/clang-cppcheck
-#   script:
-#     - cmake --build . --target format
-
-# Additional scan-build summary to identify issues arising from clang-tidy and checks.
-clang-tidy:build:
-  variables:
-    BUILD_DIR: ${CLANG_DIR}
-    BUILD_TYPE: Debug
-    CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=ON
-  <<: *analysis_configuration
-  script:
-    - *clang_prepare
-    - *analysis_build
+    - scan-build-${CLANG_VER} -o $RPT_DIR/scan-build -k --status-bugs
+        -internal-stats --keep-empty
+        cmake --workflow --preset $PRESET --fresh
   artifacts:
     when: always
     paths:
-      - ${BUILD_DIR}/scan-build/*
-
-clang-cppcheck:build:
-  variables:
-    BUILD_DIR: ${CLANG_DIR}
-    BUILD_TYPE: Debug
-    CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=OFF -DUSE_CPPCHECK=ON
-  <<: *analysis_configuration
-
-clang-cpplint:build:
-  variables:
-    BUILD_DIR: ${CLANG_DIR}
-    BUILD_TYPE: Debug
-    CMAKE_BUILD_ARGS: -DSTATIC_ANALYSIS=ON -DUSE_CLANG_TIDY=OFF -DUSE_CPPLINT=ON
-  <<: *analysis_configuration
+      - $RPT_DIR/scan-build/
+    expire_in: 1 week
 #
 #------------------------------------------------------------------------------
 # document:
