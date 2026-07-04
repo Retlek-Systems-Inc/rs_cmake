@@ -18,10 +18,4 @@ jobs:
       - name: Lint Dockerfile(s)
         uses: hadolint/hadolint-action@v3.3.0
         with:
-          dockerfile: |
-            ./docker/sw-dev/Dockerfile
-            ./docker/sw-aarch64-linux-gnu/Dockerfile
-            ./docker/sw-arm-none-eabi/Dockerfile
-            ./docker/hw-dev/Dockerfile
-            ./docker/hw-backend/Dockerfile
-            ./docker/docs/Dockerfile
+          recursive: true
