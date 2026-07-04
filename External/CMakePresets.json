@@ -1,8 +1,8 @@
 {
-    "version": 9,
+    "version": 10,
     "cmakeMinimumRequired": {
         "major": 3,
-        "minor": 30,
+        "minor": 28,
         "patch": 0
     },
     "include": [

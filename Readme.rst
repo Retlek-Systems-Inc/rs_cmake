@@ -55,12 +55,13 @@ For a list of various presets defined use:
         "analysis-cpp-check"    - Static Analysis Cpp Check
         "analysis-cpp-lint"     - Static Analysis Cpp Lint
         "native-clang-asan"     - Sanitize Address Workflow
-        "native-clang-tsan"     - Sanitize Thread Workflow
+        "native-clang-tsan"     - Sanitize Threads Workflow
         "native-clang-ubsan"    - Sanitize Undefined Behavior Workflow
         "native-clang-msan"     - Sanitize Memory Workflow (Not working)
+        "native-gcc-valgrind"   - Sanitize Memory Workflow (Valgrind)
         "native-gcc-coverage"   - Coverage Workflow
-        "arm-non-gcc-debug"     - Device Debug
-        "arm-non-gcc-release"   - Device Release
+        "arm-none-gcc-debug"     - Device Debug
+        "arm-none-gcc-release"   - Device Release
 
 
 A Workflow will execute the configure/build/test flow all in one and possibly run post build commands for creating reports etc.
@@ -180,7 +181,6 @@ For Clang Tidy - Fixes
 
 .. code:: bash
 
-   cd build
    cmake --workflow --preset analysis-clang-tidy-fix
 
 Running Tests with Dynamic Sanitizers
@@ -226,8 +226,9 @@ For Control Flow Integrity Sanitizer - run on suite of tests:
 
 For Valgrind - run on suite of tests:
 
-[] TODO: Haven't gotten this to run yet.
+.. code:: bash
 
+    cmake --workflow --preset native-gcc-valgrind
 
 Creating documentation
 ----------------------

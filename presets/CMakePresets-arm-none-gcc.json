@@ -1,5 +1,5 @@
 {
-    "version": 9,
+    "version": 10,
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 28,
@@ -41,7 +41,7 @@
         {
             "name": "arm-none-gcc-release",
             "displayName": "Release",
-            "description": "Performance optimizations (arm-none Clang)",
+            "description": "Performance optimizations (arm-none GCC)",
             "configurePreset": "arm-none-gcc",
             "configuration": "Release"
         }

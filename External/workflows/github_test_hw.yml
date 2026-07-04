@@ -40,7 +40,7 @@ env:
   DEPS_DIR: ci_build/deps
   CLANG_DIR: ci_build/clang
   GCC_DIR: ci_build/gcc
-  CLANG_VER: 20
+  CLANG_VER: 22
 
 jobs:
   prepare:

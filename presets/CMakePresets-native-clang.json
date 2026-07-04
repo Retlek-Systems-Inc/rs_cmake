@@ -1,5 +1,5 @@
 {
-    "version": 9,
+    "version": 10,
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 28,
@@ -84,7 +84,7 @@
             "displayName": "Sanitize Memory",
             "description": "Not supported Requires recompiled stdlib (Native Clang)",
             "hidden": true,
-            "configurePreset": "native-clang",
+            "configurePreset": "native-clang-msan",
             "configuration": "Msan"
         },
         {
@@ -169,11 +169,11 @@
             "description": "Not supported Requires recompiled stdlib (Native Clang)",
             "hidden": true,
             "inherits": "base-unit-test",
-            "configurePreset": "native-clang",
+            "configurePreset": "native-clang-msan",
             "configuration": "Msan",
             "environment": {
-                "MSAN_OPTIONS": "halt_on_error=1:report_umrs=0;exitcode=1",
-                "MSAN_SYMBOLIZER_PATH": "/usr/bin/llvm-symbolizer-18"
+                "MSAN_OPTIONS": "halt_on_error=1:report_umrs=0:exitcode=1",
+                "MSAN_SYMBOLIZER_PATH": "/usr/bin/llvm-symbolizer-22"
             }
         },
         {
@@ -290,7 +290,7 @@
             "steps": [
                 {
                     "type": "configure",
-                    "name": "native-clang"
+                    "name": "native-clang-msan"
                 },
                 {
                     "type": "build",

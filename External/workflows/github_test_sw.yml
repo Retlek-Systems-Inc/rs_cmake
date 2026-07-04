@@ -41,7 +41,7 @@ env:
   GCC_DIR: build_gcc
   RPT_DIR: reports  # For Test reports and coverage
   CCACHE_DIR: ccache
-  CLANG_VER: 20
+  CLANG_VER: 22
 
 jobs:
   prepare:
@@ -63,7 +63,7 @@ jobs:
             ${{ runner.os }}-CMakeFiles
       - name: Preparing build directories (Bootstrap)
         run: |
-          cmake -B build -DBOOTSTRAP_ONLY=ON
+          cmake -preset bootstrap
           rm -rf build/CMakeCache.txt
       - name: Preparing CMake clang
         run: cmake --preset native-clang --fresh
@@ -90,7 +90,7 @@ jobs:
           - name: "Clang Thread Sanitizer"
             preset: native-clang-tsan
           - name: "GNU Memory Sanitizer"
-            preset: native-gcc-msan
+            preset: native-gcc-valgrind
           - name: "Clang Undefined Behavior Sanitizer"
             preset: native-clang-ubsan
           - name: "GCC Debug"

@@ -52,9 +52,7 @@ If there is no set of unit tests to confirm the changes, I suggest limiting it t
 
 .. code:: bash
 
-    cmake --preset analysis-clang-tidy-fix
-    cd build
-    ninja -k 1000
+    cmake --workflow --preset analysis-clang-tidy-fix -- -k 10000
 
 Now to limit the tool from doing too much all at once, group specific issues and comment those out in the CMakeLists.txt file.
 Clean up the issues identified and suggest committing to git after every loop.

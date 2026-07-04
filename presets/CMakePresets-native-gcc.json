@@ -1,5 +1,5 @@
 {
-    "version": 9,
+    "version": 10,
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 28,
@@ -136,6 +136,18 @@
             "inherits": "base-unit-test",
             "configurePreset": "native-gcc",
             "configuration": "Coverage"
+        },
+        {
+            "name": "native-gcc-debug-valgrind",
+            "displayName": "Valgrind Memory Check",
+            "description": "Runs tests under Valgrind memcheck (Native GCC Debug)",
+            "inherits": "base-unit-test",
+            "configurePreset": "native-gcc",
+            "configuration": "Debug",
+            "memoryCheck": {
+                "type": "Valgrind",
+                "sanitizerOptions": "--leak-check=full --error-exitcode=1 --track-origins=yes --show-leak-kinds=all"
+            }
         }
     ],
     "workflowPresets": [
@@ -198,7 +210,7 @@
         },
         {
             "name": "native-gcc-tsan",
-            "displayName": "Sanitize Thread",
+            "displayName": "Sanitize Threads",
             "description": "Build and run Unit tests (Native GCC)",
             "steps": [
                 {
@@ -254,6 +266,25 @@
                 {
                     "type": "build",
                     "name": "native-gcc-coverage-report"
+                }
+            ]
+        },
+        {
+            "name": "native-gcc-valgrind",
+            "displayName": "Valgrind Memory Check",
+            "description": "Build and run tests under Valgrind (Native GCC)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-gcc"
+                },
+                {
+                    "type": "build",
+                    "name": "native-gcc-debug"
+                },
+                {
+                    "type": "test",
+                    "name": "native-gcc-debug-valgrind"
                 }
             ]
         }

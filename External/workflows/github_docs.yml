@@ -44,7 +44,7 @@ env:
   DEPS_DIR: ci_build/deps
   DOCS_DIR: ci_build/docs
   BUILD_TYPE: Release
-  CLANG_VER: 20
+  CLANG_VER: 22
 
 jobs:
   prepare:

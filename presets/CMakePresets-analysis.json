@@ -1,5 +1,5 @@
 {
-    "version": 9,
+    "version": 10,
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 28,
@@ -13,7 +13,6 @@
             "name": "analysis-base",
             "description": "Analysis (Native Clang)",
             "hidden": true,
-            "binaryDir": "${sourceDir}/build",
             "inherits": "base",
             "toolchainFile": "${sourceDir}/.deps/rs_cmake-src/toolchain/clang.toolchain.cmake",
             "cacheVariables": {
@@ -75,6 +74,13 @@
             "configuration": "Debug"
         },
         {
+            "name": "analysis-clang-tidy-fix",
+            "displayName": "Static Analysis Clang Tidy (FIX)",
+            "description": "Debug (Native Clang)",
+            "configurePreset": "analysis-clang-tidy-fix",
+            "configuration": "Debug"
+        },
+        {
             "name": "analysis-cpp-check",
             "displayName": "Static Analysis Cpp Check",
             "description": "Debug (Native Clang)",
@@ -104,6 +110,21 @@
                 {
                     "type": "build",
                     "name": "analysis-clang-tidy"
+                }
+            ]
+        },
+        {
+            "name": "analysis-clang-tidy-fix",
+            "displayName": "Static Analysis Clang Tidy (FIX)",
+            "description": "Debug Analysis (Native Clang)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "analysis-clang-tidy-fix"
+                },
+                {
+                    "type": "build",
+                    "name": "analysis-clang-tidy-fix"
                 }
             ]
         },
