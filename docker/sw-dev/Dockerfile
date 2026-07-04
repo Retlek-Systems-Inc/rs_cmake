@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 # hadolint ignore=DL3029
-FROM --platform=$BUILDPLATFORM ubuntu:24.04
+FROM --platform=$BUILDPLATFORM ubuntu:26.04
 
 LABEL org.opencontainers.image.description="RS CMake Software Dev"
 
@@ -61,8 +61,8 @@ RUN apt-get update -y \
     software-properties-common \
     wget \
     openssh-client \
-    gcc-14 \
-    g++-14 \
+    gcc-15 \
+    g++-15 \
     gpg \
     git \
     cmake \
@@ -73,6 +73,7 @@ RUN apt-get update -y \
     cppcheck \
     cpplint \
     iwyu \
+    valgrind \
     build-essential \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -84,7 +85,7 @@ RUN apt-get update -y \
 # hadolint ignore=DL3008
 RUN wget -q https://apt.llvm.org/llvm.sh \
     && chmod +x llvm.sh \
-    && ./llvm.sh 20 all
+    && ./llvm.sh 22 all
 
 # ---------------------------------------------------------
 # Install Python + pre-commit
