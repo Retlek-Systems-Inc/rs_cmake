@@ -15,6 +15,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+      - name: Find Dockerfile(s)
+        id: find
+        run: |
+          echo "Dockerfiles to lint:"
+          find . -name "Dockerfile" \
+            -not -path "*/.git/*" \
+            -not -path "*/.deps/*" \
+            -not -path "*/build*"
       - name: Lint Dockerfile(s)
         uses: hadolint/hadolint-action@v3.3.0
         with:
