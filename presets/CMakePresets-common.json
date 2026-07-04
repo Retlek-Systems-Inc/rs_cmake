@@ -23,15 +23,6 @@
             "inherits": "base"
         }
     ],
-    "buildPresets": [
-        {
-            "name": "base-coverage-report",
-            "displayName": "Create Coverage Reports",
-            "hidden": true,
-            "configurePreset": "base",
-            "targets": "code-coverage"
-        }
-    ],
     "testPresets": [
         {
             "name": "base-unit-test",

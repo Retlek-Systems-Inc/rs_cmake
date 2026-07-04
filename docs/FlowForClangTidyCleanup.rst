@@ -13,7 +13,7 @@ eg. a third-party component you wish to review the clang-tidy issues or some oth
 
 .. code:: bash
 
-    cmake --workflow --preset=analysis-clang-tidy
+    cmake --workflow --preset analysis-clang-tidy
 
 2. Run the build process on your single CMake target - eg: foo_target
 
@@ -52,7 +52,7 @@ If there is no set of unit tests to confirm the changes, I suggest limiting it t
 
 .. code:: bash
 
-    cmake --preset=analysis-clang-tidy-fix
+    cmake --preset analysis-clang-tidy-fix
     cd build
     ninja -k 1000
 

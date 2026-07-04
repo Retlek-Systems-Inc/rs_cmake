@@ -1,5 +1,5 @@
 {
-    "version": 8,
+    "version": 9,
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 28,
@@ -17,6 +17,21 @@
             "toolchainFile": "${sourceDir}/.deps/rs_cmake-src/toolchain/clang.toolchain.cmake",
             "cacheVariables": {
                 "STATIC_ANALYSIS": "OFF"
+            }
+        },
+        {
+            "name": "native-clang-msan",
+            "displayName": "Clang MSan Config",
+            "description": "Requires msan-instrumented libc++ built from LLVM runtimes",
+            "inherits": "base",
+            "hidden": true,
+            "toolchainFile": "${sourceDir}/.deps/rs_cmake-src/toolchain/clang.toolchain.cmake",
+            "cacheVariables": {
+                "STATIC_ANALYSIS": "OFF",
+                "LLVM_MSAN_LIBCXX_PATH": "/usr/lib/llvm-22/msan"
+            },
+            "environment": {
+                "MSAN_SYMBOLIZER_PATH": "/usr/bin/llvm-symbolizer-22"
             }
         }
     ],
@@ -120,7 +135,11 @@
             "description": "(Native Clang)",
             "inherits": "base-unit-test",
             "configurePreset": "native-clang",
-            "configuration": "Asan"
+            "configuration": "Asan",
+            "environment": {
+                "ASAN_OPTIONS": "abort_on_error=1:detect_leaks=1:exitcode=1",
+                "$comment": "LSAN_OPTIONS report_objects=1:verbosity=1"
+            }
         },
         {
             "name": "native-clang-tsan-unit-test",
@@ -128,7 +147,10 @@
             "description": "(Native Clang)",
             "inherits": "base-unit-test",
             "configurePreset": "native-clang",
-            "configuration": "Tsan"
+            "configuration": "Tsan",
+            "environment": {
+                "TSAN_OPTIONS": "halt_on_error=1:report_signal_unsafe=1:second_deadlock_stack=1:exitcode=1"
+            }
         },
         {
             "name": "native-clang-ubsan-unit-test",
@@ -136,7 +158,10 @@
             "description": "(Native Clang)",
             "inherits": "base-unit-test",
             "configurePreset": "native-clang",
-            "configuration": "Ubsan"
+            "configuration": "Ubsan",
+            "environment": {
+                "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1:exitcode=1"
+            }
         },
         {
             "name": "native-clang-msan-unit-test",
@@ -145,7 +170,11 @@
             "hidden": true,
             "inherits": "base-unit-test",
             "configurePreset": "native-clang",
-            "configuration": "Msan"
+            "configuration": "Msan",
+            "environment": {
+                "MSAN_OPTIONS": "halt_on_error=1:report_umrs=0;exitcode=1",
+                "MSAN_SYMBOLIZER_PATH": "/usr/bin/llvm-symbolizer-18"
+            }
         },
         {
             "name": "native-clang-coverage-unit-test",
@@ -217,7 +246,7 @@
         },
         {
             "name": "native-clang-tsan",
-            "displayName": "Sanitize Thread",
+            "displayName": "Sanitize Threads",
             "description": "Build and run Unit tests (Native Clang)",
             "steps": [
                 {
@@ -257,6 +286,7 @@
             "name": "native-clang-msan",
             "displayName": "Sanitize Memory",
             "description": "Build and run Unit tests - Needs Debug (Native Clang)",
+            "hidden": true,
             "steps": [
                 {
                     "type": "configure",
