@@ -100,6 +100,7 @@ Be sure to identify the appropriate configurePreset for device toolchainFile fil
 Once this is defined running:
 
 .. code:: bash
+
     cmake --workflow --preset device-[relWithDebInfo|release]
 
 will compile that specific device preset workflow.

@@ -63,7 +63,7 @@ jobs:
             ${{ runner.os }}-CMakeFiles
       - name: Preparing build directories (Bootstrap)
         run: |
-          cmake -preset bootstrap
+          cmake --preset bootstrap
           rm -rf build/CMakeCache.txt
       - name: Preparing CMake clang
         run: cmake --preset native-clang --fresh
@@ -101,7 +101,7 @@ jobs:
             preset: native-gcc-coverage
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Cached CMake Build directories
         uses: actions/cache@v6
         with:
@@ -158,7 +158,7 @@ jobs:
             preset: analysis-cpp-lint
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Cached CMake Build directories
         uses: actions/cache@v6
         with:
