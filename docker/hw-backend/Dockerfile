@@ -41,7 +41,7 @@ WORKDIR ${WORK_PATH}
 
 # OpenROAD separate from build if want a newer version
 # Note no OpenROAD install for 24.04 as of yet - will wait for that.
-ARG OPENROAD_DEB_VERSION=2024-07-12
+ARG OPENROAD_DEB_VERSION=2024-12-14
 ARG OPENROAD_DEB_FILE=openroad_2.0_amd64-ubuntu22.04-${OPENROAD_DEB_VERSION}.deb
 ARG OPENROAD_DEB_URL=https://github.com/Precision-Innovations/OpenROAD/releases/download/${OPENROAD_DEB_VERSION}/${OPENROAD_DEB_FILE}
 
@@ -53,18 +53,18 @@ ARG OPENROAD_DEB_URL=https://github.com/Precision-Innovations/OpenROAD/releases/
 # ARG KLAYOUT_GPG_PUBKEY_FILE=klayout-public.asc
 # ARG KLAYOUT_GPG_PUBKEY_URL=https://www.klayout.org/downloads/gpg-public.key
 
-# ARG KLAYOUT_DEB_VERSION=0.29.4-1
-# ARG KLAYOUT_DEB_FILE=klayout_${KLAYOUT_DEB_VERSION}_amd64.deb
-# ARG KLAYOUT_DEB_URL=https://www.klayout.org/downloads/Ubuntu-22/${KLAYOUT_DEB_FILE}
+# ARG KLAYOUT_VERSION=0.30.9
+# ARG ARG KLAYOUT_DEB_FILE=klayout_${KLAYOUT_VERSION}-1_amd64.deb
+# ARG KLAYOUT_DEB_URL=https://www.klayout.org/downloads/Ubuntu-24/${KLAYOUT_DEB_FILE}
 # ARG KLAYOUT_DEB_MD5=c20f2561a418c9386243718137b954ab
 
-ARG YOSYS_TGZ_VERSION=2024-07-12
-ARG YOSYS_TGZ_VERSION_NO_DASH=20240712
+ARG YOSYS_TGZ_VERSION=2026-07-05
+ARG YOSYS_TGZ_VERSION_NO_DASH=20260705
 ARG YOSYS_TGZ_FILE=oss-cad-suite-linux-x64-${YOSYS_TGZ_VERSION_NO_DASH}.tgz
 ARG YOSYS_TGZ_URL=https://github.com/YosysHQ/oss-cad-suite-build/releases/download/${YOSYS_TGZ_VERSION}/${YOSYS_TGZ_FILE}
 ARG YOSYS_INSTALL_DIR=/usr/local
 
-# Install klayout - 0.28.16 for 24.04
+# Install klayout - 0.30.9 for 26.04
 # hadolint ignore=DL3008
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
