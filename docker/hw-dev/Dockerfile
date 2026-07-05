@@ -66,13 +66,13 @@ RUN apt-get update -y \
 
 # Using version v5.006
 ARG VERILATOR_REPO=https://github.com/verilator/verilator
-ARG VERILATOR_COMMIT=v5.040
+ARG VERILATOR_COMMIT=v5.050
 
 ARG SLANG_REPO=https://github.com/MikePopoloski/slang.git
-ARG SLANG_COMMIT=v9.0
+ARG SLANG_COMMIT=v11.0
 
 ARG VERIBLE_URL=https://github.com/chipsalliance/verible/releases/download
-ARG VERIBLE_VERSION=v0.0-4023-gc1271a00
+ARG VERIBLE_VERSION=v0.0-4080-ga0a8d8eb
 ARG VERIBLE_FILE=verible-${VERIBLE_VERSION}-linux-static-x86_64.tar.gz
 ARG VERIBLE_RELEASE=${VERIBLE_URL}/${VERIBLE_VERSION}/${VERIBLE_FILE}
 
