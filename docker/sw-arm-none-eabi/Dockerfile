@@ -42,18 +42,18 @@ RUN apt-get update -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# arm-none-eabi from https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
+# arm-none-eabi from https://gitlab.arm.com/tooling/gnu-toolchains-for-arm
 ARG ARM_VER="15.3.rel1"
 ARG ARM_TRIPLET="arm-none-eabi"
 ARG ARM_NAME="arm-gnu-toolchain-${ARM_VER}-x86_64-${ARM_TRIPLET}"
+ARG ARM_GITLAB="https://gitlab.arm.com/api/v4/projects/tooling%2Fgnu-toolchains-for-arm/packages/generic/gnu-toolchain/"
 ENV PATH="$PATH:/usr/local/${ARM_NAME}/bin"
-RUN wget --progress=dot:giga "https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_VER}/binrel/${ARM_NAME}.tar.xz" \
-    && wget --progress=dot:giga "https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_VER}/binrel/${ARM_NAME}.tar.xz.asc" \
-    && md5sum --check ${ARM_NAME}.tar.xz.asc \
+RUN wget --progress=dot:giga "${ARM_GITLAB}/${ARM_VER}/${ARM_NAME}.tar.xz" \
+    && wget --progress=dot:giga "${ARM_GITLAB}/${ARM_VER}/${ARM_NAME}.tar.xz.sha256asc" \
+    && sha256sum --check ${ARM_NAME}.tar.xz.sha256asc \
     && mkdir -p /usr/local \
     && tar -xJf ${ARM_NAME}.tar.xz -C /usr/local \
     && rm -f ${ARM_NAME}.tar.xz*
-
 ENV WORK_PATH=/tmp
 ENV PATH="$PATH:/usr/local/${ARM_NAME}"
 ENV CMAKE_ENV_DEPS_PATH=${WORK_PATH}/cmake_env_deps

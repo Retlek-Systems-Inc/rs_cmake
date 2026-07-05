@@ -34,7 +34,7 @@ include(FetchContent)
 #set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 FetchContent_Declare( rs_cmake
     GIT_REPOSITORY    https://github.com/Retlek-Systems-Inc/rs_cmake.git
-    GIT_TAG           v0.6.3
+    GIT_TAG           v0.7.0
     SOURCE_DIR        ${DEP_SRC_BASE}/rs_cmake-src
     GIT_SHALLOW       TRUE
 )
