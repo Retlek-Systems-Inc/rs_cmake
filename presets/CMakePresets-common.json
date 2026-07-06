@@ -15,12 +15,6 @@
             "cacheVariables": {
                 "FETCHCONTENT_BASE_DIR": "${sourceDir}/.deps"
             }
-        },
-        {
-            "name": "bootstrap",
-            "displayName": "Bootstrap",
-            "description": "For populating dependencies",
-            "inherits": "base"
         }
     ],
     "testPresets": [

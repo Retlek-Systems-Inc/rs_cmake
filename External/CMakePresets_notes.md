@@ -5,7 +5,7 @@ The `Bootstrap` is used to initialize with an initial .deps/rs_cmake-src before 
 Use:
 
 ```bash
-cmake --preset bootstrap
+cmake -B build -DBOOTSTRAP_ONLY=ON
 ```
 
 first and then this will allow all presets to be setup properly.

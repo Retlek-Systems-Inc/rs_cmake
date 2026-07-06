@@ -29,7 +29,8 @@ Initialize the directory with rs_cmake and other common modules:
 
 .. code:: bash
 
-   cmake --preset bootstrap
+    cmake -B build -DBOOTSTRAP_ONLY=ON
+
 
 This will download the common rs_cmake and dependencies into a .deps directory for sharing among the various build directories.
 
