@@ -138,16 +138,22 @@
             "configuration": "Coverage"
         },
         {
-            "name": "native-gcc-debug-valgrind",
+            "name": "native-gcc-valgrind-debug-unit-test",
             "displayName": "Valgrind Memory Check",
             "description": "Runs tests under Valgrind memcheck (Native GCC Debug)",
             "inherits": "base-unit-test",
             "configurePreset": "native-gcc",
             "configuration": "Debug",
-            "memoryCheck": {
-                "type": "Valgrind",
-                "sanitizerOptions": "--leak-check=full --error-exitcode=1 --track-origins=yes --show-leak-kinds=all"
-            }
+            "filter": {
+                "exclude": {
+                    "name": ".*DeathTest.*"
+                }
+            },
+            "overwriteConfigurationFile": [
+                "MemoryCheckType=Valgrind",
+                "MemoryCheckCommandOptions=--leak-check=full --error-exitcode=1 --track-origins=yes --show-leak-kinds=all",
+                "MemoryCheckSuppressionFile=${sourceDir}/valgrind.supp"
+            ]
         }
     ],
     "workflowPresets": [
@@ -266,25 +272,6 @@
                 {
                     "type": "build",
                     "name": "native-gcc-coverage-report"
-                }
-            ]
-        },
-        {
-            "name": "native-gcc-valgrind",
-            "displayName": "Valgrind Memory Check",
-            "description": "Build and run tests under Valgrind (Native GCC)",
-            "steps": [
-                {
-                    "type": "configure",
-                    "name": "native-gcc"
-                },
-                {
-                    "type": "build",
-                    "name": "native-gcc-debug"
-                },
-                {
-                    "type": "test",
-                    "name": "native-gcc-debug-valgrind"
                 }
             ]
         }

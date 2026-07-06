@@ -230,8 +230,9 @@ function(SETUP_TARGET_FOR_COVERAGE_LCOV_HTML)
             # Capturing lcov counters and generating report
     COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS}
             --gcov-tool ${GCOV_PATH}
-            --directory .
             --capture
+            --rc lcov_branch_coverage=1
+            --directory ${PROJECT_BINARY_DIR}
             --output-file ${Coverage_NAME}.info
                           # add baseline counters
     COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS}
