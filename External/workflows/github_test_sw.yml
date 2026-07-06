@@ -63,7 +63,7 @@ jobs:
             ${{ runner.os }}-CMakeFiles
       - name: Preparing build directories (Bootstrap)
         run: |
-          cmake --preset bootstrap
+          cmake -B build -DBOOTSTRAP_ONLY=ON
           rm -rf build/CMakeCache.txt
       - name: Preparing CMake clang
         run: cmake --preset native-clang --fresh

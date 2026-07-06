@@ -34,7 +34,7 @@ definitions:
     - step: &prepare
         name: Prepare - Bootstrap and Configure
         script:
-          - cmake --preset bootstrap
+          - cmake -B build -DBOOTSTRAP_ONLY=ON
           - cmake --preset native-clang --fresh
           - cmake --preset native-gcc --fresh
         caches: [deps, build, buildgcc]

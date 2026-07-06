@@ -19,13 +19,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-# Note Assumes a private docker registry.
-# The following seecrets needs to be configured inside github:
-# rs_docker_registry_username
-# rs_docker_registry_password
-# See: https://docs.github.com/en/actions/security-guides/encrypted-secrets for adding:
+# Note Using ghcr.io now for docker images - uses Personal Access Token or the
+# Default github access token.
 
-name: FPGA Test using CMake and Verilator
+name: FPGA/ASIC Test using CMake and Verilator
 on:
   pull_request:
   push:
@@ -34,12 +31,16 @@ on:
       - "releases/*"
     tags:
       - "*"
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 
 env:
-  BASE_BUILD_DIR: ci_build
-  DEPS_DIR: ci_build/deps
-  CLANG_DIR: ci_build/clang
-  GCC_DIR: ci_build/gcc
+  DEPS_DIR: .deps
+  CLANG_DIR: build
+  GCC_DIR: build_gcc
+  RPT_DIR: reports  # For Test reports and coverage
+  CCACHE_DIR: ccache
   CLANG_VER: 22
 
 jobs:
@@ -55,19 +56,21 @@ jobs:
       - name: Cache CMake Build directories
         uses: actions/cache@v6
         with:
-          path: ${{ env.BASE_BUILD_DIR }}
-          key: ${{ runner.os }}-CMakeFiles-
+          path: |
+            ${{ env.DEPS_DIR }}
+            ${{ env.CLANG_DIR }}
+            ${{ env.GCC_DIR }}
+          key: ${{ runner.os }}-CMakeFiles
           restore-keys: |
-            ${{ runner.os }}-CMakeFiles-
+            ${{ runner.os }}-CMakeFiles
       - name: Preparing build directories
         run: |
-          mkdir -p ${DEPS_DIR}
-          mkdir -p ${CLANG_DIR}
-          mkdir -p ${GCC_DIR}
+          cmake -B build -DBOOTSTRAP_ONLY=ON
+          rm -rf build/CMakeCache.txt
       - name: Preparing CMake clang-${{ env.CLANG_VER }}
-        run: cmake -G "Ninja Multi-Config" -B${CLANG_DIR} -DCMAKE_C_COMPILER=clang-${CLANG_VER} -DCMAKE_CXX_COMPILER=clang++-${CLANG_VER} -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+        run: cmake --preset native-clang --fresh
       - name: Preparing CMake gcc
-        run: cmake -G "Ninja Multi-Config" -B${GCC_DIR} -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DFETCHCONTENT_BASE_DIR=${DEPS_DIR} ${CMAKE_BUILD_ARGS} .
+        run: cmake --preset native-gcc --fresh
 
   build-and-test:
     name: ${{ matrix.name }} Build and Test
@@ -80,8 +83,8 @@ jobs:
       matrix:
         include:
           - name: "Clang RelWithDebInfo"
-            build_dir: ci_build/clang #{{ env.CLANG_DIR}}
-            build_type: RelWithDebInfo
+            preset: native-clang-relwithdebinfo
+
     env:
       BUILD_DIR: ${{ matrix.build_dir }}
       BUILD_TYPE: ${{ matrix.build_type }}

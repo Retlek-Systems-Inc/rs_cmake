@@ -64,7 +64,7 @@ prepare:
     <<: *global_cache
     policy: push          # Only this job writes — all others pull
   script:
-    - cmake --preset bootstrap
+    - cmake -B build -DBOOTSTRAP_ONLY=ON
     - cmake --preset native-clang --fresh
     - cmake --preset native-gcc --fresh
 
