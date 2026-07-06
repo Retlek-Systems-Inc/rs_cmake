@@ -101,7 +101,7 @@ jobs:
             memcheck: true
             configure_preset: native-gcc
             build_preset: native-gcc-debug
-            test_preset: native-gcc-debug-valgrind-unit-test
+            test_preset: native-gcc-valgrind-debug-unit-test
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v7
