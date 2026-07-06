@@ -359,7 +359,7 @@ macro(setup_verilog_code_coverage_target _coverageDataFiles)
               DATA_FILES
                 ${_coverageDataFiles}
               LCOV_ARGS
-                --strip 1
+                # --strip 1
                 #--rc lcov_branch_coverage=1
               GENHTML_ARGS
                 #--rc genhtml_branch_coverage=1
@@ -376,7 +376,7 @@ macro(setup_verilog_code_coverage_target _coverageDataFiles)
               DATA_FILES
                ${_coverageDataFiles}
               LCOV_ARGS
-                --strip 1
+                # --strip 1
                 #--rc lcov_branch_coverage=1
               GENHTML_ARGS
                 #--rc genhtml_branch_coverage=1

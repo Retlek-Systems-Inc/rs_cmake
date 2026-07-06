@@ -41,11 +41,12 @@ if(BUILD_TEST)
             EXECUTABLE ctest
             EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
             LCOV_ARGS
-                --strip 1
+                # --strip 1
                 --branch-coverage
                 --function-coverage
                 --ignore-errors mismatch
                 --ignore-errors unused
+                --ignore-errors inconsistent
             GENHTML_ARGS
                 --rc genhtml_branch_coverage=1
                 --demangle-cpp
@@ -87,7 +88,21 @@ if(BUILD_TEST)
     target_ignore_static_analysis(TARGET gmock_main CLANG_TIDY CPPCHECK CPPLINT IWYU)
 
 
-    enable_testing()
+    include(CTest)   # Generates DartConfiguration.tcl AND calls enable_testing()
+
+    # --- Valgrind memcheck support ---
+    find_program(MEMORYCHECK_COMMAND valgrind)
+    if(MEMORYCHECK_COMMAND)
+        message(STATUS "Valgrind found: ${MEMORYCHECK_COMMAND} - configuring memcheck")
+        configure_file(
+            "${CMAKE_CURRENT_LIST_DIR}/CTestValgrind.cmake.in"
+            "${CMAKE_BINARY_DIR}/CTestCustom.cmake"
+            @ONLY
+        )
+    else()
+        message(STATUS "Valgrind not found - memcheck preset will not be available")
+    endif()
+
     add_definitions(-DBUILD_TEST)
     
     include(ProcessorCount)

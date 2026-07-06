@@ -9,23 +9,23 @@ repos:
 # -   hooks:
 #     -   id: check-json5
 #     repo: https://gitlab.com/bmares/check-json5
-#     rev: v1.0.0
+#     rev: v1.0.1
 -   hooks:
     -   id: gitleaks
     repo: https://github.com/gitleaks/gitleaks
-    rev: v8.28.0
+    rev: v8.30.0
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v3.20.0
+    rev: v3.21.2
     hooks:
     -   id: pyupgrade
         args: [--py311-plus]
 -   repo: https://github.com/psf/black
-    rev: 25.1.0
+    rev: 26.1.0
     hooks:
     -   id: black
         args: [--line-length, "200"]
 -   repo: https://github.com/PyCQA/isort
-    rev: 6.0.1
+    rev: 7.0.0
     hooks:
     -   id: isort
         args: [--line-length, "200"]
@@ -34,3 +34,13 @@ repos:
     hooks:
     -   id: flake8
         args: [--max-line-length=200]
+-   repo: local
+    hooks:
+    -   id: clang-format-local
+        name: clang-format (local only)
+        # 1. Skip if GITLAB_CI is set (common in GitLab runners)
+        # 2. Skip if clang-format-20 is not installed
+        entry: sh -c 'if [ -z "$GITLAB_CI" ] && command -v clang-format-20 >/dev/null; then clang-format-20 -i --style=file "$@"; fi' --
+        language: system
+        # apps/, common/, drivers/, or modules/ followed by .cpp, .h, or .hpp
+        files: ^(apps|common|drivers|modules)/.*\.(cpp|h|hpp)$

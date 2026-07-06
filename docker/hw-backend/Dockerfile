@@ -39,11 +39,12 @@ RUN apt-get update -y \
 
 WORKDIR ${WORK_PATH}
 
-# OpenROAD separate from build if want a newer version
+# OpenROAD is behind an authentication server now.
+# Intention for this is only Exploratory synthesis - nothing more.
 # Note no OpenROAD install for 24.04 as of yet - will wait for that.
-ARG OPENROAD_DEB_VERSION=2024-12-14
-ARG OPENROAD_DEB_FILE=openroad_2.0_amd64-ubuntu22.04-${OPENROAD_DEB_VERSION}.deb
-ARG OPENROAD_DEB_URL=https://github.com/Precision-Innovations/OpenROAD/releases/download/${OPENROAD_DEB_VERSION}/${OPENROAD_DEB_FILE}
+# ARG OPENROAD_DEB_VERSION=2024-12-14
+# ARG OPENROAD_DEB_FILE=openroad_2.0_amd64-ubuntu22.04-${OPENROAD_DEB_VERSION}.deb
+# ARG OPENROAD_DEB_URL=https://github.com/Precision-Innovations/OpenROAD/releases/download/${OPENROAD_DEB_VERSION}/${OPENROAD_DEB_FILE}
 
 # Note no OpenROAD Flow Scripts install for 24.04 as of yet - will wait for that.
 # ARG ORFS_REPO=https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts
@@ -100,7 +101,7 @@ RUN wget --progress=dot:giga ${YOSYS_TGZ_URL} \
 ENV PATH="${YOSYS_INSTALL_DIR}/oss-cad-suite/bin:${PATH}"
 
 # Install OpenROAD toolchain
-RUN wget --progress=dot:giga ${OPENROAD_DEB_URL}
+# RUN wget --progress=dot:giga ${OPENROAD_DEB_URL}
 
 # Install OpenROAD Flow Scripts
 # Disabled for now since the there is no build for ubuntu 24.04 and there are issues with python version.
@@ -121,7 +122,7 @@ RUN wget --progress=dot:giga ${OPENROAD_DEB_URL}
 
 # Set environment variables based on above installation
 ENV YOSYS_CMD=${YOSYS_INSTALL_DIR}/oss-cad-suite/bin/yosys
-ENV OPENROAD_EXE=/usr/bin/openroad
+# ENV OPENROAD_EXE=/usr/bin/openroad
 
 # TODO(phelter): Debug later - bug in final_report.tcl
 # Install OpenROAD flow scripts

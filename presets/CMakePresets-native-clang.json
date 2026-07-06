@@ -286,7 +286,6 @@
             "name": "native-clang-msan",
             "displayName": "Sanitize Memory",
             "description": "Build and run Unit tests - Needs Debug (Native Clang)",
-            "hidden": true,
             "steps": [
                 {
                     "type": "configure",
