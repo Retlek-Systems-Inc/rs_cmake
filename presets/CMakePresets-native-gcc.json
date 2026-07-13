@@ -151,7 +151,7 @@
             },
             "overwriteConfigurationFile": [
                 "MemoryCheckType=Valgrind",
-                "MemoryCheckCommandOptions=--leak-check=full --error-exitcode=1 --track-origins=yes --show-leak-kinds=all",
+                "MemoryCheckCommandOptions=--leak-check=full --error-exitcode=1 --track-origins=yes --show-leak-kinds=all --gen-suppressions=all",
                 "MemoryCheckSuppressionFile=${sourceDir}/valgrind.supp"
             ]
         }

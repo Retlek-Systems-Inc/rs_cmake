@@ -41,14 +41,15 @@ if(BUILD_TEST)
             EXECUTABLE ctest
             EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
             LCOV_ARGS
-                # --strip 1
                 --branch-coverage
                 --function-coverage
                 --ignore-errors mismatch
                 --ignore-errors unused
                 --ignore-errors inconsistent
             GENHTML_ARGS
-                --rc genhtml_branch_coverage=1
+                --rc branch_coverage=1
+                --ignore-errors inconsistent
+                --ignore-errors unused
                 --demangle-cpp
                 --prefix ${CMAKE_SOURCE_DIR}
         )
