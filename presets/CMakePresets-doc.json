@@ -1,0 +1,53 @@
+{
+    "version": 10,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 28,
+        "patch": 0
+    },
+    "include": [
+        "CMakePresets-common.json"
+    ],
+    "configurePresets": [
+        {
+            "name": "doc-uml",
+            "displayName": "Doc Builds",
+            "description": "Documentation Uml - Debug configuration",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build_doc",
+            "toolchainFile": "${sourceDir}/.deps/rs_cmake-src/toolchain/clang.toolchain.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "FETCHCONTENT_SOURCE_DIR_RS_CMAKE": "${sourceDir}/.deps/rs_cmake-src",
+                "STATIC_ANALYSIS": "OFF",
+                "BUILD_TEST": "OFF",
+                "BUILD_BENCHMARK": "OFF"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "doc-uml",
+            "displayName": "Documentation Build",
+            "description": "Documentation Build (Clang)",
+            "configurePreset": "doc-uml"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "doc-uml",
+            "displayName": "Documentation UML Bulid",
+            "description": "Documentation",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "doc-uml"
+                },
+                {
+                    "type": "build",
+                    "name": "doc-uml"
+                }
+            ]
+        }
+    ]
+}

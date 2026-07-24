@@ -1,0 +1,38 @@
+compilation_database_dir: "@CLANG_UML_COMPILATION_DATABASE_DIR@"
+
+output_directory: "@CLANG_UML_OUTPUT_DIRECTORY@"
+
+diagrams:
+
+  @TARGET_NAME@_class:
+    type: class
+
+    glob:
+      - "@MODULE_SOURCE_DIR@/api/**/*.hpp"
+      - "@MODULE_SOURCE_DIR@/src/**/*.cpp"
+      - "@MODULE_SOURCE_DIR@/src/**/*.hpp"
+
+    include:
+      paths:
+        - "@MODULE_SOURCE_DIR@/api"
+        - "@MODULE_SOURCE_DIR@/src"
+
+    include_relations_also_as_members: false
+
+    generate_method_arguments: abbreviated
+
+
+  @TARGET_NAME@_package:
+    type: package
+
+    glob:
+      - "@MODULE_SOURCE_DIR@/api/*.hpp"
+      - "@MODULE_SOURCE_DIR@/src/*.cpp"
+      - "@MODULE_SOURCE_DIR@/src/*.hpp"
+
+    include:
+      paths:
+        - "@MODULE_SOURCE_DIR@/api"
+        - "@MODULE_SOURCE_DIR@/src"
+
+    package_type: directory
