@@ -18,6 +18,7 @@
             "toolchainFile": "${sourceDir}/.deps/rs_cmake-src/toolchain/clang.toolchain.cmake",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "FETCHCONTENT_SOURCE_DIR_RS_CMAKE": "${sourceDir}/.deps/rs_cmake-src",
                 "STATIC_ANALYSIS": "OFF",
                 "BUILD_TEST": "OFF",
