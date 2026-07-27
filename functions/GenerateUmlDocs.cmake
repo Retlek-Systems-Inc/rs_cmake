@@ -75,7 +75,7 @@ function(GenerateUmlDocs TARGET_NAME)
     set(DOC_TARGET "${TARGET_NAME}_umldoc" )
 
     add_custom_target("${DOC_TARGET}"
-        COMMAND clang-uml --config "${CLANG_UML_CONFIG}" --generator mermaid
+        COMMAND clang-uml --config "${CLANG_UML_CONFIG}" --generator plantuml
         WORKING_DIRECTORY "${DOCS_BINARY_DIR}"
         DEPENDS "${TARGET_NAME}" "${CLANG_UML_CONFIG}"
         VERBATIM
