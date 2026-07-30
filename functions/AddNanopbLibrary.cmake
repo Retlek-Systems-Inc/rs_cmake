@@ -140,50 +140,6 @@ function(_proto_resolve_include_dir out_var proto)
 	set(${out_var} "" PARENT_SCOPE)
 endfunction(_proto_resolve_include_dir)
 
-# Creates the shared nanopb runtime library (pb_common/pb_encode/pb_decode)
-# exactly once, no matter how many times add_nanopb_library() is called.
-# Not intended to be called directly.
-function(_nanopb_add_core_library core_dir)
-	if(NOT NANOPB_CORE_LIBRARY_TARGET)
-		set(NANOPB_CORE_LIBRARY_TARGET "nanopb")
-	endif()
-
-	if(TARGET ${NANOPB_CORE_LIBRARY_TARGET})
-		set(NANOPB_CORE_LIBRARY_TARGET "${NANOPB_CORE_LIBRARY_TARGET}" PARENT_SCOPE)
-		return()
-	endif()
-
-	set(_core_headers
-		"${core_dir}/pb.h"
-		"${core_dir}/pb_common.h"
-		"${core_dir}/pb_encode.h"
-		"${core_dir}/pb_decode.h"
-	)
-
-	foreach(_hdr ${_core_headers})
-		if(NOT EXISTS "${_hdr}")
-			message(FATAL_ERROR "_nanopb_add_core_library: expected nanopb header not found: ${_hdr}")
-		endif()
-	endforeach()
-
-	add_library(${NANOPB_CORE_LIBRARY_TARGET} STATIC)
-
-	target_sources(${NANOPB_CORE_LIBRARY_TARGET}
-		PUBLIC
-			FILE_SET HEADERS
-			BASE_DIRS
-				"${core_dir}"
-			FILES
-				${_core_headers}
-		PRIVATE
-			"${core_dir}/pb_common.c"
-			"${core_dir}/pb_encode.c"
-			"${core_dir}/pb_decode.c"
-	)
-
-	set(NANOPB_CORE_LIBRARY_TARGET "${NANOPB_CORE_LIBRARY_TARGET}" PARENT_SCOPE)
-endfunction(_nanopb_add_core_library)
-
 function(add_nanopb_library target)
 
 	if(NOT DEFINED Python3_EXECUTABLE)
@@ -241,7 +197,16 @@ function(add_nanopb_library target)
 		message(FATAL_ERROR "add_nanopb_library(${target}): generator script not found at ${_nanopb_generator}")
 	endif()
 
-	_nanopb_add_core_library("${_nanopb_core_dir}")
+  if(NOT NANOPB_CORE_LIBRARY_TARGET)
+    set(NANOPB_CORE_LIBRARY_TARGET protobuf-nanopb-static)
+  endif()
+  if(NOT TARGET ${NANOPB_CORE_LIBRARY_TARGET})
+    message(FATAL_ERROR "add_nanopb_library(${target}): could not locate nanopb library '${NANOPB_CORE_LIBRARY_TARGET}'. "
+                        "Ensure a the CMakeLists.txt contains some form of:\n"
+                        "\tFetchContent_Declare( nanopb \n"
+                        "\t  GIT_REPOSITORY https://github.com/nanopb/nanopb.git) \n"
+                        "\tFetchContent_MakeAvailable(nanopb)")
+  endif()
 
 	if(NOT _args_OUT_DIR)
 		set(_args_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/nanopb/${target}")
@@ -315,6 +280,14 @@ function(add_nanopb_library target)
 	# Runtime (pb_common/pb_encode/pb_decode) is shared across all
 	# add_nanopb_library() targets - see _nanopb_add_core_library().
 	target_link_libraries(${target} PUBLIC ${NANOPB_CORE_LIBRARY_TARGET})
+
+  target_compile_options(${target}
+    PUBLIC
+      $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-padded>
+      $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-missing-variable-declarations>
+      $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-reserved-identifier>
+  )
+
 
 endfunction(add_nanopb_library)
 
