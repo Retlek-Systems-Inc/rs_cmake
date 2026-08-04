@@ -82,6 +82,7 @@ Example - device (nanopb) and controller (python) from the same protos:
   target_link_libraries(ctrl_fw PRIVATE ctrl_fw_nanopb)
 
   add_python_proto_library(ctrl_fw_python_proto
+    GENERATE_GRPC
     PROTOS
       common/v1/common.proto
       services/v1/services.proto
@@ -301,7 +302,7 @@ function(add_python_proto_library target)
 		message(FATAL_ERROR "Python not defined, use `find_package(Python3 ... REQUIRED COMPONENTS Interpreter)")
 	endif()
 
-	set(_options "")
+	set(_options GENERATE_GRPC)
 	set(_one_value_args OUT_DIR)
 	set(_multi_value_args PROTOS INCLUDE_DIRS)
 	cmake_parse_arguments(_args
@@ -321,7 +322,7 @@ function(add_python_proto_library target)
 	# protobuf runtime pip installed alongside grpcio-tools, so gencode and
 	# runtime stay in lockstep without tracking a separate system protoc.
 	execute_process(
-		COMMAND "${Python3_EXECUTABLE}" "-c" "import grpc_tools.protoc"
+		COMMAND "${Python3_EXECUTABLE}" "-c" "import grpc; import grpc_tools.protoc"
 		RESULT_VARIABLE _grpc_tools_status
 		OUTPUT_QUIET
 		ERROR_QUIET
@@ -370,9 +371,16 @@ function(add_python_proto_library target)
 		file(MAKE_DIRECTORY "${_out_subdir}")
 
 		list(APPEND _generated_py "${_out_subdir}/${_proto_we}_pb2.py")
+    if(_args_GENERATE_GRPC)
+      list(APPEND _generated_py "${_out_subdir}/${_proto_we}_pb2_grpc.py")
+    endif()
 	endforeach()
 
-	# One invocation for the whole set - either regenerates everything
+  if(_args_GENERATE_GRPC)
+    list(APPEND _grpc_args "--grpc_python_out=${_args_OUT_DIR}")
+  endif()
+
+  # One invocation for the whole set - either regenerates everything
 	# together or nothing, same as running the equivalent hand-typed
 	# protoc commands as a batch.
 	add_custom_command(
@@ -380,7 +388,8 @@ function(add_python_proto_library target)
 		COMMAND "${Python3_EXECUTABLE}" -m grpc_tools.protoc
 		        ${_proto_include_flags}
 		        "--python_out=${_args_OUT_DIR}"
-		        ${_proto_abs_list}
+            ${_grpc_args}
+            ${_proto_abs_list}
 		DEPENDS ${_proto_abs_list}
 		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 		COMMENT "Generating python protobuf modules for ${target}"
