@@ -122,7 +122,7 @@ Notes:
   alongside it, so as long as the controller's venv installs
   ``grpcio-tools``/``protobuf`` together (e.g. both pinned in the same
   requirements file), generated code and runtime stay in lockstep
-  automatically - no separate system protoc version to track for this half.
+  automatically
 
 #]=======================================================================]
 
@@ -146,6 +146,9 @@ function(add_nanopb_library target)
 	if(NOT DEFINED Python3_EXECUTABLE)
 		message(FATAL_ERROR "Python not defined, use `find_package(Python3 ... REQUIRED COMPONENTS Interpreter)")
 	endif()
+  # grpc_tools provides protoc, which is required by the nanopb generator itself (step 1 of codegen).
+  find_python_module(grpc_tools REQUIRED)
+  find_python_module(nanopb REQUIRED)
 
 	set(_options "")
 	set(_one_value_args OUT_DIR)
@@ -163,14 +166,6 @@ function(add_nanopb_library target)
 		message(FATAL_ERROR "add_nanopb_library(${target}): INCLUDE_DIRS (proto-path root(s)) is required")
 	endif()
 
-	# protoc is required by the nanopb generator itself (step 1 of codegen).
-	if(NOT Protobuf_PROTOC_EXECUTABLE)
-		find_program(Protobuf_PROTOC_EXECUTABLE NAMES protoc)
-	endif()
-	if(NOT Protobuf_PROTOC_EXECUTABLE)
-		message(FATAL_ERROR "add_nanopb_library(${target}): protoc not found - install a protobuf compiler "
-		                     "or set Protobuf_PROTOC_EXECUTABLE")
-	endif()
 
 	# Locate the nanopb generator: prefer the pip-installed `nanopb` package,
 	# fall back to a local checkout via NANOPB_SRC_ROOT_FOLDER.
@@ -185,10 +180,8 @@ function(add_nanopb_library target)
 
 	if(NOT _nanopb_pkg_status AND _nanopb_pkg_dir)
 		set(_nanopb_generator "${_nanopb_pkg_dir}/generator/nanopb_generator.py")
-		set(_nanopb_core_dir "${_nanopb_pkg_dir}")
 	elseif(NANOPB_SRC_ROOT_FOLDER)
 		set(_nanopb_generator "${NANOPB_SRC_ROOT_FOLDER}/generator/nanopb_generator.py")
-		set(_nanopb_core_dir "${NANOPB_SRC_ROOT_FOLDER}")
 	else()
 		message(FATAL_ERROR "add_nanopb_library(${target}): could not locate the nanopb python package. "
 		                     "Run `pip install nanopb`, or set NANOPB_SRC_ROOT_FOLDER to a nanopb checkout.")
@@ -301,6 +294,7 @@ function(add_python_proto_library target)
 	if(NOT DEFINED Python3_EXECUTABLE)
 		message(FATAL_ERROR "Python not defined, use `find_package(Python3 ... REQUIRED COMPONENTS Interpreter)")
 	endif()
+  find_python_module(grpc_tools REQUIRED)
 
 	set(_options GENERATE_GRPC)
 	set(_one_value_args OUT_DIR)
@@ -318,19 +312,6 @@ function(add_python_proto_library target)
 		message(FATAL_ERROR "add_python_proto_library(${target}): INCLUDE_DIRS (proto-path root(s)) is required")
 	endif()
 
-	# grpc_tools.protoc bundles its own protoc build matched to whatever
-	# protobuf runtime pip installed alongside grpcio-tools, so gencode and
-	# runtime stay in lockstep without tracking a separate system protoc.
-	execute_process(
-		COMMAND "${Python3_EXECUTABLE}" "-c" "import grpc; import grpc_tools.protoc"
-		RESULT_VARIABLE _grpc_tools_status
-		OUTPUT_QUIET
-		ERROR_QUIET
-	)
-	if(_grpc_tools_status)
-		message(FATAL_ERROR "add_python_proto_library(${target}): grpc_tools.protoc not importable - "
-		                     "run `pip install grpcio-tools`")
-	endif()
 
 	if(NOT _args_OUT_DIR)
 		set(_args_OUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/python_proto")
@@ -376,6 +357,7 @@ function(add_python_proto_library target)
     endif()
 	endforeach()
 
+  set(_grpc_args "")
   if(_args_GENERATE_GRPC)
     list(APPEND _grpc_args "--grpc_python_out=${_args_OUT_DIR}")
   endif()
