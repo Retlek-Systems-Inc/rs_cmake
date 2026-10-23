@@ -53,6 +53,8 @@ if(BUILD_TEST)
                 --demangle-cpp
                 --prefix ${CMAKE_SOURCE_DIR}
         )
+        # Every target exists by now: a clean of the Coverage configuration also removes its gcov files.
+        coverage_clean_files()
     endmacro()
 
     # Prevent overriding the parent project's compiler/linker

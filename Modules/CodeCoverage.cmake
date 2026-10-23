@@ -100,23 +100,54 @@ else()
 endif()
 
 
-# Define the custom command to delete profiling data files
-if (NOT TARGET CoverageClean)
-    add_custom_command(
-        OUTPUT ${CMAKE_BINARY_DIR}/coverage_clean_stamp
-        COMMAND ${CMAKE_COMMAND} -E echo "Deleting profiling data files..."
-        COMMAND find ${CMAKE_BINARY_DIR} -type f -name '*.gcda' -delete
-        COMMAND find ${CMAKE_BINARY_DIR} -type f -name '*.gcno' -delete
-        COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/coverage_clean_stamp
-        COMMENT "Cleaning up profiling data files"
-    )
+# Registers the gcov files of every compiled target as clean outputs of the Coverage configuration,
+# so `cmake --build ... --target clean` and `--clean-first` remove them with the objects they belong
+# to (GCC writes <obj>.gcno at compile time and <obj>.gcda at run time next to <obj>, minus its
+# extension: foo.cpp.o -> foo.cpp.gcno / foo.cpp.gcda). The objects go with them, so the next build
+# recompiles and every .gcno matches its object again (deleting .gcno files alone would leave objects
+# Ninja considers current, and their sources out of the report). The gcov files present at
+# configure time (stale ones of targets or sources that no longer exist included) are removed too, so
+# one clean leaves no coverage data of any earlier build.
+#
+# Call once, after every target is defined (setup_code_coverage_target() does). Directories default to
+# the whole project tree, FetchContent dependencies included.
+#
+# coverage_clean_files([DIRECTORIES <dir>...])
+function(coverage_clean_files)
+  cmake_parse_arguments(_arg "" "" "DIRECTORIES" ${ARGN})
+  if(NOT _arg_DIRECTORIES)
+    set(_arg_DIRECTORIES ${CMAKE_SOURCE_DIR})
+  endif()
+  set(_compiled STATIC_LIBRARY SHARED_LIBRARY MODULE_LIBRARY OBJECT_LIBRARY EXECUTABLE)
+  set(_pending ${_arg_DIRECTORIES})
+  while(_pending)
+    list(POP_FRONT _pending _dir)
+    get_property(_subdirs DIRECTORY ${_dir} PROPERTY SUBDIRECTORIES)
+    list(APPEND _pending ${_subdirs})
+    get_property(_targets DIRECTORY ${_dir} PROPERTY BUILDSYSTEM_TARGETS)
+    foreach(_target IN LISTS _targets)
+      get_target_property(_type ${_target} TYPE)
+      if(NOT _type IN_LIST _compiled)
+        continue()
+      endif()
+      set(_objects "$<TARGET_OBJECTS:${_target}>")
+      set_property(TARGET ${_target} APPEND PROPERTY ADDITIONAL_CLEAN_FILES
+        "$<$<CONFIG:Coverage>:$<LIST:TRANSFORM,${_objects},REPLACE,[.][^./]+$,.gcno>>"
+        "$<$<CONFIG:Coverage>:$<LIST:TRANSFORM,${_objects},REPLACE,[.][^./]+$,.gcda>>"
+      )
+    endforeach()
+  endwhile()
 
-    # Define the custom target that depends on the custom command
-    add_custom_target( CoverageClean
-        DEPENDS ${CMAKE_BINARY_DIR}/coverage_clean_stamp
-        COMMENT "Custom target to clean coverage profiling data files"
+  # Stale files: whatever gcov files exist when CMake configures - left by removed or renamed targets
+  # and sources, or restored with a cached build tree. Removing a target or source edits a
+  # CMakeLists.txt, which re-runs this glob, so every orphan is known by the next clean.
+  file(GLOB_RECURSE _existing LIST_DIRECTORIES false "${CMAKE_BINARY_DIR}/*.gcno" "${CMAKE_BINARY_DIR}/*.gcda")
+  if(_existing)
+    set_property(DIRECTORY ${CMAKE_SOURCE_DIR} APPEND PROPERTY ADDITIONAL_CLEAN_FILES
+      "$<$<CONFIG:Coverage>:${_existing}>"
     )
-endif()
+  endif()
+endfunction()
 
 # TODO(phelter): Figure out how to do the code-coverage target just for the Coverage build.
 
@@ -254,6 +285,12 @@ function(SETUP_TARGET_FOR_COVERAGE_LCOV_HTML)
     COMMENT
       "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
     )
+
+  # A clean of the Coverage configuration removes the previous report too.
+  set_property(TARGET ${Coverage_NAME} APPEND PROPERTY ADDITIONAL_CLEAN_FILES
+    "$<$<CONFIG:Coverage>:${PROJECT_BINARY_DIR}/${Coverage_NAME}.info.cleaned>"
+    "$<$<CONFIG:Coverage>:${PROJECT_BINARY_DIR}/${Coverage_NAME}>"
+  )
 
   # Show where to find the lcov info report and web reports
   add_custom_command(
