@@ -170,6 +170,17 @@ Running Tests with coverage
 All of the HTML output of code coverage resides in
 ``build_gcc/code-coverage``.
 
+The workflow runs the tests once: ``code-coverage-reset`` zeroes the counters,
+the test step runs every test (and writes its JUnit report), and
+``code-coverage`` only captures and reports what that run left. To report on a
+test run of your own:
+
+.. code:: bash
+
+    cmake --build --preset native-gcc-coverage-reset
+    ctest --preset native-gcc-coverage-unit-test -R <tests>
+    cmake --build --preset native-gcc-coverage-report
+
 Running Analysis tests
 ~~~~~~~~~~~~~~~~~~~~~~
 

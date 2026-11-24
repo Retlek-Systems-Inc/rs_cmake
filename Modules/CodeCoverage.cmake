@@ -216,6 +216,11 @@ link_libraries(
 # executable should always have a ZERO as exit code otherwise the coverage
 # generation will not complete.
 #
+# Without EXECUTABLE the target neither resets the counters nor runs anything:
+# it captures what the tests already run left behind (e.g. a ctest preset step)
+# and writes the report, so the tests run once. Reset the counters before those
+# tests with the target SETUP_TARGET_FOR_COVERAGE_LCOV_RESET defines.
+#
 # SETUP_TARGET_FOR_COVERAGE_LCOV_HTML( NAME testrunner_coverage # New target
 # name EXECUTABLE testrunner -j ${PROCESSOR_COUNT} # Executable in
 # PROJECT_BINARY_DIR DEPENDENCIES testrunner                     # Dependencies
@@ -246,18 +251,29 @@ function(SETUP_TARGET_FOR_COVERAGE_LCOV_HTML)
     return()
   endif() # NOT GENHTML_PATH
 
+  # With an executable: reset the counters and run it. Without one: capture what
+  # an earlier test run left (the counters are reset by the reset target).
+  if(Coverage_EXECUTABLE)
+    set(_resetAndRun
+      COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS}
+              --gcov-tool ${GCOV_PATH} -directory .
+              --zerocounters
+      COMMAND ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
+    )
+    set(_comment "Resetting code coverage counters to zero, running the tests and generating the report.")
+  else()
+    set(_resetAndRun)
+    set(_comment "Processing the code coverage counters of the last test run and generating the report.")
+  endif()
+
   # Setup target
   add_custom_target(
     ${Coverage_NAME}
-    # Cleanup lcov
-    COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS}
-            --gcov-tool ${GCOV_PATH} -directory .
-            --zerocounters # Create baseline to make sure untouched files show
-                           # up in the report
+    ${_resetAndRun}
+    # Baseline from the .gcno files (zero counts), so untouched files show up in
+    # the report; it reads no .gcda, so it may follow the test run.
     COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS}
             --gcov-tool ${GCOV_PATH} -c -i -d . -o ${Coverage_NAME}.base
-                        # Run tests
-    COMMAND ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
             # Capturing lcov counters and generating report
     COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS}
             --gcov-tool ${GCOV_PATH}
@@ -282,8 +298,7 @@ function(SETUP_TARGET_FOR_COVERAGE_LCOV_HTML)
             ${Coverage_NAME}.total ${PROJECT_BINARY_DIR}/${Coverage_NAME}.info
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     DEPENDS ${Coverage_DEPENDENCIES}
-    COMMENT
-      "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
+    COMMENT "${_comment}"
     )
 
   # A clean of the Coverage configuration removes the previous report too.
@@ -301,6 +316,32 @@ function(SETUP_TARGET_FOR_COVERAGE_LCOV_HTML)
       "Lcov code coverage report: ${Coverage_NAME}.info.cleaned, web: ./${Coverage_NAME}/index.html ")
 
 endfunction() # SETUP_TARGET_FOR_COVERAGE_LCOV_HTML
+
+# Defines a target that resets the lcov counters (deletes the .gcda files), to
+# build before the test run that a SETUP_TARGET_FOR_COVERAGE_LCOV_HTML target
+# without EXECUTABLE reports on.
+#
+# SETUP_TARGET_FOR_COVERAGE_LCOV_RESET( NAME code-coverage-reset
+# LCOV_ARGS ... )
+function(SETUP_TARGET_FOR_COVERAGE_LCOV_RESET)
+  set(oneValueArgs NAME)
+  set(multiValueArgs LCOV_ARGS)
+  cmake_parse_arguments(Coverage "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT LCOV_PATH)
+    message(WARNING "lcov not found! No Coverage targets generated...")
+    return()
+  endif() # NOT LCOV_PATH
+
+  add_custom_target(
+    ${Coverage_NAME}
+    COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS}
+            --gcov-tool ${GCOV_PATH} -directory .
+            --zerocounters
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    COMMENT "Resetting code coverage counters to zero."
+    )
+endfunction() # SETUP_TARGET_FOR_COVERAGE_LCOV_RESET
 
 # Defines a target for running and collection code coverage information Builds
 # dependencies, runs the given executable and outputs reports. NOTE! The
