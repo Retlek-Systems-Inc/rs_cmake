@@ -185,6 +185,7 @@ function(UvSetupVenv)
     COMMAND ${CMAKE_COMMAND} -E touch "${stamp_file}"
     WORKING_DIRECTORY "${_arg_PROJECT_DIR}"
     COMMENT "Syncing Python environment `${_arg_VENV_DIR}` with uv from `${_pyproject}`."
+    VERBATIM # quote arguments such as `--python >=3.12` (else the shell reads `>` as a redirect)
   )
 
   set(target_opts)
