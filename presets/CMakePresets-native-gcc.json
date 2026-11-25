@@ -73,9 +73,16 @@
             "configuration": "Coverage"
         },
         {
+            "name": "native-gcc-coverage-reset",
+            "displayName": "Coverage Counters Reset",
+            "description": "Zero the coverage counters before the test run (Native GCC)",
+            "inherits": "native-gcc-coverage",
+            "targets": "code-coverage-reset"
+        },
+        {
             "name": "native-gcc-coverage-report",
             "displayName": "Coverage Reports",
-            "description": "(Native GCC)",
+            "description": "Report on the counters of the last test run (Native GCC)",
             "inherits": "native-gcc-coverage",
             "targets": "code-coverage"
         }
@@ -255,7 +262,7 @@
         {
             "name": "native-gcc-coverage",
             "displayName": "Coverage",
-            "description": "Build, run Unit tests, and reports (Native GCC)",
+            "description": "Build, run the tests once, and report (Native GCC)",
             "steps": [
                 {
                     "type": "configure",
@@ -264,6 +271,10 @@
                 {
                     "type": "build",
                     "name": "native-gcc-coverage"
+                },
+                {
+                    "type": "build",
+                    "name": "native-gcc-coverage-reset"
                 },
                 {
                     "type": "test",

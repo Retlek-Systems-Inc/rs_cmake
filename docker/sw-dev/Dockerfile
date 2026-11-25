@@ -88,7 +88,9 @@ RUN wget -q https://apt.llvm.org/llvm.sh \
     && ./llvm.sh 22 all
 
 # ---------------------------------------------------------
-# Install Python + pre-commit
+# Install Python + uv + pre-commit
+# uv (https://docs.astral.sh/uv/) manages the Python environments (UvSetupVenv / PythonSetupVenv)
+# and the tools; python3-venv stays for PythonSetupVenv(MANAGER venv).
 # hadolint ignore=DL3008
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive \
@@ -96,13 +98,19 @@ RUN apt-get update -y \
     python3 \
     python3-pip \
     python3-venv \
-    pipx \
-    && pipx ensurepath \
-    && pipx install pre-commit==4.3.0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Ensure pipx-installed binaries are in PATH for all future steps
+# hadolint ignore=DL3022
+COPY --from=ghcr.io/astral-sh/uv:0.13.7 /uv /uvx /usr/local/bin/
+
+# Tools installed system-wide (on PATH for every user), not into a project environment.
+ENV UV_TOOL_DIR=/opt/uv/tools \
+    UV_TOOL_BIN_DIR=/usr/local/bin \
+    UV_LINK_MODE=copy
+RUN uv tool install pre-commit==4.6.2 \
+    && chmod -R a+rX /opt/uv
+
 ENV PATH="/usr/local/bin:$PATH"
 
 # ---------------------------------------------------------

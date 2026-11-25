@@ -36,16 +36,26 @@ if(BUILD_TEST)
         )
         message(STATUS "Coverage Excludes: ${COVERAGE_LCOV_EXCLUDES}")
 
+        # gcov dumps the counters at exit while other threads of a test program may still run, so a
+        # branch can read taken more often than its block ran: lcov derives a negative count. Counted as
+        # zero with a warning instead of failing the report.
+        set(_lcovArgs
+            --branch-coverage
+            --function-coverage
+            --ignore-errors mismatch
+            --ignore-errors unused
+            --ignore-errors inconsistent
+            --ignore-errors negative
+        )
+        # The tests run once, in the workflow's test step (its JUnit report included):
+        # ${_coverageTarget}-reset before it, ${_coverageTarget} after it only reports.
+        SETUP_TARGET_FOR_COVERAGE_LCOV_RESET(
+            NAME ${_coverageTarget}-reset
+            LCOV_ARGS ${_lcovArgs}
+        )
         SETUP_TARGET_FOR_COVERAGE_LCOV_HTML(
             NAME ${_coverageTarget}
-            EXECUTABLE ctest
-            EXECUTABLE_ARGS ${CTEST_BUILD_FLAGS}
-            LCOV_ARGS
-                --branch-coverage
-                --function-coverage
-                --ignore-errors mismatch
-                --ignore-errors unused
-                --ignore-errors inconsistent
+            LCOV_ARGS ${_lcovArgs}
             GENHTML_ARGS
                 --rc branch_coverage=1
                 --ignore-errors inconsistent
@@ -53,6 +63,8 @@ if(BUILD_TEST)
                 --demangle-cpp
                 --prefix ${CMAKE_SOURCE_DIR}
         )
+        # Every target exists by now: a clean of the Coverage configuration also removes its gcov files.
+        coverage_clean_files()
     endmacro()
 
     # Prevent overriding the parent project's compiler/linker
@@ -119,14 +131,15 @@ else()
         # Create a code coverage target.
         set(_coverageTarget code-coverage)
 
-        add_custom_target(
-            ${_coverageTarget}
-            COMMAND echo "No coverage when BUILD_TEST=OFF"
-            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-            DEPENDS ${Coverage_DEPENDENCIES}
-            COMMENT
-              "No coverage performed when BUILD_TEST=OFF"
-        )
+        foreach(_target ${_coverageTarget} ${_coverageTarget}-reset)
+            add_custom_target(
+                ${_target}
+                COMMAND echo "No coverage when BUILD_TEST=OFF"
+                WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+                COMMENT
+                  "No coverage performed when BUILD_TEST=OFF"
+            )
+        endforeach()
     endmacro()
 
 endif(BUILD_TEST)

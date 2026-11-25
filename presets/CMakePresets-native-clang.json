@@ -96,6 +96,14 @@
             "configuration": "Coverage"
         },
         {
+            "name": "native-clang-coverage-reset",
+            "displayName": "Coverage Counters Reset",
+            "description": "Needs Support (Native Clang)",
+            "hidden": true,
+            "inherits": "native-clang-coverage",
+            "targets": "code-coverage-reset"
+        },
+        {
             "name": "native-clang-coverage-report",
             "displayName": "Coverage Reports",
             "description": "Needs Support (Native Clang)",
@@ -313,6 +321,10 @@
                 {
                     "type": "build",
                     "name": "native-clang-coverage"
+                },
+                {
+                    "type": "build",
+                    "name": "native-clang-coverage-reset"
                 },
                 {
                     "type": "test",

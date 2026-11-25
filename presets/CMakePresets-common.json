@@ -8,13 +8,10 @@
     "configurePresets": [
         {
             "name": "base",
-            "description": "Base definition for ensuring all configs use common FetchContent base directory",
+            "description": "Base definition for ensuring all configs use common Ninja Multi-config, FetchDir info in sbom.cmake",
             "hidden": true,
             "generator": "Ninja Multi-Config",
-            "binaryDir": "${sourceDir}/build",
-            "cacheVariables": {
-                "FETCHCONTENT_BASE_DIR": "${sourceDir}/.deps"
-            }
+            "binaryDir": "${sourceDir}/build"
         }
     ],
     "testPresets": [

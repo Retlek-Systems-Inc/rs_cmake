@@ -23,16 +23,29 @@
 Setup Python Venv
 -----------------
 
-Create the venv virtual environment for python locally for this repo.
-Sets up default usage of the venv environment for python instead of the machine
-installed version.
+Create a Python virtual environment locally for this repo from a pip requirements file, and
+retarget ``Python3_EXECUTABLE`` to it. For a uv project (``pyproject.toml`` + ``uv.lock``) use
+``UvSetupVenv`` instead.
 
-PythonSetupVenv(
-    [EXCLUDE_FROM_ALL]
-    [VERSION <Python version>]
-    [VENV_DIR <full .venv dir location>] - default is "${CMAKE_SOURCE_DIR}/.venv"
-    REQUIREMENTS <pip requirements.txt file>
-)
+.. code-block:: cmake
+
+  PythonSetupVenv(
+      [EXCLUDE_FROM_ALL]
+      [VERSION <Python version>]
+      [VENV_DIR <full .venv dir location>] - default is "${CMAKE_SOURCE_DIR}/.venv"
+      [MANAGER <uv|venv>]                  - default is RS_PYTHON_ENV_MANAGER
+      REQUIREMENTS <pip requirements.txt file>
+  )
+
+``MANAGER``:
+
+- ``uv`` (default): ``uv venv --seed`` creates the environment and ``uv pip install -r`` installs
+  the requirements. When ``uv`` is not installed this falls back to ``venv`` with a warning.
+- ``venv`` (backward compatibility): ``python3 -m venv`` and ``pip install -r``; ``ruff`` is
+  installed alongside for ``PythonLint``.
+
+The default comes from the cache variable ``RS_PYTHON_ENV_MANAGER`` (``uv``), e.g.
+``-DRS_PYTHON_ENV_MANAGER=venv`` selects ``venv`` for every call.
 
 Examples:
 
@@ -44,31 +57,60 @@ Examples:
 
 The following targets are created using this command:
 
-.. variable:: SetupPythonEnv()
+.. variable:: SetupPythonEnv
 
-The Python3 executable is retargeted to the venv directory at configuration time
-The default VENV_DIR was selected to support VSCode IDE
-
+The Python3 executable is retargeted to the venv directory at configure time.
+The default VENV_DIR was selected to support the VSCode IDE.
 #]=======================================================================]
+
+set(RS_PYTHON_ENV_MANAGER "uv" CACHE STRING "Python environment manager of PythonSetupVenv: uv or venv")
+set_property(CACHE RS_PYTHON_ENV_MANAGER PROPERTY STRINGS uv venv)
 
 function(PythonSetupVenv)
   include( CMakeParseArguments )
-  cmake_parse_arguments(_arg "EXCLUDE_FROM_ALL" "VERSION;VENV_DIR;REQUIREMENTS" "" ${ARGN})
+  cmake_parse_arguments(_arg "EXCLUDE_FROM_ALL" "VERSION;VENV_DIR;REQUIREMENTS;MANAGER" "" ${ARGN})
 
   if(NOT _arg_VENV_DIR )
     set(_arg_VENV_DIR ${CMAKE_SOURCE_DIR}/.venv )
+  endif()
+  if(NOT _arg_MANAGER)
+    set(_arg_MANAGER "${RS_PYTHON_ENV_MANAGER}")
+  endif()
+  if(NOT _arg_MANAGER MATCHES "^(uv|venv)$")
+    message(FATAL_ERROR "PythonSetupVenv: MANAGER must be uv or venv, not ${_arg_MANAGER}")
+  endif()
+  if(_arg_MANAGER STREQUAL "uv")
+    find_program(UV_EXECUTABLE uv)
+    if(NOT UV_EXECUTABLE)
+      message(WARNING "PythonSetupVenv: uv not found, falling back to python3 -m venv")
+      set(_arg_MANAGER venv)
+    endif()
   endif()
 
   set(stamp_file ${_arg_VENV_DIR}/venv.stamp)
 
   if(EXISTS "${_arg_VENV_DIR}")
     message(STATUS "PythonSetupVenv: Using existing ${_arg_VENV_DIR}")
+  elseif(_arg_MANAGER STREQUAL "uv")
+    message(STATUS "PythonSetupVenv: Creating a new ${_arg_VENV_DIR} with uv")
+    set(_python_arg)
+    if(_arg_VERSION)
+      set(_python_arg --python ${_arg_VERSION})
+    endif()
+    # --seed: pip in the environment, as with python3 -m venv.
+    execute_process(
+      COMMAND "${UV_EXECUTABLE}" venv --seed ${_python_arg} ${_arg_VENV_DIR}
+      RESULT_VARIABLE _rc
+    )
+    if(NOT _rc EQUAL 0)
+      message(FATAL_ERROR "PythonSetupVenv: uv venv failed (${_rc})")
+    endif()
   else()
     message(STATUS "PythonSetupVenv: Creating a new ${_arg_VENV_DIR}")
     set(ENV{VIRTUAL_ENV} "")
     set(Python3_FIND_VIRTUALENV STANDARD)
     find_package (Python3 ${_arg_VERSION} REQUIRED COMPONENTS Interpreter)
-  
+
     if (NOT DEFINED Python3_EXECUTABLE)
       message(FATAL_ERROR "Python not defined, use `find_package(Python ... REQUIRED)")
     endif()
@@ -78,13 +120,23 @@ function(PythonSetupVenv)
     )
   endif()
 
+  if(_arg_MANAGER STREQUAL "uv")
+    set(_install_cmds
+      COMMAND "${UV_EXECUTABLE}" pip install --python ${_arg_VENV_DIR}/bin/python -r ${_arg_REQUIREMENTS} --upgrade
+    )
+  else()
+    set(_install_cmds
+      COMMAND ${_arg_VENV_DIR}/bin/pip install ruff --upgrade
+      COMMAND ${_arg_VENV_DIR}/bin/pip install -r ${_arg_REQUIREMENTS} --upgrade
+    )
+  endif()
+
   add_custom_command(
     OUTPUT ${stamp_file}
     DEPENDS ${_arg_REQUIREMENTS}
-    COMMAND ${_arg_VENV_DIR}/bin/pip install black isort flake8 pylint --upgrade
-    COMMAND ${_arg_VENV_DIR}/bin/pip install -r ${_arg_REQUIREMENTS} --upgrade
+    ${_install_cmds}
     COMMAND ${CMAKE_COMMAND} -E touch ${stamp_file}
-    COMMENT "Installing Python requirements in `${_arg_VENV_DIR}` from `${_arg_REQUIREMENTS}`."
+    COMMENT "Installing Python requirements in `${_arg_VENV_DIR}` from `${_arg_REQUIREMENTS}` (${_arg_MANAGER})."
   )
 
   set(target_opts)
@@ -99,18 +151,13 @@ function(PythonSetupVenv)
 
   # Retarget the Python3 executable.
   # Check if Python3_EXECUTABLE already points to .venv
-  string(FIND "${_arg_VENV_DIR}" "${Python3_EXECUTABLE}" find_loc)
+  string(FIND "${Python3_EXECUTABLE}" "${_arg_VENV_DIR}" find_loc)
   if("${find_loc}" EQUAL 0)
     # Already pointing to venv so no need to re-target.
     return()
   endif()
 
-  set(ENV{VIRTUAL_ENV} ${_arg_VENV_DIR})
-  set(Python3_FIND_VIRTUALENV ONLY)
-  unset (Python3_EXECUTABLE)
-  find_package(Python3 COMPONENTS Interpreter Development)
-  if (NOT DEFINED Python3_EXECUTABLE)
-    message(FATAL_ERROR "Python not defined, delete the ${_arg_VENV_DIR} and run rebuild_cache and SetupPythonEnv")
-  endif()
+  _rs_python_use_venv("${_arg_VENV_DIR}")
+  set(Python3_EXECUTABLE "${Python3_EXECUTABLE}" PARENT_SCOPE)
 
 endfunction(PythonSetupVenv)

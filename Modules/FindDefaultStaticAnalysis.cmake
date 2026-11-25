@@ -25,7 +25,9 @@ option(STATIC_ANALYSIS "Use Static Analysis tools." OFF)
 
 if(STATIC_ANALYSIS)
     # This is used to add targets like third-party libraries that we want to bypass static analysis.
-    add_custom_target(BypassStaticAnalysis)
+    if (NOT TARGET BypassStaticAnalysis)
+      add_custom_target(BypassStaticAnalysis)
+    endif()
 
     option(USE_CLANG_TIDY "Use Clang Tidy to view any inefficiencies or good practices." ON)
 
