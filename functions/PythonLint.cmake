@@ -23,22 +23,29 @@
 PythonLint
 ----------
 
-Lints a list of code with isort, black, flake8, and pylint
+Lints and format-checks a list of Python files with ruff (``ruff check`` and
+``ruff format --check``), which replaces isort, black, flake8, pylint and pyupgrade.
+Configure the rules in the project's ``pyproject.toml`` / ``ruff.toml`` (``[tool.ruff]``).
 
-PythonLint(
-  TARGET  <target name to lint>
-  SOURCES   <filename> [<filename> ...]
-  [LINE_LENGTH <max line length>] - defaults to 200
-  [FLAKE8_ARGS <args> [<args> ...]]
-  [PYLINT_ARGS <args> [<args> ...]]
-)
+.. code-block:: cmake
+
+  PythonLint(
+    TARGET  <target name to lint>
+    SOURCES   <filename> [<filename> ...]
+    [LINE_LENGTH <max line length>]         - defaults to 200
+    [RUFF_VERSION <version>]                - ruff version when run through `uv tool run`
+    [CHECK_ARGS <args> [<args> ...]]        - extra `ruff check` arguments
+    [FORMAT_ARGS <args> [<args> ...]]       - extra `ruff format` arguments
+  )
+
+ruff is taken from the active virtual environment, then the ``PATH``, then ``uv tool run ruff``.
+``FLAKE8_ARGS`` / ``PYLINT_ARGS`` are accepted for backward compatibility and ignored.
 
 Examples:
 
 .. code-block:: cmake
 
-  # First setup virtual env.
-  PythonSetupVenv(REQUIREMENTS requirements.txt)
+  UvSetupVenv(GROUPS dev)
   PythonLint(
      TARGET foo
      SOURCES
@@ -46,7 +53,7 @@ Examples:
      LINE_LENGTH 200
   )
 
-The following variables are defined by this module:
+The following targets are defined by this module:
 
 .. variable:: PythonLint_<target name>
 
@@ -55,22 +62,11 @@ Execution of PythonLint_<target name> will result in a
 #]=======================================================================]
 
 function(PythonLint)
-    find_package(Python3 COMPONENTS Interpreter REQUIRED)
-    if(NOT DEFINED Python3_EXECUTABLE)
-        message(AUTHOR_WARNING "PythonLint: Python3 not defined, use `find_package(Python3 ... REQUIRED)")
-        return()
-    endif()
-
-    find_python_module(black REQUIRED)
-    find_python_module(isort REQUIRED)
-    find_python_module(flake8 REQUIRED)
-    find_python_module(pylint REQUIRED)
-
     include( CMakeParseArguments )
     cmake_parse_arguments(_arg
                           ""
-                          "TARGET;LINE_LENGTH"
-                          "SOURCES;FLAKE8_ARGS;PYLINT_ARGS"
+                          "TARGET;LINE_LENGTH;RUFF_VERSION"
+                          "SOURCES;CHECK_ARGS;FORMAT_ARGS;FLAKE8_ARGS;PYLINT_ARGS"
                           ${ARGN})
 
     if( NOT _arg_TARGET )
@@ -85,12 +81,34 @@ function(PythonLint)
         set(_arg_LINE_LENGTH 200)
     endif()
 
-    if(NOT _arg_FLAKE8_ARGS)
-        set(_arg_FLAKE8_ARGS)
+    if(_arg_FLAKE8_ARGS OR _arg_PYLINT_ARGS)
+        message(AUTHOR_WARNING "PythonLint: FLAKE8_ARGS/PYLINT_ARGS are ignored - ruff replaced flake8 and pylint, use CHECK_ARGS")
     endif()
 
-    if(NOT _arg_PYLINT_ARGS)
-        set(_arg_PYLINT_ARGS)
+    set(_ruff)
+    set(_hints)
+    if(DEFINED ENV{VIRTUAL_ENV})
+        list(APPEND _hints "$ENV{VIRTUAL_ENV}/bin")
+    endif()
+    if(DEFINED Python3_EXECUTABLE)
+        get_filename_component(_py_bin "${Python3_EXECUTABLE}" DIRECTORY)
+        list(APPEND _hints "${_py_bin}")
+    endif()
+    find_program(RUFF_EXECUTABLE ruff HINTS ${_hints})
+    if(RUFF_EXECUTABLE)
+        set(_ruff "${RUFF_EXECUTABLE}")
+    else()
+        find_program(UV_EXECUTABLE uv)
+        if(UV_EXECUTABLE)
+            set(_ruff_spec ruff)
+            if(_arg_RUFF_VERSION)
+                set(_ruff_spec "ruff@${_arg_RUFF_VERSION}")
+            endif()
+            set(_ruff "${UV_EXECUTABLE}" tool run ${_ruff_spec})
+        else()
+            message(AUTHOR_WARNING "PythonLint: neither ruff nor uv found - PythonLint_${_arg_TARGET} not created")
+            return()
+        endif()
     endif()
 
     set(_rpt_file ${CMAKE_CURRENT_BINARY_DIR}/${_arg_TARGET}_python_lint.rpt)
@@ -101,11 +119,9 @@ function(PythonLint)
         DEPENDS
             ${_arg_SOURCES}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMAND ${Python3_EXECUTABLE} -m black  --line-length     ${_arg_LINE_LENGTH} ${_arg_SOURCES} >  ${_rpt_file}
-        COMMAND ${Python3_EXECUTABLE} -m isort  --line-length     ${_arg_LINE_LENGTH} ${_arg_SOURCES} >> ${_rpt_file}
-        COMMAND ${Python3_EXECUTABLE} -m flake8 --max-line-length ${_arg_LINE_LENGTH} ${_arg_FLAKE8_ARGS} ${_arg_SOURCES} >> ${_rpt_file}
-        COMMAND ${Python3_EXECUTABLE} -m pylint --max-line-length ${_arg_LINE_LENGTH} ${_arg_PYLINT_ARGS} ${_arg_SOURCES} >> ${_rpt_file}
-    COMMENT "Linting for ${arg_TARGET} Python Files"
+        COMMAND ${_ruff} check  --line-length ${_arg_LINE_LENGTH} --output-file ${_rpt_file} ${_arg_CHECK_ARGS} ${_arg_SOURCES}
+        COMMAND ${_ruff} format --check --diff --line-length ${_arg_LINE_LENGTH} ${_arg_FORMAT_ARGS} ${_arg_SOURCES}
+        COMMENT "Linting ${_arg_TARGET} Python files with ruff"
     )
     add_custom_target( PythonLint_${_arg_TARGET} DEPENDS ${_rpt_file})
 endfunction(PythonLint)

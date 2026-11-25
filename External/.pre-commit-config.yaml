@@ -14,26 +14,14 @@ repos:
     -   id: gitleaks
     repo: https://github.com/gitleaks/gitleaks
     rev: v8.30.0
--   repo: https://github.com/asottile/pyupgrade
-    rev: v3.21.2
+# Python: ruff replaces pyupgrade (UP), isort (I), black (ruff-format) and flake8 (E/F/W).
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.3
     hooks:
-    -   id: pyupgrade
-        args: [--py311-plus]
--   repo: https://github.com/psf/black
-    rev: 26.1.0
-    hooks:
-    -   id: black
-        args: [--line-length, "200"]
--   repo: https://github.com/PyCQA/isort
-    rev: 7.0.0
-    hooks:
-    -   id: isort
-        args: [--line-length, "200"]
--   repo: https://github.com/PyCQA/flake8
-    rev: 7.3.0
-    hooks:
-    -   id: flake8
-        args: [--max-line-length=200]
+    -   id: ruff-check
+        args: [--line-length=200, --extend-select=I,UP, --fix]
+    -   id: ruff-format
+        args: [--line-length=200]
 -   repo: local
     hooks:
     -   id: clang-format-local
